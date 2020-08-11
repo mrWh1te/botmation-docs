@@ -1,11 +1,11 @@
 module.exports = {
   siteMetadata: {
-    siteTitle: `@rocketseat/gatsby-theme-docs`,
-    defaultTitle: `@rocketseat/gatsby-theme-docs`,
-    siteTitleShort: `gatsby-theme-docs`,
-    siteDescription: `Out of the box Gatsby Theme for creating documentation websites easily and quickly`,
-    siteUrl: `https://rocketdocs.netlify.com`,
-    siteAuthor: `@rocketseat`,
+    siteTitle: `Botmation Documentation`,
+    defaultTitle: `Botmation Documentation`,
+    siteTitleShort: `Botmation Docs v2.0.0`,
+    siteDescription: `Documentation for the TypeScript library Botmation`,
+    siteUrl: `https://botmation.dev`,
+    siteAuthor: `Michael Lage`,
     siteImage: `/banner.png`,
     siteLanguage: `en`,
     themeColor: `#7159c1`,
