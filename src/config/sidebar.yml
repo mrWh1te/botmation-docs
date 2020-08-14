@@ -39,11 +39,11 @@
 - label: 'Helper'
   items:
     - label: 'Console'
-      link: '/usage/shadowing'
+      link: '/helper/console'
     - label: 'Files'
-      link: '/usage/shadowing'
+      link: '/helper/files'
     - label: 'Navigation'
-      link: '/usage/shadowing'
+      link: '/helper/navigation'
     - label: 'Pipe'
-      link: '/usage/shadowing'
+      link: '/helper/pipe'
     
