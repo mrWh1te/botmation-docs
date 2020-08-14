@@ -6,6 +6,8 @@
   link: '/overview'
 - label: 'Getting started'
   link: '/getting-started'
+- label: 'Advanced'
+  link: '/advanced'
 - label: 'Tutorial'
   link: '/tutorial'
 - label: 'BotAction'
