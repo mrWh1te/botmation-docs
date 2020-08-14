@@ -169,3 +169,15 @@ So if any actions in the assembled `errors()()` call throws an error, the error 
 `errors()()` checks the higher order context `injects` for a Pipe, and runs the assembled actions in a Pipe, only if a Pipe was detected. It tries to keep the style of assembly consistent.
 
 Also, you can nest `errors()()` as deeply as you want. This is to help isolate, tough to find async bugs, in deeply nested assembly lines. Make sure to give each one an uniquely identifying Error Block Name, so you can identify where the error was caught. If a nested `errors()()` catches a thrown error, it swallows it, so higher level `errors()()` will not see it. This helps isolate bugs in the async functionality.
+
+## Running Bots Concurrently
+
+Use the [puppeteer-cluster](https://github.com/thomasdondorf/puppeteer-cluster) module to run Bots concurrently!
+
+To get started, check out the [examples/puppeteer-cluster.ts](https://github.com/mrWh1te/Botmation/blob/master/src/examples/puppeteer-cluster.ts) on how to set up multiple bots. You can use both the Object-Oriented class or go purely Functional. The example has both. 
+
+If you have setup the [Playground Bot](/getting-started#playground-bot), you can build the code and try out the cluster example:
+
+```bash
+npm run build && npm run examples/puppeteer-cluster
+```

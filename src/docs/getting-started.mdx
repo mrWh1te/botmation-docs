@@ -22,6 +22,13 @@ While `Botmation` source code works with Puppeteer version 3, 4, and 5, the E2E 
 
 > If you want to use Botmation with the latest Puppeteer version, for now, clone the repo locally and work from the playground bot. From there you can install the latest `@types/puppeteer` and `puppeteer` packages then build Botmation source code with it. But, be wary, the E2E tests will become rather unstable.
 
+Then import any function, BotAction and Helper, from the `botmation` module:
+```typescript
+import { chain, goTo, screenshot } from 'botmation';
+```
+
+As a reference, there are 12 groups of BotAction's, as of v2.0.0. Each one is listed in the sidebar under BotAction.
+
 After that, you are ready 🚀
 
 ## Examples
@@ -38,7 +45,13 @@ You can copy/paste the code or setup Botmation's repo locally to run the Bots fr
 ## Playground Bot
 
 If you just want to play with this project without setting one up yourself, the quickest way is to:
+
 1) Clone this repo locally
+```bash
+git clone git@github.com:mrWh1te/Botmation.git
+cd Botmation
+```
+
 2) Install the npm dependencies while ignoring scripts: 
 ```bash
 npm install --ignore-scripts
@@ -69,17 +82,3 @@ npm run examples/pdf
 ```
 
 Have fun!
-
-## Running Bots Concurrently
-
-Botmation is compatible with the [puppeteer-cluster](https://github.com/thomasdondorf/puppeteer-cluster) module, making it easy to run multiple bots concurrently!
-
-To get started, check out the [examples/puppeteer-cluster.ts](https://github.com/mrWh1te/Botmation/blob/master/src/examples/puppeteer-cluster.ts) on how to set up multiple bots. You can use both the Object-Oriented class or go purely Functional. The example has both. 
-
-Clone this repo locally, install the npm dependencies, then run this command to try out the example:
-
-```bash
-npm run build && npm run examples/puppeteer-cluster
-```
-
-It will build the project source code then run the `puppeteer-cluster` example.
