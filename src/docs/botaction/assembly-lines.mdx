@@ -2,3 +2,28 @@
 title: 'Assembly Lines'
 ---
 
+These higher order functions run and compose Bots through a declarative call. They are a vital part of Botmation.
+
+## Chain
+```typescript
+chain(...actions: BotAction[]) => BotAction
+```
+Assembles the declared actions for running in the returned BotAction. If the `injects` have a Pipe, the Chain removes it before running the first action.
+
+## Pipe
+```typescript
+pipe(valueToPipe?: any) => (...actions: BotAction<PipeValue|void>[]) => BotAction<any>
+```
+Assembles the declared actions in the second call in a Pipe and overwrites any potential injected Pipe with a new value wrapped in a Pipe, if a value is given for `valueToPipe`.
+
+## Assembly Line
+```typescript
+assemblyLine(forceInPipe: boolean = false) => (...actions: BotAction<any>[]) => BotAction<any>
+```
+Assembles the declared actions in the second call to run in either a Pipe or a Chain, depending on if the Injects have a Pipe (then run in a Chain) or if the `forceInPipe` value is provided as `true` (then run in a Pipe). If there are no Pipe values, that is considered an empty Pipe.
+
+## Pipe Action Or Actions
+```typescript
+pipeActionOrActions(actionOrActions: BotAction<PipeValue> | BotAction<PipeValue>[]) => BotAction<PipeValue|undefined>
+```
+This is a unique kind of Pipe for special cases when you don't know if you're given an array of BotAction's or just one BotAction that is different than the typical spread array of BotAction's. One of the "Utilities" uses this in support of the closure function.

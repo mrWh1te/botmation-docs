@@ -2,3 +2,28 @@
 title: 'Local Storage'
 ---
 
+These focus on interacting with the Page's Local Storage.
+
+## Clear All Local Storage
+```typescript
+clearAllLocalStorage: BotAction
+```
+Clears all key/value pairs in Local Storage
+
+## Remove Local Storage Item
+```typescript
+removeLocalStorageItem(key?: string) => BotAction
+```
+Removes one key/value pair from Local Storage based on the key provided through the higher-order params or Pipe. The key can be passed in as the Pipe's value or as the Pipe's value wrapped object ie `{key: 'some-key'}`.
+
+## Set Local Storage Item
+```typescript
+setLocalStorageItem(key?: string, value?: string) => BotAction
+```
+Sets one key/value pair in Local Storage by the key provided. Both the key and value can be passed in through a mixture of higher-order params and Pipe values. Higher-order params override injected values, including Pipe. The Pipe value can be value you want to set directly, or an object for the key and/or value ie `{key: 'some-key', value: 'some-value'}`.
+
+## Get Local Storage Item
+```typescript
+getLocalStorageItem(key?: string) => BotAction<string|null>
+```
+Gets the value of one item from Local Storage by key. If the key does not exist, it returns `null`, just like Local Storage. The key can be Piped in as the Pipe's value or an object wrapped key ie `{key: 'some-key'}`.

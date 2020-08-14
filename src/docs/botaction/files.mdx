@@ -2,3 +2,33 @@
 title: 'Files'
 ---
 
+These focus on building and saving files to the local disk like taking a screenshot of the current window or generating a PDF of the whole page.
+
+These functions, and the Cookies' actions, are all compatible with the higher-order `files()()` BotAction to customize the `injects` with `BotFileOptions` for all assembled actions. The `BotFilesAction` interface types the `injects` expected when assembled inside `files()()`.
+
+## Files
+```typescript
+files(fileOptions?: Partial<BotFileOptions>) => 
+  (...actions: BotAction[]) => BotAction
+```
+A higher-order `BotAction` that will take a partial of `BotFileOptions`, enrich them with safe defaults, then inject it as the first inject for all assembled actions in the second call.
+
+## Screenshot
+```typescript
+screenshot(fileName: string) => BotFilesAction
+```
+Takes a screenshot of the current page, where ever it's scrolled too, and saves it as a PNG file with the given file name.
+
+You can change the directory where it's saved by overloading the `BotFileOptions`.
+
+## Screenshot All
+```typescript
+screenshotAll(...urls: string[]) => BotFilesAction
+```
+Simple Bot Action, for taking a screenshot of multiple site pages. Provide a comma separated list of URL strings ie `screenshotAll('https://google.com', 'https://twitter.com')`. It will create the screenshots in the current active directory, which can be adjusted by overloading `BotFileOptions`.
+
+## Save PDF
+```typescript
+savePDF(fileName: string, botFileOptions?: Partial<BotFileOptions>) => BotFilesAction
+```
+Simple Bot Action, for taking a screenshot of multiple site pages. Provide a comma separated list of URL strings ie `screenshotAll('https://google.com', 'https://twitter.com')`. It will create the screenshots in the current active directory, which can be adjusted by overloading `BotFileOptions`.

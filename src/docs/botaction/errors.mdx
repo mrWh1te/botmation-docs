@@ -2,3 +2,11 @@
 title: 'Errors'
 ---
 
+This single `BotAction` provides a way to catch thrown errors in assembled `BotAction`'s. 
+
+## Errors
+```typescript
+errors(errorsBlockName: string = 'Unnamed Errors Block') => 
+  (...actions: BotAction<PipeValue|void>[]) => BotAction<any>
+```
+Log any caught error in the assembled actions with the `errorsBlockName`. After an error is caught, the remaining unran actions are ignored, but the higher order assembly line where the `errors()()` was used, continues, unaffected.

@@ -2,3 +2,36 @@
 title: 'Navigation'
 ---
 
+These higher order functions provide simple ways to change the Page's URL.
+
+## Go To
+```typescript
+goTo(url: string, goToOptions?: DirectNavigationOptions) => BotAction
+```  
+Navigates the page to the url provided, unless the active url is the url provided, then it emits a warning in the console
+  
+Default `goToOptions` are provided, therefore, optional. You can override the defaults with whatever you want, it follows the `DirectNavigationOptions` from the `@types/puppeteer` package
+
+## Go Back
+```typescript
+goBack(options?: NavigationOptions) => BotAction
+```
+Similar to hitting the browser's "Back" button, to load the previous URL.
+
+## Go Forward
+```typescript
+goForward(options?: NavigationOptions) => BotAction
+```
+Similar to hitting the brower's "Forward" button, to go forward after going back.
+
+## Reload
+```typescript
+reload(options?: NavigationOptions) => BotAction
+```
+Similar to hitting the brower's "Refresh" button, to reload the page with the same URL.
+
+## Wait for Navigation
+```typescript
+waitForNavigation: BotAction
+```
+Simply awaits Puppeteer's Page's `waitForNavigation` async method that can be helpful when navigating Single Page Applications after submitting a form that causes the page to change, so we can wait until the Page completes navigation before continuing. 

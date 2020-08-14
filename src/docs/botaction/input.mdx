@@ -2,3 +2,16 @@
 title: 'Input'
 ---
 
+These higher order functions provide a simple way to click elements in the page or type with a keyboard.
+
+## Click
+```typescript
+click(selector: string) => BotAction
+```
+Does a left-mouse click on the HTML element, given the selector provided ie `click('form input[type="submit"]')`
+
+## Type
+```typescript
+type(copy: string) => BotAction
+```
+Will type with a "keyboard" the copy provided ie after clicking a form text input `type('text value')`

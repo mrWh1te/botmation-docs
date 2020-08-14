@@ -2,3 +2,22 @@
 title: 'Console'
 ---
 
+These higher order functions provide a simple way to log messages, warnings, and errors, with a clear colorful syntax in the NodeJS terminal.
+
+## Log
+```typescript
+log(message: string) => BotAction
+```
+Logs a clear green message to the Console. If there is a Pipe, it will log the value too and return the Pipe value to pass it on.
+
+## Warning
+```typescript
+warning(warning: string) => BotAction
+```
+Logs a orange warning message to the Console. If there is a Pipe, it will log the value too and return the Pipe value to pass it on.
+
+## Error
+```typescript
+error(error: string) => BotAction
+```
+Logs a red error message to the Console. If there is a Pipe, it will log the value too and return the Pipe value to pass it on.

@@ -2,3 +2,20 @@
 title: 'Cookies'
 ---
 
+These higher order functions provide a simple way to load and save cookies from and to a Puppeteer page.
+
+You can configure where the cookie JSON files are saved/loaded by using `BotOptions` as an inject or as a higher-order param. Higher-order param values override injected ones.
+
+Also, these functions are compatible with the higher-order `files()()` `BotAction` to configure the URL's for files during assembly for the declared actions.
+
+## Save Cookies
+```typescript
+saveCookies(fileName: string, botFileOptions?: Partial<BotFileOptions>) => BotFilesAction
+```
+Saves the cookies from the Puppeteer page in a JSON file with the name provided
+
+## Load Cookies
+```typescript
+loadCookies(fileName: string, botFileOptions?: Partial<BotFileOptions>) => BotFilesAction
+```
+Loads the cookies from the file specified into the Puppeteer page

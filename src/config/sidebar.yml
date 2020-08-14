@@ -8,8 +8,6 @@
   link: '/getting-started'
 - label: 'Tutorial'
   link: '/tutorial'
-- label: 'Examples'
-  link: '/examples'
 - label: 'BotAction'
   items:
     - label: 'Assembly Lines'

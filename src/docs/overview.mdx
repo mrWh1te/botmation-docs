@@ -2,25 +2,118 @@
 title: 'Overview'
 ---
 
-This library consists of functions from two categories: *BotAction* & *Helper*. BotActions are async functions that handle various tasks in the web. Helper functions reduce boilerplate code in making BotAction's. BotAction's are composed, assembled, and ran by BotAction's.
+Botmation is about building bots with reusable components called BotAction's. This library gives you some to get you started, and gives you some other functions to help you do more with less code called Helper's. 
 
-The premise of Botmation is building bots with reusable components called BotAction's. This library gives you some to help you get started, and gives you Helper functions to help you make your own, while composing complex ones made of actions from both this library and your own! 
+BotAction's are async functions that handle various tasks in the web and a little more. BotAction's are a functional approach to minimize code, they are composable, in that they can be combined as deeply as you want. In essence, they allow nesting of vertical queues where each slot is a higher-order `BotAction` that is customizing the assembly line of async functionality. 
+
+Imagine a line of people at a coffee shop. As line forms, the person last is at the end of the line, and the person first is the first one served. First come, first served. BotAction's work like that, and in this metaphor, it's horizontal. A sequence of functions. However, any one of those, can be a vertical line of people, in this make believed dream world. And at any vertical level, it can go horizontal, and mix it up. It doesn't matter, the structure is composable in both directions, to serve your needs, functionally.
+
+> If you are new to Functional programming, but are familiar with Object-Oriented, consider a single class that wraps units of functionality. An instance of that class will always have that functionality, even if you don't need it *all*, at times.
+> Functional programming looks at a class of functions as separate functions that can be combined, like building blocks, to create more powerful functions. So classes are replaced with compositions of functions. As a metaphor, it's similar to molecules and atoms. Each unique atom is like a unique unit of functionality. Combing them together in a composition creates a system of functionality. You can mix them, match them, replace them, it's a robust structure.
 
 The possibilities are endless.
 
 ## BotAction
+A BotAction is an async function that does a particular thing in the web. For example, change the page URL, take a screenshot of the window, type something with a keyboard, click something with a mouse, manage your Instagram account (login, like friends' posts), run all the tasks of a bot, etc. When these functions are ran together the entire functional composition becomes a bot that crawls the web to perform tasks, it was programmed to do.
 
+These functions are all passed a Puppeteer Page as the first parameter. They are organized by type. Some BotAction's are very simple, without any multiple higher-order sync functions to customize them, whiles others are wrapped in multiple functions that must be called first, before the actual BotAction can be resolved. More on that later.
 
-## Assembling & Running Bots
+## Running BotAction's
+
+BotAction's are async functions. To run them, you only need to resolve their Promises. 
+
+> If you're unfamiliar with async functions in JavaScript, they are simply functions that return Promises. Promises is a way to handle async functionality like reacting to events. This is important since a lot of Puppeteer's API is asynchronous.
+
+For example, this is how you run the `goTo()` BotAction:
+```typescript
+const page = await browser.newPage() // Puppeteer Browser
+
+await goTo('https://example.com')(page)
+await waitForNavigation(page)
+```
+`goTo()` is a actually a higher-order sync function, that accepts the URL to navigate the `page` too, then returns a BotAction, which in this case, is a customized async functionality to change the `page` to the provided URL.
+
+For contrast, `waitForNavigation` was added to show that it is not required to use higher-order sync functions to build BotAction's. They provide a layer of customization for the actual BotAction.
+
+## Composing Bot's
+
+While you can run any BotAction, by themselves, it's more powerful to compose them in a line. That's how Bots are built. Instead, let's change the example above by assembling the two BotAction's in a line, using an Assembly Line BotAction.
+
+Assembly Lines assemble BotAction's in the sequence declared, one by one, for running in the async functionality. The simplest one is called `chain()()`.
 
 ```typescript title=playground_bot.ts
-await chain(
+const page = await browser.newPage()
 
+await chain(
+  goTo('https://example.com'),
+  waitForNavigation
 )(page)
 ```
 
+Here a Bot is composed with a single horizontal chain of BotAction's. The Bot will first navigate to the URL provided, then wait for navigation to complete. As you can see, we write "await" only only once for the Bot, the composition of it all. Also, each BotAction is being assembled, not called. Because, `chain()`'s first call assembles BotAction's in a line to run, when the second call `chain()()`, the actual BotAction, is awaited. See `chain()()` is like `goTo()()`, they both have a higher order sync function to call first before the BotAction can be resolved.
+
 ## Making Static BotAction's
+
+The way you make a BotAction is the same way the library makes them. There's three distinct ways to write a BotAction, from simplest to most complex.
+
+The simplest kind of BotAction is one that has no higher order sync functions to customize the async functionality. It's just a single async function. Let's take a look at an example  from "Navigation", called `waitForNavigation`:
+
+```typescript
+const waitForNavigation: BotAction = async(page) => {
+  await page.waitForNavigation()
+}
+```
+
+This is as simple as it gets. There are no additional layers of functions to customize the BotAction, as you can see, there are no higher-order sync functions wrapping it. Simplicity is great. Static has its advantages.
 
 ## Making Dynamic BotAction's
 
-## Composing Complex BotAction's
+Now what if you want to create a BotAction that is more dynamic, customizable? Let's take a closer look at `goTo()`, from "Navigation", that changes the browser page's URL:
+
+```typescript
+const goTo = (url: string, goToOptions?: Partial<DirectNavigationOptions>): BotAction => 
+  async(page) => {
+    goToOptions = enrichGoToPageOptions(goToOptions)  
+
+    // same url check
+    if (page.url() === url) {
+      return
+    }
+
+    await page.goto(url, goToOptions)
+  }
+```
+
+As we see here, a single higher-order sync function with two params. In the BotAction, the Puppeteer `Page`'s `goto()` method is resolved with `await` and pass in the higher-order `url` and enriched `options` parameter (hydrated with safe defaults), to customize the page change operation.
+
+The higher order parameters can be whatever you need them to be. They're typed as a spread array of `any`, so add more if you need more. Also, you are not limited to one higher-order sync function, so stack them up, as high as need be! The possibilities are endless.
+
+## Composing BotAction's
+
+Now what if you want to create a BotAction to handle a high-level task, like in an User-Story. This BotAction will need to run a bunch of other BotAction's, in order to complete its task. Almost like a mini-bot, but for composable sakes, let's make it its own BotAction for composing in other Bots. For this level of complexity, we compose a BotAction with an `Assembly Line` of BotAction's without resolving the returned BotAction.
+
+Let's get started with a common scenario, like a `login()` BotAction for a basic form:
+
+```typescript
+const login = ({username, password}: {username: string, password: string}): BotAction =>
+  chain(
+      goTo('https://example.com/login.html'),
+      click('form input[name="username"]'),
+      type(username),
+      click('form input[name="password"]'),
+      type(password),
+      click('form button[type="submit"]'),
+      waitForNavigation,
+      log('Login Complete')
+  )
+```
+
+It looks magical, but the typing keeps it all in check for us.
+
+`login()` is a sync function that provides customization for the `username` and `password` entered into the form. It returns a BotAction, which is a Chain of other BotAction's that when ran, are resolved one at a time.
+
+Here, we see only one call of `chain()` (the sync call), and don't see the second call of `chain()()` (the async BotAction call). That's because, we don't want too here. We're not running the bot just yet, but building a bot part to handle logging in. The second call of `chain()()` is for running the Assembly Line of BotAction's declared, like running the assembled bot in the code example at the top.
+
+It's all strongly typed, so if you're worried about remembering when to make the first call or the second, don't. Botmation has your back with strong typing that will catch these errors, and more, through your IDE Intellisense (or during build).
+
+For now, it's best to think about your web crawling tasks as multiple distinct (reusable) steps that can be parts of many bots, as separate functions that are easy to test, and then compose in varying solutions for all kinds of high level problems in web crawling.

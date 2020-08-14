@@ -2,3 +2,11 @@
 title: 'Inject'
 ---
 
+A highly composable BotAction for setting the first few `injects` in a new line of actions while appending the higher order `injects` at the end.
+
+## Inject
+```typescript
+inject(...newInjects: any[]) => 
+  (...actions: BotAction<PipeValue|void>[]) => BotAction<any>
+```
+It is used to compose higher-order injecting assembly-line functions like `files()()` or `indexedDBStore()()`.

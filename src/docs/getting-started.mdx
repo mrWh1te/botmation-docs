@@ -2,22 +2,84 @@
 title: 'Getting started'
 ---
 
+Botmation is a NodeJS library written in TypeScript. You'll need [node.js](http://nodejs.org/) LTS installed and the TypeScript compiler (`tsc`) installed globally (or have a transpiling code step).
+
 ## Install
 
-Install `Botmation` in your project:
+Install Botmation with `npm` and save it as a dependency:
 
 ```bash
 npm i -s botmation
 ```
 
-## Example usage
+If you're just getting started, install `puppeteer` latest v2 & `@types/puppeteer` v3.0.0:
 
-```typescript title=playground_bot.ts
-await chain(
-
-)(page)
+```bash
+npm install -s puppeteer@">=2.0.0 <3.0.0" @types/puppeteer@3.0.0
 ```
 
-Once you have installed the dependencies you will need to create the [navigation](/usage/navigation) and [documentation](/usage/creating-docs) file.
+While `Botmation` source code works with Puppeteer version 3, 4, and 5, the E2E testing has a bug that is limiting the packaging, as of this moment.
+
+> If you want to use Botmation with the latest Puppeteer version, for now, clone the repo locally and work from the playground bot. From there you can install the latest `@types/puppeteer` and `puppeteer` packages then build Botmation source code with it. But, be wary, the E2E tests will become rather unstable.
 
 After that, you are ready 🚀
+
+## Examples
+
+In the `./src/examples` [directory](https://github.com/mrWh1te/Botmation/tree/master/src/examples) of Botmation's repo, exists a small collection of simple bots, to help you get started:
+
+- [Getting Started: Object-Oriented](/src/examples/simple_objectoriented.ts)
+- [Getting Started: Functional](/src/examples/simple_functional.ts)
+- [Taking Screenshots](/src/examples/screenshots.ts)
+- [Logging into Instagram](/src/examples/instagram.ts)
+
+You can copy/paste the code or setup Botmation's repo locally to run the Bots from there.
+
+## Playground Bot
+
+If you just want to play with this project without setting one up yourself, the quickest way is to:
+1) Clone this repo locally
+2) Install the npm dependencies while ignoring scripts: 
+```bash
+npm install --ignore-scripts
+```
+3) Rebuild the Puppeteer dependency (run its scripts): 
+```bash
+npm rebuild puppeteer
+```
+
+4) Edit the Playground Bot's source code: `./src/playground_bot.ts`
+5) After each playground change, build the project code: 
+```bash
+npm run build
+```
+
+6) Run the built playground bot: 
+```bash
+npm run playground
+```
+
+You can also edit and run each example with their own command:
+```bash
+npm run examples/simple_objectoriented
+npm run examples/simple_functional
+npm run examples/instagram
+npm run examples/screenshots
+npm run examples/pdf
+```
+
+Have fun!
+
+## Running Bots Concurrently
+
+Botmation is compatible with the [puppeteer-cluster](https://github.com/thomasdondorf/puppeteer-cluster) module, making it easy to run multiple bots concurrently!
+
+To get started, check out the [examples/puppeteer-cluster.ts](https://github.com/mrWh1te/Botmation/blob/master/src/examples/puppeteer-cluster.ts) on how to set up multiple bots. You can use both the Object-Oriented class or go purely Functional. The example has both. 
+
+Clone this repo locally, install the npm dependencies, then run this command to try out the example:
+
+```bash
+npm run build && npm run examples/puppeteer-cluster
+```
+
+It will build the project source code then run the `puppeteer-cluster` example.

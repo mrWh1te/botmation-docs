@@ -2,3 +2,26 @@
 title: 'IndexedDB'
 ---
 
+These focus on interacting with the Page's local IndexedDB.
+
+## IndexedDBStore
+```typescript
+indexedDBStore(databaseName: string, storeName: string, databaseVersion?: number) => 
+  (...actions: BotAction<PipeValue|void>[]) => BotAction<any>
+```
+Sets the first few `injects` for IndexedDB BotAction's (the two above). This makes it easy to query within one DB Store, by specifying the store name, database name, and optionnally database version once, as those values are injected for assembled BotAction's.
+
+It is not required, in order to use Set or Get IndexedDB Value functions.
+
+## Set IndexedDB Value
+```typescript
+setIndexedDBValue(key?: string, value?: any, storeName?: string, databaseName?: string, databaseVersion?: number) => BotIndexedDBAction<void>
+```
+Sets a `key` in one IndexedDB Store with the provided value. Supports Piping the `key` and `value` in an object ie `{key: 'some-key', value: 'some-value'}`, and injecting the Database name, version (optional), and store name. Higher order params override injected ones.
+
+## Get IndexedDB Value
+```typescript
+getIndexedDBValue(key?: string, storeName?: string, databaseName?: string, databaseVersion?: number) => BotIndexedDBAction<PipeValue>
+```
+Gets a value by `key` in one IndexedDB Store. Supports Piping the `key` as a Pipe value or in an object ie `{key: 'some-key'}`, and injecting: the Database name, version (optional), and store name. Higher order params override injected ones.
+
