@@ -5,23 +5,126 @@ title: 'Examples'
 In the `./src/examples` [directory](https://github.com/mrWh1te/Botmation/tree/master/src/examples) of Botmation's repo, exists a small collection of example bots, pre-built, to help you get started:
 
 ## Object-Oriented Bot
-Classes are great for encapsulating functionality. It's possible to use Botmation to compose instance functions that operate on the bot's `page`.
+Classes are great for encapsulating functionality. It's possible to use Botmation to compose instance functions that operate on the bot's `page`. Here's an example:
 
-- [Getting Started: Object-Oriented](https://github.com/mrWh1te/Botmation/tree/master/src/examples/simple_objectoriented.ts)
+```typescript
+class ExampleSiteBot {
+  private page: Puppeteer.Page;
+
+  constructor(page: Puppeteer.Page) {
+    this.page = page;
+  }
+
+  public async login() {
+    await chain(
+      goTo('http://example.com/login.html'),
+      click('form input[name="username"]'),
+      type(username),
+      click('form input[name="password"]'),
+      type(password),
+      click('form button[type="submit"]'),
+      waitForNavigation,
+      log('Login Complete')
+    )(this.page);
+  }
+
+  public async takeAPhoto(fileName: string) {
+    await screenshot(fileName)(this.page);
+  }
+}
+```
+
+We can create an instance of this class and `await` the `login()` method then `await` the `takeAPhoto()` as needed.
+
+Here is an [object-oriented example](https://github.com/mrWh1te/Botmation/tree/master/src/examples/simple_objectoriented.ts), where the class provides a composable `actions()` method and supports [Injects](advanced/injecting).
 
 ## Functional Bot
-Functional is lean and reduces barriers in reusing code.
+Functional is lean and reduces barriers in reusing code. Here is a [simple functional example](https://github.com/mrWh1te/Botmation/tree/master/src/examples/simple_functional.ts) that takes a screenshot:
 
-- [Getting Started: Functional](https://github.com/mrWh1te/Botmation/tree/master/src/examples/simple_functional.ts)
+```typescript
+const browser = await puppeteer.launch({headless: false});
+const page = await browser.newPage();
+
+// Run the chain of actions
+await chain(
+  log('Bot running'),
+  goTo('https://google.com'),
+  screenshot('google-homepage-screenshot'),
+  log('Screenshot taken')
+)(page);
+```
 
 ## Screenshots Bot
-This example demonstrates the power of Puppeteer in the ease of generating PNG screenshots, but with Botmation, in a composed way.
+This [screenshots example](https://github.com/mrWh1te/Botmation/tree/master/src/examples/screenshots.ts) demonstrates the power of Puppeteer in the ease of generating PNG screenshots, when combined with Botmation, in a composable way, to reduce the amount of code you write in generating screenshots of many websites. It uses an Utility BotAction called [forAll()()](api/utilities#for-all), let's see it in action:
 
-- [Taking Screenshots](https://github.com/mrWh1te/Botmation/tree/master/src/examples/screenshots.ts)
+```typescript
+const browser = await puppeteer.launch({headless: false});
+const page = await browser.newPage();
+
+const newsSites = [
+  'timesofindia.indiatimes.com'
+  'cnn.com',
+  'forbes.com',
+  'global.chinadaily.com.cn',
+  'nytimes.com',
+  'wsj.com',
+  'foxnews.com',
+];
+
+await chain(
+  log('Botmation running'),
+
+  // forAll() iterates a collection ie array
+  forAll(newsSites)(
+    // forAll()() accepts a callback function to call on each iteration
+    (siteName) => ([
+      // 1) The bot visits the site
+      goTo('https://' + siteName, {waitUntil: 'domcontentloaded'}),
+      // 2) The bot saves a screenshot as a PNG locally with the filename provided:
+      screenshot('news-' + siteName)
+    ])
+  ),
+
+  log('Done taking screenshots'),
+)(page);
+```
 
 ## Instagram Bot
-This example is the driving force behind Botmation's design as a means for composing bots to automate social media in pursuit of consuming less, while supporting friends and family more.
 
-This example uses an advanced Utility BotAction called [givenThat()()](api/utilities#given-that), which is in essence a functional if statement. It is used to check the authentication status of the bot, before attempting to login or take a screenshot of the home page, as a logged in user.
+This [Instagram example](https://github.com/mrWh1te/Botmation/tree/master/src/examples/instagram.ts) uses an Utility BotAction called [givenThat()()](api/utilities#given-that) as a functional if statement to check the authentication status of the bot.
 
-- [Logging into Instagram](https://github.com/mrWh1te/Botmation/tree/master/src/examples/instagram.ts)
+Let's look at a simplified version:
+
+```typescript
+const browser = await puppeteer.launch({headless: false});
+const page = await browser.newPage();
+
+await chain(
+  log('Botmation running'),
+
+  goTo(getInstagramBaseUrl()),
+  
+  // lets log in, if we are a guest
+  givenThat(isGuest) (
+    log('is guest so logging in'),
+    login({username: 'account', password: 'password'}), // <- put your username and password here
+  ),
+
+  // in case that log in failed, lets check before we operate as a logged in user
+  givenThat(isLoggedIn)(
+    log('is logged in'),
+
+    screenshot('logged-in')
+  ),
+
+  log('Instagram Bot Done')
+)(page);
+```
+
+`isGuest` and `isLoggedIn` are a special kind of BotAction called ConditionalBotAction. These two, and `login()` are part of the `Botmation` npm package that can be imported for you to use and are specific for Instagram's web app.
+
+> It's currently planned to support Instagram's auth BotAction's inside the Botmation npm package until major v3.0.0. Soon, to be released as a separate new npm package ie `botmation-instagram` will provide the same BotAction's. There will be separate npm packages for each collection of BotAction's focused on a particular website ie Twitter, Instagram, LinkedIn, etc.
+
+ConditionalBotAction's return a Promise that resolves a boolean value. `givenThat()()()` runs the ConditionalBotAction and waits for the value to resolve. If the value resolves `true`, then it runs the assembled BotAction's.
+
+Therefore, the console will log `is guest so logging in` only if the `isGuest` BotAction resolves `true` and similar for `is logged in`.
