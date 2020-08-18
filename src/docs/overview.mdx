@@ -2,16 +2,19 @@
 title: 'Overview'
 ---
 
-Botmation is about building bots with reusable components called BotAction's. This library gives you some to get you started, and gives you some other functions to help you do more with less code called Helper's. 
+Botmation is simple framework for building web bots with highly reusable components called BotAction's.
 
-BotAction's are async functions that handle various tasks in the web and a little more. BotAction's are a functional approach to minimize code, they are composable, in that they can be combined as deeply as you want. In essence, they allow nesting of vertical queues where each slot is a higher-order BotAction that is customizing the assembly line of async functionality. 
+> “Everything should be made as simple as possible, but no simpler.” - Albert Einstein
 
-Imagine a line of people at a coffee shop. As line forms, the person last is at the end of the line, and the person first is the first one served. First come, first served. BotAction's work like that, and in this metaphor, it's horizontal. A sequence of functions. However, any one of those, can be a vertical line of people, in this make believed dream world. And at any vertical level, it can go horizontal, and mix it up. It doesn't matter, the structure is composable in both directions, to serve your needs, functionally.
+BotAction's are async functions that handle various tasks in the web, from very specific operations to high-level assignments. They are designed with a composable pattern, allowing their parts to be used in building new parts, declaring them for new sequences of functionality.
 
-> If you are new to Functional programming, but are familiar with Object-Oriented, imagine a single class that wraps a few functions. An instance of that class will always have that functionality, even if you don't need it *all*.
-> Functional programming looks at a class of functions as separate functions that can be combined, like building blocks, to create more powerful functions. So classes are replaced with powerful composed functions. As a metaphor, it's similar to molecules and atoms. Each unique atom is like a unique function. Combing them together in a composition, creates a system of functionality, a class or a powerful function. You can mix them, match them, replace them, it's a robust pattern with less requirements.
+Imagine a line of people at a coffee shop. As the line forms, the last person who enters the shop joins the end of the line. The first person to get in line is served first. Classic, first come, first served. BotAction's work just like that, they run in the order declared, first declared, first ran. They follow the line they are assembled in. Let's take the metaphor further, any one of those people in the line, can actually represent a whole other line, and infinitely deeper. It doesn't matter, the structure is composable in declaring BotAction's. 
+
+A BotAction can actually be a line of other BotAction's, assembled for running. A BotAction can be a composition of other BotAction's, customizing how the async functionality is handled in the line.
 
 The possibilities are endless.
+
+> If you are new to Functional programming, but are familiar with Object-Oriented, consider this. Functional programming replaces Classes with a composable system for assembling functions together, like building blocks, to compose powerful functions as instances of Classes, using only the functionality required. It's a robust pattern that removes a barrier from code reusability and limits overhead.
 
 ## BotAction
 A BotAction is an async function that does a particular thing in the web. For example, change the page URL, take a screenshot of the window, type something with a keyboard, click something with a mouse, manage your Instagram account (login, like friends' posts), run all the tasks of a bot, etc. When these functions are ran together the entire functional composition becomes a bot that crawls the web to perform tasks, it was programmed to do.
