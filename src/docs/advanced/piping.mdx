@@ -2,13 +2,13 @@
 title: Piping
 ---
 
-There's another kind of Assembly Line, a special kind, for passing data from one BotAction to the next. It's called Pipe. When BotAction's are assembled in a Pipe, the values they return, are "piped" into subsequent BotAction's. This means the Pipe wraps the values resolved from each BotAction, in a branded Pipe object (for type gaurding), called Pipe then injects the Pipe object at the very end of the spread `injects` array.
+There's another kind of Assembly Line, a special kind, for passing data from one BotAction to the next. It's called Pipe. When BotAction's are assembled in a Pipe, the values they return, are "piped" into subsequent BotAction's. Pipes wrap the values resolved from each BotAction, in a branded Pipe object (for type gaurding), then injects the Pipe object at the end of the spread `injects` array for each subsequent BotAction.
 
-This is useful for sharing data, like data scraped from a web page. For example, what if a website stored an auth token in Local Storage? With a Pipe, a BotAction can get the value, then other BotAction's can operate on it through a Pipe. That's where Piping comes in, as it allows a BotAction to return a value for the next BotAction to operate with.
+This is useful for de-composing implicit functionality that depends on data collected from the page. For example, if a website stores the User auth token in Local Storage, a single a BotAction can get the value, then the next BotAction can operate on it, all through a Pipe. 
 
-## Pipe
+## Pipe BotAction
 
-Let's get started with a simple example of writing and reading a value to Local Storage:
+Let's get started with the [pipe()()](api/assembly-lines#pipe) BotAction to assemble BotAction's for writing and reading to Local Storage:
 ```typescript
 await pipe()(
    setLocalStorageItem('userID', '12345'),
@@ -16,23 +16,23 @@ await pipe()(
    log('User ID is in the Pipe') // has '12345' as the Pipe valued logged to console
 )(page)
 ```
-Now, instead of diving into Local Storage BotAction's, let's consider what's happening in the context of this Pipe. `setLocalStorageItem()` sets a key/value in Local Storage, and does *not* return a value. However, `getLocalStorageItem()` reads the value by the `key` provided, then returns the value found. 
+[setLocalStorageItem()](api/local-storage#set-local-storage-item) sets a key/value in Local Storage. It does not return a value. BotAction's assembled in Pipe's don't have to return a value. However, [getLocalStorageItem()](api/local-storage#get-local-storage-item) reads the value by the `key` provided, then returns it. 
 
-> "Console" BotAction's support logging Pipe values, when a Pipe is present, so the `log()` call seen here, will log in additional statement to the console with Pipe value of `"12345"`.
+> "Console" BotAction's support logging Pipe values, when assembled in a Pipe, so the [log()](api/console#log) call seen here, will log in additional statement to the console with the Pipe value of `"12345"`.
 
-`pipe()()()` runs the assembled actions, one at a time, and checks the values returned from each. When a function doesn't return a value, that is considered, emptying the Pipe. Empty pipes are still injected. They look like this:
+`pipe()()()` runs the assembled actions, one at a time, and checks the values returned from each. When a function doesn't return a value, that is considered, emptying the Pipe. Empty pipes are still injected and have an `undefined` value:
 
 ```typescript
-const anEmptyPipe = {
+const anEmptyPipeObject = {
     brand: 'Pipe',
     value: undefined
 }
 ```
-When running a `pipe()()` in a context without one, `pipe()()()` will inject an empty one into the first assembled BotAction, unless you override that by passing in a value to Pipe in the first `pipe()` call.
+When running a `pipe()()` in a context without Piping, `pipe()()()` will inject an empty Pipe object into the first assembled BotAction, unless you override that by passing in a value to in the first `pipe()` call.
 
-No matter what, there is always a Pipe appended at the end of the `injects`, when BotAction's are assembled in a Pipe.
+## BotAction's specific to Piping
 
-There are a collection of BotAction's specific to piping: `map()`, `pipeValue()`, and `emptyPipe`. `map()` accepts a pure function to operate on the Pipe value, so if you want to cast the Pipe value from one type to another, use the `map()` BotAction. Let's see an example, `isGuest` from Instagram auth, uses `map()` to convert the Pipe value to the correct boolean value:
+There are a collection of BotAction's specific to Piping: [map()](api/pipe#map), [pipeValue()](api/pipe#pipe-value), and [emptyPipe](api/pipe#empty-pipe). [map()](api/pipe#map) accepts a pure function to operate on the Pipe value, so if you want to cast the Pipe value from one type to another, use the [map()](api/pipe#map) BotAction. Let's see an example, `isGuest` from Instagram auth, uses [map()](api/pipe#map) to convert the Pipe value to the correct boolean value:
 ```typescript
 const isGuest: ConditionalBotAction = 
   indexedDBStore('redux', 'paths')(
@@ -41,6 +41,8 @@ const isGuest: ConditionalBotAction =
   )
 ```
 Here we are getting a value from the `redux` IndexedDB, a store called `paths`, by the key `users.viewerId`. The returned value (Pipe value) is mapped to the correct values for `isGuest`. Basically, if the `viewerId` is defined, then the Bot is considered logged in, therefore `isGuest` is `false` otherwise it is `true`.
+
+## Helpers for Piping
 
 Also, there are separate functions in this library, that are found in the module, that are not BotAction's, but regular functions, to help reduce boilerplate called Helpers. For example, there are many Helper functions for piping.
 
