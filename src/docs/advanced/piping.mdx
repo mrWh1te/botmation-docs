@@ -1,0 +1,53 @@
+---
+title: Piping
+---
+
+There's another kind of Assembly Line, a special kind, for passing data from one BotAction to the next. It's called Pipe. When BotAction's are assembled in a Pipe, the values they return, are "piped" into subsequent BotAction's. This means the Pipe wraps the values resolved from each BotAction, in a branded Pipe object (for type gaurding), called Pipe then injects the Pipe object at the very end of the spread `injects` array.
+
+This is useful for sharing data, like data scraped from a web page. For example, what if a website stored an auth token in Local Storage? With a Pipe, a BotAction can get the value, then other BotAction's can operate on it through a Pipe. That's where Piping comes in, as it allows a BotAction to return a value for the next BotAction to operate with.
+
+## Pipe
+
+Let's get started with a simple example of writing and reading a value to Local Storage:
+```typescript
+await pipe()(
+   setLocalStorageItem('userID', '12345'),
+   getLocalStorageItem('userID'),
+   log('User ID is in the Pipe') // has '12345' as the Pipe valued logged to console
+)(page)
+```
+Now, instead of diving into Local Storage BotAction's, let's consider what's happening in the context of this Pipe. `setLocalStorageItem()` sets a key/value in Local Storage, and does *not* return a value. However, `getLocalStorageItem()` reads the value by the `key` provided, then returns the value found. 
+
+> "Console" BotAction's support logging Pipe values, when a Pipe is present, so the `log()` call seen here, will log in additional statement to the console with Pipe value of `"12345"`.
+
+`pipe()()()` runs the assembled actions, one at a time, and checks the values returned from each. When a function doesn't return a value, that is considered, emptying the Pipe. Empty pipes are still injected. They look like this:
+
+```typescript
+const anEmptyPipe = {
+    brand: 'Pipe',
+    value: undefined
+}
+```
+When running a `pipe()()` in a context without one, `pipe()()()` will inject an empty one into the first assembled BotAction, unless you override that by passing in a value to Pipe in the first `pipe()` call.
+
+No matter what, there is always a Pipe appended at the end of the `injects`, when BotAction's are assembled in a Pipe.
+
+There are a collection of BotAction's specific to piping: `map()`, `pipeValue()`, and `emptyPipe`. `map()` accepts a pure function to operate on the Pipe value, so if you want to cast the Pipe value from one type to another, use the `map()` BotAction. Let's see an example, `isGuest` from Instagram auth, uses `map()` to convert the Pipe value to the correct boolean value:
+```typescript
+const isGuest: ConditionalBotAction = 
+  indexedDBStore('redux', 'paths')(
+    getIndexedDBValue('users.viewerId'),
+    map(viewerId => viewerId ? false : true),
+  )
+```
+Here we are getting a value from the `redux` IndexedDB, a store called `paths`, by the key `users.viewerId`. The returned value (Pipe value) is mapped to the correct values for `isGuest`. Basically, if the `viewerId` is defined, then the Bot is considered logged in, therefore `isGuest` is `false` otherwise it is `true`.
+
+Also, there are separate functions in this library, that are found in the module, that are not BotAction's, but regular functions, to help reduce boilerplate called Helpers. For example, there are many Helper functions for piping.
+
+To name a few, there are `unpipeInjects()`, `removePipe()`, `getInjectsPipeValue()`, `wrapValueInPipe()`, `pipeInjects()`, and so forth. When starting out with piping, the first three are the most relevant as they help write pipeable BotAction's that can be still be used safely in a Chain.
+
+If you're not interested in whats injected, but need the Pipe value, use `getInjectsPipeValue()` as it has safe fallbacks for when there is no Pipe, in case the BotAction is assembled in a Chain. See the Local Storage BotAction's for examples, in how it's used.
+
+If you're interested in the injects and the Pipe value, use `unpipeInjects()`, which allows you to specify the number of `injects` you're expecting, to safely retrieve them with the Pipe value, even if there was no Pipe, or some `injects` didn't get injected. See the IndexedDB BotAction's for examples.
+
+If you just want the `injects` without any Pipe, use `removePipe()`.

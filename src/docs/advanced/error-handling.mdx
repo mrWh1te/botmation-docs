@@ -1,0 +1,23 @@
+---
+title: Error Handling
+---
+
+Error handling has been omitted entirely from the library's core. Assembly Lines don't try to catch any errors, and this was done in favor of creating a simple composable solution for finding errors in deeply nested assembly lines. Debugging async code is hard & time consuming. So a solution was designed to help narrow down thrown errors to the exact BotAction. This is done with a special type of BotAction, called `errors()()`.
+
+`errors()()` wraps assembled BotAction's in a try/catch, where errors caught are logged to the console with the Errors Block Name provided in the first `errors()` call. Let's see an example:
+
+```typescript
+await chain(
+    errors('A specific error block name')(
+        // actions to run in a wrapped try/catch:
+        goTo('site to scrape'),
+        // ... 
+    ),
+    log('this runs, even if errors()() catches an error')
+)(page)
+```
+So if any actions in the assembled `errors()()` call throws an error, the error is caught by the `errors()()` BotAction and then logged to the console with the Error Block Name provided. After an error is thrown, the remaining assembled actions assembled are ignored (they don't run), but the higher order assembly-line continues.
+
+`errors()()` checks the higher order context `injects` for a Pipe, and runs the assembled actions in a Pipe, only if a Pipe was detected. It tries to keep the style of assembly consistent.
+
+Also, you can nest `errors()()` as deeply as you want. This is to help isolate, tough to find async bugs, in deeply nested assembly lines. Make sure to give each one an uniquely identifying Error Block Name, so you can identify where the error was caught. If a nested `errors()()` catches a thrown error, it swallows it, so higher level `errors()()` will not see it. This helps isolate bugs in the async functionality.

@@ -4,7 +4,7 @@ title: 'Overview'
 
 Botmation is about building bots with reusable components called BotAction's. This library gives you some to get you started, and gives you some other functions to help you do more with less code called Helper's. 
 
-BotAction's are async functions that handle various tasks in the web and a little more. BotAction's are a functional approach to minimize code, they are composable, in that they can be combined as deeply as you want. In essence, they allow nesting of vertical queues where each slot is a higher-order `BotAction` that is customizing the assembly line of async functionality. 
+BotAction's are async functions that handle various tasks in the web and a little more. BotAction's are a functional approach to minimize code, they are composable, in that they can be combined as deeply as you want. In essence, they allow nesting of vertical queues where each slot is a higher-order BotAction that is customizing the assembly line of async functionality. 
 
 Imagine a line of people at a coffee shop. As line forms, the person last is at the end of the line, and the person first is the first one served. First come, first served. BotAction's work like that, and in this metaphor, it's horizontal. A sequence of functions. However, any one of those, can be a vertical line of people, in this make believed dream world. And at any vertical level, it can go horizontal, and mix it up. It doesn't matter, the structure is composable in both directions, to serve your needs, functionally.
 
@@ -35,7 +35,7 @@ await waitForNavigation(page)
 
 For contrast, `waitForNavigation` was added to show that it is not required to use higher-order sync functions to build BotAction's. They provide a layer of customization for the actual BotAction.
 
-## Composing Bot's
+## Building Bot's
 
 While you can run any BotAction, by themselves, it's more powerful to compose them in a line. That's how Bots are built. Instead, let's change the example above by assembling the two BotAction's in a line, using an Assembly Line BotAction.
 
@@ -50,9 +50,13 @@ await chain(
 )(page)
 ```
 
-Here a Bot is composed with a single horizontal chain of BotAction's. The Bot will first navigate to the URL provided, then wait for navigation to complete. As you can see, we write "await" only only once for the Bot, the composition of it all. Also, each BotAction is being assembled, not called. Because, `chain()`'s first call assembles BotAction's in a line to run, when the second call `chain()()`, the actual BotAction, is awaited. See `chain()()` is like `goTo()()`, they both have a higher order sync function to call first before the BotAction can be resolved.
+Here a Bot is composed with a single horizontal chain of BotAction's. The Bot will first navigate to the URL provided, then wait for navigation to complete. As you can see, we write "await" only only once for the Bot, the composition of it all. Also, each BotAction is being assembled, not called. Because, `chain()`'s first call assembles BotAction's in the line declared for running later, when the second call `chain()()`, the actual BotAction, is awaited. 
 
-## Making Static BotAction's
+Bot's are BotAction's, usually an Assembly Line BotAction, but not limited too.
+
+> See `chain()()` is like `goTo()()`, they both have a higher order sync function to call first before the BotAction can be resolved.
+
+## Building Simple BotAction's
 
 The way you make a BotAction is the same way the library makes them. There's three distinct ways to write a BotAction, from simplest to most complex.
 
@@ -66,7 +70,7 @@ const waitForNavigation: BotAction = async(page) => {
 
 This is as simple as it gets. There are no additional layers of functions to customize the BotAction, as you can see, there are no higher-order sync functions wrapping it. Simplicity is great. Static has its advantages.
 
-## Making Dynamic BotAction's
+## Building Dynamic BotAction's
 
 Now what if you want to create a BotAction that is more dynamic, customizable? Let's take a closer look at `goTo()`, from "Navigation", that changes the browser page's URL:
 

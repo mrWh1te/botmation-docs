@@ -1,0 +1,43 @@
+---
+title: 'Playground'
+---
+
+If you just want to play with this project without setting one up yourself, the quickest way is to:
+
+1) Clone this repo locally
+```bash
+git clone git@github.com:mrWh1te/Botmation.git
+cd Botmation
+```
+
+2) Install the npm dependencies while ignoring scripts: 
+```bash
+npm install --ignore-scripts
+```
+3) Rebuild the Puppeteer dependency (run its scripts): 
+```bash
+npm rebuild puppeteer
+```
+
+4) Edit the Playground Bot's source code: `./src/playground_bot.ts`
+
+5) After each playground change, build the project code: 
+```bash
+npm run build
+```
+
+6) Run the built playground bot: 
+```bash
+npm run playground
+```
+
+You can also edit and run each example with their own command:
+```bash
+npm run examples/simple_objectoriented
+npm run examples/simple_functional
+npm run examples/instagram
+npm run examples/screenshots
+npm run examples/pdf
+```
+
+Have fun!

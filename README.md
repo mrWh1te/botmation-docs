@@ -3,9 +3,7 @@
 </p>
 
 <h2 align="center">
-  Botmation.dev
+  <a href="https://botmation.dev" target="_blank">Botmation.dev</a>
 </h2>
 
-<p align="center">
-  Documentation Website built on top of Gatsby and <a href="https://github.com/Rocketseat/gatsby-themes/tree/master/%40rocketseat/gatsby-theme-docs">@rocketseat/gatsby-theme-docs</a>
-</p>
+Documentation Website for the TypeScript library [Botmation](https://github.com/mrWh1te/Botmation) built on top of [Gatsby](https://github.com/gatsbyjs/gatsby) and [@rocketseat/gatsby-theme-docs](https://github.com/Rocketseat/gatsby-themes/tree/master/%40rocketseat/gatsby-theme-docs).

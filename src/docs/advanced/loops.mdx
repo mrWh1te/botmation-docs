@@ -1,0 +1,20 @@
+---
+title: 'Loops'
+---
+
+What about running the same scraping BotAction or actions in a for loop against an array of website url's? It's a common web scraping scenario. Botmation has you covered. From the BotAction's type "Utilities" exists a useful BotAction called `forAll()()` that will iterate a collection (either an object's key/value pairs or an array's values) against a callback function that returns a BotAction or an array of BotAction's.
+
+Let's see an example:
+```typescript
+await chain(
+    forAll(['google', 'facebook'])(
+        (siteDomain) => ([ // name the var whatever desired in the closure
+            goTo('http://' + siteDomain + '.com'),
+            screenshot(siteDomain + '-homepage')
+        ])
+    )
+)(page)
+```
+Here we pass in a collection, an array of site domain's in the first call of `forAll()` then in the second call pass in an anonymous function, a closure, which gets called on each iteration of the collection, which in this case is once for each site domain in the array.
+
+When this `forAll()()` completes, it will have visted and taken screenshots of each domain in the array, in the order declared. See documentation for more details & examples.

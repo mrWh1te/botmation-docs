@@ -1,0 +1,49 @@
+---
+title: Injecting
+---
+
+## BotAction Interface
+
+Let's take a look at the actual BotAction Function interface:
+```typescript
+interface BotAction<R = void, I extends Array<any> = any[]> extends Function {
+  (page: Page, ...injects: I) : Promise<R>
+}
+```
+
+See, there is a second param, after `page` called `injects` which, by default, is a spread array of `any`. It's optional, you don't have to use it. But, it can be handy. All Assembly Lines supports the `injects` system.
+
+If you need to provide an object(s), value(s), service(s), etc. consistently to a line of BotAction's, you can do so by injecting them. Let's see how we inject them in the first place:
+
+```typescript
+const service = new ServiceA()
+const todaysDate = new Date()
+
+await chain(
+    // ... actions
+)(page, service, todaysDate)
+```
+
+The assembled BotAction's in the `chain()` will be called with `service` and `todaysDate` as the second and third parameters.
+
+## Inject BotAction
+
+Now, what if you want to compose a line of actions, but with new injects? You can use the `inject()()` BotAction to pass in new injects, prepended to the higher level injects. A few BotAction's are composed with `inject()()` like `files()()` and `indexedDBStore()()`. Those composed BotAction's inject the first few `injects` provided in the first `inject()` call then pass in the other injects from the higher context, for the declared BotAction's.
+
+Here's an example:
+```typescript
+const generalService = new GeneralService()
+const specialService = new SpecialService()
+
+await chain(
+    inject(specialService)(
+        goTo('http://example.com/special-page.html'),
+        doSomethingSpecial()
+        // these actions have `specialService` as their 1st inject
+        // and `generalService` as their 2nd inject
+    ),
+    log('some message') // this log() BotAction will NOT have `specialService` injected
+                        // but, will still have `generalService` as its 1st inject
+)(page, generalService)
+```
+This gives granular control of what's passed in the spread `injects` array for assembled BotAction's.
