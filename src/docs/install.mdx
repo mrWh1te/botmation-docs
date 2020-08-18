@@ -2,9 +2,9 @@
 title: 'Install'
 ---
 
-Botmation is a NodeJS library written in TypeScript. You'll need [node.js](http://nodejs.org/) LTS installed and the TypeScript compiler (`tsc`) installed globally (or have a transpiling code step).
+Botmation is a [NodeJS](http://nodejs.org/) library written in [TypeScript](https://www.typescriptlang.org/). You'll need [NodeJS](http://nodejs.org/) LTS and [TypeScript](https://www.npmjs.com/package/typescript) installed to build the JavaScript code. Then you're ready to get going with installing Puppeteer and Botmation.
 
-## Install
+## Install Botmation
 
 Install Botmation with `npm` and save it as a dependency:
 
@@ -12,21 +12,27 @@ Install Botmation with `npm` and save it as a dependency:
 npm i -s botmation
 ```
 
+## Install Puppeteer with types
+
 If you're just getting started, install `puppeteer` latest v2 & `@types/puppeteer` v3.0.0:
 
 ```bash
 npm install -s puppeteer@">=2.0.0 <3.0.0" @types/puppeteer@3.0.0
 ```
 
-While `Botmation` source code works with Puppeteer version 3, 4, and 5, the E2E testing has a bug that is limiting the packaging, as of this moment.
+The `@types/puppeteer` package provides typing in TypeScript for Puppeteer.
 
-> If you want to use Botmation with the latest Puppeteer version, for now, clone the repo locally and work from the playground bot. From there you can install the latest `@types/puppeteer` and `puppeteer` packages then build Botmation source code with it. But, be wary, the E2E tests will become rather unstable.
+Botmation source code works with Puppeteer version 3, 4, and 5, but the E2E testing has a bug that is limiting the packaging, as of this moment.
 
-Then import any function, BotAction and Helper, from the `botmation` module:
+> If you want to use Botmation with the latest Puppeteer version, for now, clone the repo locally and work from the [Playground](playground). From there you can install the latest `@types/puppeteer` and `puppeteer` packages then build Botmation source code with them. But, be wary, the E2E tests are unstable at scale.
+
+## Import BotAction's & more
+
+Then import any function, BotAction, Helper, and Instagram specific from the `botmation` module:
 ```typescript
 import { chain, goTo, screenshot } from 'botmation';
 ```
 
-As a reference, there are 12 groups of BotAction's, as of v2.0.0. Each one is listed in the sidebar under BotAction.
+As a reference, there are 12 groups of BotAction's, as of v2.0.0. Each one is linked in the sidebar under API.
 
 After that, you are ready 🚀
