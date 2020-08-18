@@ -2,11 +2,26 @@
 title: 'Examples'
 ---
 
-In the `./src/examples` [directory](https://github.com/mrWh1te/Botmation/tree/master/src/examples) of Botmation's repo, exists a small collection of simple bots, to help you get started:
+In the `./src/examples` [directory](https://github.com/mrWh1te/Botmation/tree/master/src/examples) of Botmation's repo, exists a small collection of example bots, pre-built, to help you get started:
+
+## Object-Oriented Bot
+Classes are great for encapsulating functionality. It's possible to use Botmation to compose instance functions that operate on the bot's `page`.
 
 - [Getting Started: Object-Oriented](https://github.com/mrWh1te/Botmation/tree/master/src/examples/simple_objectoriented.ts)
-- [Getting Started: Functional](https://github.com/mrWh1te/Botmation/tree/master/src/examples/simple_functional.ts)
-- [Taking Screenshots](https://github.com/mrWh1te/Botmation/tree/master/src/examples/screenshots.ts)
-- [Logging into Instagram](https://github.com/mrWh1te/Botmation/tree/master/src/examples/instagram.ts)
 
-You can copy/paste the code or setup Botmation's repo locally to run the Bots from there.
+## Functional Bot
+Functional is lean and reduces barriers in reusing code.
+
+- [Getting Started: Functional](https://github.com/mrWh1te/Botmation/tree/master/src/examples/simple_functional.ts)
+
+## Screenshots Bot
+This example demonstrates the power of Puppeteer in the ease of generating PNG screenshots, but with Botmation, in a composed way.
+
+- [Taking Screenshots](https://github.com/mrWh1te/Botmation/tree/master/src/examples/screenshots.ts)
+
+## Instagram Bot
+This example is the driving force behind Botmation's design as a means for composing bots to automate social media in pursuit of consuming less, while supporting friends and family more.
+
+This example uses an advanced Utility BotAction called [givenThat()()](api/utilities#given-that), which is in essence a functional if statement. It is used to check the authentication status of the bot, before attempting to login or take a screenshot of the home page, as a logged in user.
+
+- [Logging into Instagram](https://github.com/mrWh1te/Botmation/tree/master/src/examples/instagram.ts)
