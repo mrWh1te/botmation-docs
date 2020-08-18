@@ -53,7 +53,7 @@ export const Wrapper = (props) => {
         </a>
       </Top_Right_Corner>
       <Bottom_Right_Corner>
-        <img alt="Baby Bot" src="baby_bot.png" width="100" />
+        <img alt="Baby Bot" src="/baby_bot.png" width="100" />
       </Bottom_Right_Corner>
     </Wrapper_Inner>
   );
