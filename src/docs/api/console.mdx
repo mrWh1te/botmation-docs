@@ -4,20 +4,184 @@ title: 'Console'
 
 These higher order functions provide a simple way to log messages, warnings, and errors, with a clear colorful syntax in the NodeJS terminal.
 
+They will log a [Pipe object](/advanced/piping#pipe-object)'s value, if detected in the [injects](/advanced/injects).
+
 ## Log
+Logs a clear green message to the Console. If a Pipe object is detected, it will log that too and return it, to pass it on.
+
 ```typescript
-log(message: string) => BotAction
+const log = <R = void>(message?: string): BotAction<R> => async (page, ...injects) => {
+  if (message) {
+    logMessage(message)
+  }
+
+  if (injectsHavePipe(injects)) {
+    let pipedValue = getInjectsPipeValue(injects)
+    logPipeValue(pipedValue)
+    console.log('\n')
+    
+    return pipedValue
+  } else {
+    console.log('\n')
+  }
+}
 ```
-Logs a clear green message to the Console. If there is a Pipe, it will log the value too and return the Pipe value to pass it on.
+
+See [login()'s composition](/overview#composing-botactions) for an usage example.
 
 ## Warning
+
+Logs an orange warning message to the Console. If a Pipe object is detected, it will log that too and return it, to pass it on.
+
 ```typescript
-warning(warning: string) => BotAction
+const warning = <R = void>(warning?: string): BotAction<R> => async (page, ...injects) => {
+  if (warning) {
+    logWarning(warning)
+  }
+
+  if (injectsHavePipe(injects)) {
+    let pipedValue = getInjectsPipeValue(injects)
+
+    logPipeValue(pipedValue)
+    return pipedValue
+  }
+}
 ```
-Logs a orange warning message to the Console. If there is a Pipe, it will log the value too and return the Pipe value to pass it on.
+
+Example:
+```typescript
+await chain(
+  warning('This Bot is taking a 30 min break'),
+  wait(1800000)
+)(page)
+```
 
 ## Error
+Logs a red error message to the Console. If a Pipe object is detected, it will log that too and return it, to pass it on.
+
 ```typescript
-error(error: string) => BotAction
+const error = <R = void>(error?: string): BotAction<R> => async (page, ...injects) => {
+  if (error) {
+    logError(error)
+  }
+
+  if (injectsHavePipe(injects)) {
+    let pipedValue = getInjectsPipeValue(injects)
+
+    logPipeValue(pipedValue)
+    return pipedValue
+  }
+}
 ```
-Logs a red error message to the Console. If there is a Pipe, it will log the value too and return the Pipe value to pass it on.
+
+Example:
+```typescript
+await chain(
+  error('This part of the script usually breaks, becareful'),
+  errors('risky code block')(
+    // BotAction's doing error prone stuff
+  )
+)(page)
+```
+
+## Helpers
+
+To share the logging styles for everyone, the styling was separated as reusable Helper functions.
+
+These functions are used by their respective BotAction's, and can be used in your own custom BotAction's, to keep the styling consistent.
+
+> The coloring is provided by [Chalk](https://www.npmjs.com/package/chalk)
+
+All of these functions can be imported from the `botmation` module.
+
+### logMessage()
+```typescript
+const logMessage = (message: string, successTheme: Chalk = chalk.bgGreen) => 
+  console.log(
+    successTheme(appendSpacing(' Log:', 5)) + prependSpacing(message, 1)
+  )
+```
+
+### logWarning()
+```typescript
+const logWarning = (warning: string, warningTheme: Chalk = chalk.bgYellow) => 
+  console.log(
+    warningTheme(' Warning: ') + prependSpacing(warning, 1)
+  )
+```
+
+### logError()
+```typescript
+const logError = (error: string, errorTheme: Chalk = chalk.bgRed) =>
+  console.log(
+    errorTheme(appendSpacing(' Error:', 3)) + prependSpacing(error, 1)
+  )
+```
+
+### logPipeValue()
+```typescript
+const logPipeValue = (value: any, pipeTheme: Chalk = chalk.bgBlue) => {
+  switch(typeof value) {
+    case 'number':
+    case 'string':
+      console.log(
+        pipeTheme(appendSpacing(' - pipe:', 2)) + prependSpacing(value + '', 1)
+      )
+    break
+
+    case 'boolean':
+    case 'function':
+    case 'symbol':
+      console.log(
+        pipeTheme(appendSpacing(' - pipe:', 2)) + prependSpacing(value.toString(), 1)
+      )
+    break
+
+    case 'object':
+      console.log(
+        pipeTheme(appendSpacing(' - pipe:', 2)) + prependSpacing(JSON.stringify(value), 1)
+      )
+    break
+
+    case 'undefined':
+    default:
+      console.log(
+        pipeTheme(appendSpacing(' - pipe:', 2)) + prependSpacing('Empty', 1)
+      )
+  }
+}
+```
+
+### prependSpacing()
+
+```typescript
+const prependSpacing = (copy: string, size: number = 0): string => {
+  if (!size) {
+    return copy
+  }
+
+  let gutter = ''
+  for(let i = 0; i < size; i++) {
+    gutter += ' '
+  } 
+
+  return gutter + copy
+}
+```
+
+### appendSpacing()
+
+```typescript
+const appendSpacing = (copy: string, size: number = 0): string => {
+  if (!size) {
+    return copy
+  }
+
+  let gutter = ''
+  for(let i = 0; i < size; i++) {
+    gutter += ' '
+  } 
+
+  return copy + gutter
+}
+```
