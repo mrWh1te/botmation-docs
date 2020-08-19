@@ -19,8 +19,8 @@
   items:
     - label: 'Piping'
       link: '/advanced/piping'
-    - label: 'Injecting'
-      link: '/advanced/injecting'
+    - label: 'Injects'
+      link: '/advanced/injects'
     - label: 'Conditionals'
       link: '/advanced/conditionals'
     - label: 'Loops'
