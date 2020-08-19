@@ -67,8 +67,6 @@ await bot(page) // <- run the BotAction
 
 `chain()` returns a BotAction, and that BotAction will run the BotAction's in the line declared. So `bot` is an async function, composed from other async functions, all called BotAction's.
 
-Bot's are BotAction's and are usually made from an Assembly Line BotAction, but are not limited too.
-
 ## Making Simple BotAction's
 
 There's three distinct ways to write a BotAction, from simplest to most complex.
@@ -81,7 +79,7 @@ const waitForNavigation: BotAction = async(page) => {
 }
 ```
 
-This is as simple as it gets. There are no additional layers of functions to customize the BotAction, as you can see, it is a single async function that takes a Puppeteer `page` param. Simplicity is great.
+This is as simple as it gets. There are no additional layers of functions to customize the BotAction, as you can see, it is a single async function that takes a Puppeteer `page` param to operate on. Simplicity is great.
 
 ## Making Dynamic BotAction's
 
@@ -107,14 +105,14 @@ The higher order parameters can be whatever you need them to be. They're typed a
 
 ## Composing BotAction's
 
-Now what if you want to create a BotAction that handles a broad task of operations like in a complicated feature. This BotAction will need to run a bunch of other BotAction's, in order to complete its task. Almost like a mini-bot, but for reusability sakes, let's make it as its own BotAction for assembly by any bots.
+Now what if you want to create a BotAction that handles a broad task of operations like in a complicated feature. This BotAction will need to run a bunch of other BotAction's, in order to complete its task. Almost like a mini-bot, but for reusability sake, let's make it, its own BotAction for any other bot.
 
-We compose a BotAction with other BotAction's higher-order functions without resolving the returned BotAction.
+To do this, we compose a new BotAction with other BotAction's using an Assembly Line BotAction.
 
 Let's get started with a common scenario, like a `login()` BotAction for a basic form:
 
 ```typescript
-const login = ({username, password}: {username: string, password: string}): BotAction =>
+const login = (username: string, password: string): BotAction =>
   chain(
     goTo('https://example.com/login.html'),
     click('form input[name="username"]'),
@@ -129,10 +127,6 @@ const login = ({username, password}: {username: string, password: string}): BotA
 
 It looks magical, but the typing keeps it all in check for us.
 
-`login()` is a higher-order function that provides customization for the form's entered `username` and `password` values. It returns a BotAction, a chain of other BotAction's that are resolved one at a time, before the next BotAction.
+`login()` is a higher-order sync function that customizes the BotAction returned. This returned BotAction is a composition of other BotAction's assembled with `chain()`. This works because the first call of `chain()` returns a BotAction. The second call of chain is the async BotAction that would run the declared BotAction's with the customizing parameters from the the higher-order `login()` call.
 
-Here, we see only one call of `chain()` (the sync call), and don't see the second call of `chain()()` (the async BotAction call). That's because, we don't want too here. We're not running the bot just yet, but building a bot part to handle logging in. The second call of `chain()()` is the BotAction that we are returning. Therefore, `login()`'s BotAction is a line of other BotAction's. It's a composition.
-
-If you're worried about remembering when to make the first call or the second, don't. Botmation has your back with strong typing that will catch these errors, and more, in your IDE Intellisense (or during build).
-
-Moving forward, consider your web crawling tasks as multiple distinct steps that can be parts of many bots, each a separate BotAction that is simple to test, and compose in any solution for any web crawling problem.
+This BotAction completes a login flow for an example website. It starts going to the login page, entering the `username` and `password` into their login page's form, then submits the form, and finally waits for the Navigation of the page to complete, before logging `Login Complete` in the NodeJS console.
