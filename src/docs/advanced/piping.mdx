@@ -41,7 +41,9 @@ const isGuest: ConditionalBotAction =
     map(viewerId => viewerId ? false : true),
   )
 ```
-Here we are getting a value from the `redux` IndexedDB, a store called `paths`, by the key `users.viewerId`. The returned value (Pipe value) is mapped to the correct values for `isGuest`. Basically, if the `viewerId` is defined, then the Bot is considered logged in, therefore `isGuest` is `false` otherwise it is `true`.
+> `IndexedDBStore()()` runs assembled BotAction's in a Pipe.
+
+Here we are getting a value from the `redux` IndexedDB database, in a store called `paths`, by the key `users.viewerId`. The returned value (Pipe value) is mapped to the correct value for `isGuest`. Basically, if the `viewerId` is defined, then the Bot is considered logged in, and `isGuest` is `false` otherwise `true`.
 
 ## Helpers for Piping
 

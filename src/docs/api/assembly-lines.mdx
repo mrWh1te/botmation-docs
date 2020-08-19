@@ -33,10 +33,41 @@ const chain =
 See [Building Bots](/overview#building-bots) & [Composing BotAction's](/overview#composing-botactions) for usage examples.
 
 ## Pipe
+Pipes are like Chains except it injects a Pipe object at the end, for all assembled BotAction's. The Pipe object's value is undefined unless a BotAction returns a value. This enables BotAction's to share data forward, to the next BotAction.
+
 ```typescript
-pipe(valueToPipe?: any) => (...actions: BotAction<PipeValue|void>[]) => BotAction<any>
+const pipe =
+  (valueToPipe?: any) => 
+    (...actions: BotAction<PipeValue|void>[]): BotAction<any> => 
+      async(page, ...injects) => {
+        if (injectsHavePipe(injects)) {
+          if (actions.length === 0) {return undefined}
+          if (actions.length === 1) {
+            if (valueToPipe) {
+              return await actions[0](page, ...injects.splice(0, injects.length - 1), wrapValueInPipe(valueToPipe))
+            } else {
+              return await actions[0](page, ...injects)
+            }
+          } else {
+            if (valueToPipe) {
+              return (await pipeRunner(...actions)(page, ...injects.splice(0, injects.length - 1), wrapValueInPipe(valueToPipe)))
+            } else {
+              return (await pipeRunner(...actions)(page, ...injects))
+            }
+          }
+        } else {
+          if (actions.length === 0) {return undefined}
+          else if (actions.length === 1) {
+            return await actions[0](page, ...injects, wrapValueInPipe(valueToPipe))
+          } else {
+            return (await pipeRunner(...actions)(page, ...injects, wrapValueInPipe(valueToPipe)))
+          }
+        }
+      }
 ```
-Assembles the declared actions in the second call in a Pipe and overwrites any potential injected Pipe with a new value wrapped in a Pipe, if a value is given for `valueToPipe`.
+The first call `pipe()` is for setting or overriding a Pipe object's value (for the first BotAction). The second call `pipe()()` assembles declared BotAction's. The third call `pipe()()()` is the actual BotAction to run the assembled BotAction's with piping.
+
+See [Piping](/advanced/piping) for usage examples.
 
 ## Assembly Line
 ```typescript
