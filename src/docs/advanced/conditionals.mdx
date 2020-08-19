@@ -2,31 +2,38 @@
 title: Conditionals
 ---
 
-What if you want to run an assembly line of actions, but only after finding something in the Page to be true? Botmation has you covered with a special type of BotAction called Utilities.
+What if you want to run a line of BotAction's, but only after checking some criteria that a condition must be met first, before these actions are ran? Botmation has you covered with a special type of BotAction called Utilities.
+
+## Functional if statement
 
 Let's get started with the simplest one, called `givenThat()()`, a functional if statement.
 
-Here's a simplified bit of code from the Instagram example that attempts to login, only, *if* the Bot is a Guest:
+Here's a simplified bit of code from the [Instagram example](https://github.com/mrWh1te/Botmation/tree/master/src/examples/instagram.ts) that attempts to login, only, *if* the Bot is a Guest:
 
 ```typescript
 await chain(
-    // "Console" BotAction
     log('Bot is running aka User'),
 
-    // "Utility" BotAction givenThat() 
-    //    Resolves a "Conditional" BotAction for a boolean value
-    //    Only if that value equals TRUE, then the actions assembled are ran
     givenThat(isGuest)(
         log('is guest so logging in'),
         login({username: 'account', password: 'password'}),
     ),
 
     givenThat(isLoggedIn)(
-        log('Bot is logged in')
+        log('Bot is logged in'),
+        screenshot('logged-in-view')
     )
 )(page)
 ```
 
-`givenThat()` accepts a special kind of BotAction called `ConditionalBotAction`. Therefore, `isGuest` and `isLoggedIn` are actually BotAction's with stricter typing that returns a boolean value. If the value returned is `true`, then the assembled actions are ran in a Pipe.
+`givenThat()()` returns a BotAction that run assembled BotAction's only if the BotAction in the first call `givenThat()` resolves `true`.
 
-So what happens is that `givenThat()` resolves the `ConditionalBotAction` which can be a complex composition of actions to determine something, in this case whether or not the Bot is logged in.
+> All Utility BotAction's run assembled BotAction's in a Pipe.
+
+## Conditional BotAction
+
+`givenThat()` accepts a special kind of BotAction called ConditionalBotAction. ConditionalBotAction's only difference from BotAction's are that they return a boolean value.
+
+`isGuest` and `isLoggedIn` are ConditionalBotAction's for Instagram's web app. They are not intended to change the state of the `page` but check the `page` for various conditions like if the Bot is logged in or not. This way, the Instagram `login()` BotAction is ran only if needed. Check the [Instagram example](https://github.com/mrWh1te/Botmation/tree/master/src/examples/instagram.ts) for more.
+
+For a more technical explanation, `givenThat()()` returns a customized BotAction for the whole flow. When you resolve the returned BotAction, it runs through a series of steps. First, it resolves the `ConditionalBotAction` in a Pipe for the value it returns. Then checks that value and if that value is `true` then it runs the assembled BotAction's.
