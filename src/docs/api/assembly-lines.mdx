@@ -2,13 +2,35 @@
 title: 'Assembly Lines'
 ---
 
-These higher order functions run and compose Bots through a declarative call. They are a vital part of Botmation.
+These higher order functions provide a way to assemble other BotAction's declaratively. They are a vital part of Botmation.
 
 ## Chain
+Imagine a bunch of circular links in a line forming a chain. Each link is a separate BotAction to be run in the order declared. All BotAction's operate in the same Puppeteer `page` provided.
+
 ```typescript
-chain(...actions: BotAction[]) => BotAction
+const chain =
+  (...actions: BotAction[]): BotAction =>
+    async(page, ...injects) => {
+      if (injectsHavePipe(injects)) {
+        if (actions.length === 0) {}
+        else if(actions.length === 1) {
+          await actions[0](page, ...injects.splice(0, injects.length - 1))
+        } else {
+          await chainRunner(...actions)(page, ...injects.splice(0, injects.length - 1))
+        }
+      } else {
+        if (actions.length === 0) {}
+        else if(actions.length === 1) {
+          await actions[0](page, ...injects)
+        } else {
+          await chainRunner(...actions)(page, ...injects)
+        }
+      }
+    }
 ```
-Assembles the declared actions for running in the returned BotAction. If the `injects` have a Pipe, the Chain removes it before running the first action.
+`chain()` assembled BotAction's in the first call then returns a BotAction to run those declared BotAction's in line. If the Chain detects a [Pipe object](/advanced/piping#pipe-object) in the [injects](/advanced/injects), the Chain removes it from the BotAction's  `injects`.
+
+See [Building Bots](/overview#building-bots) & [Composing BotAction's](/overview#composing-botactions) for usage examples.
 
 ## Pipe
 ```typescript

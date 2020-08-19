@@ -20,6 +20,7 @@ await pipe()(
 
 > "Console" BotAction's support logging Pipe values, when assembled in a Pipe, so the [log()](/api/console#log) call seen here, will log in additional statement to the console with the Pipe value of `"12345"`.
 
+## Pipe object
 `pipe()()()` runs the assembled actions, one at a time, and checks the values returned from each. When a function doesn't return a value, that is considered, emptying the Pipe. Empty pipes are still injected and have an `undefined` value:
 
 ```typescript
