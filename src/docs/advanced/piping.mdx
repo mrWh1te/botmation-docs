@@ -8,7 +8,7 @@ This is useful for de-composing implicit functionality that depends on data coll
 
 ## Pipe BotAction
 
-Let's get started with the [pipe()()](api/assembly-lines#pipe) BotAction to assemble BotAction's for writing and reading to Local Storage:
+Let's get started with the [pipe()()](/api/assembly-lines#pipe) BotAction to assemble BotAction's for writing and reading to Local Storage:
 ```typescript
 await pipe()(
    setLocalStorageItem('userID', '12345'),
@@ -16,9 +16,9 @@ await pipe()(
    log('User ID is in the Pipe') // has '12345' as the Pipe valued logged to console
 )(page)
 ```
-[setLocalStorageItem()](api/local-storage#set-local-storage-item) sets a key/value in Local Storage. It does not return a value. BotAction's assembled in Pipe's don't have to return a value. However, [getLocalStorageItem()](api/local-storage#get-local-storage-item) reads the value by the `key` provided, then returns it. 
+[setLocalStorageItem()](/api/local-storage#set-local-storage-item) sets a key/value in Local Storage. It does not return a value. BotAction's assembled in Pipe's don't have to return a value. However, [getLocalStorageItem()](/api/local-storage#get-local-storage-item) reads the value by the `key` provided, then returns it. 
 
-> "Console" BotAction's support logging Pipe values, when assembled in a Pipe, so the [log()](api/console#log) call seen here, will log in additional statement to the console with the Pipe value of `"12345"`.
+> "Console" BotAction's support logging Pipe values, when assembled in a Pipe, so the [log()](/api/console#log) call seen here, will log in additional statement to the console with the Pipe value of `"12345"`.
 
 `pipe()()()` runs the assembled actions, one at a time, and checks the values returned from each. When a function doesn't return a value, that is considered, emptying the Pipe. Empty pipes are still injected and have an `undefined` value:
 
@@ -32,7 +32,7 @@ When running a `pipe()()` in a context without Piping, `pipe()()()` will inject 
 
 ## BotAction's specific to Piping
 
-There are a collection of BotAction's specific to Piping: [map()](api/pipe#map), [pipeValue()](api/pipe#pipe-value), and [emptyPipe](api/pipe#empty-pipe). [map()](api/pipe#map) accepts a pure function to operate on the Pipe value, so if you want to cast the Pipe value from one type to another, use the [map()](api/pipe#map) BotAction. Let's see an example, `isGuest` from Instagram auth, uses [map()](api/pipe#map) to convert the Pipe value to the correct boolean value:
+There are a collection of BotAction's specific to Piping: [map()](/api/pipe#map), [pipeValue()](/api/pipe#pipe-value), and [emptyPipe](/api/pipe#empty-pipe). [map()](/api/pipe#map) accepts a pure function to operate on the Pipe value, so if you want to cast the Pipe value from one type to another, use the [map()](/api/pipe#map) BotAction. Let's see an example, `isGuest` from Instagram auth, uses [map()](/api/pipe#map) to convert the Pipe value to the correct boolean value:
 ```typescript
 const isGuest: ConditionalBotAction = 
   indexedDBStore('redux', 'paths')(
