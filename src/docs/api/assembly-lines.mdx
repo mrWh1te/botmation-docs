@@ -67,16 +67,89 @@ const pipe =
 ```
 The first call `pipe()` is for setting or overriding a Pipe object's value (for the first BotAction). The second call `pipe()()` assembles declared BotAction's. The third call `pipe()()()` is the actual BotAction to run the assembled BotAction's with piping.
 
-See [Piping](/advanced/piping) for usage examples.
+See [Piping](/advanced/piping) for an usage examples.
 
 ## Assembly Line
+Assembly Lines are another way to assemble BotAction's for running. They detect the context (the higher line) for [piping](/advanced/piping), and copy what is found. If an Assembly Line is ran inside a Pipe, it will run assembled BotAction's inside a Pipe, otherwise inside a Chain.
+
+The exception to this, is using the first call `assemblyLine(true)` to override that behavior and force the assembled BotAction's to run in a Pipe.
 ```typescript
-assemblyLine(forceInPipe: boolean = false) => (...actions: BotAction<any>[]) => BotAction<any>
+const assemblyLine = 
+  (forceInPipe: boolean = false) =>
+    (...actions: BotAction<any>[]): BotAction<any> =>
+      async(page, ...injects) => {
+        if (injectsHavePipe(injects) || forceInPipe) {
+          // running a pipe
+          if (actions.length === 0) {return undefined}
+          else if (actions.length === 1) {
+            return await actions[0](page, ...pipeInjects(injects))
+          } else {
+            return await pipeRunner(...actions)(page, ...pipeInjects(injects))
+          }
+        } else {
+          // running a chain
+          if (actions.length === 0) {}
+          else if (actions.length === 1) {
+            await actions[0](page, ...injects)
+          } else {
+            await chainRunner(...actions)(page, ...injects)
+          }
+        }
+      }
 ```
-Assembles the declared actions in the second call to run in either a Pipe or a Chain, depending on if the Injects have a Pipe (then run in a Chain) or if the `forceInPipe` value is provided as `true` (then run in a Pipe). If there are no Pipe values, that is considered an empty Pipe.
+The second call `assemblyLine()()` assembles declared BotAction's. The third call `assemblyLine()()()` is the actual BotAction to run the async functionality.
+
+For an usage example, see [inject()()](/api/inject#inject).
 
 ## Pipe Action Or Actions
+This BotAction fits a niche purpose, of running BotAction's in a Pipe that are returned from a callback function.
 ```typescript
-pipeActionOrActions(actionOrActions: BotAction<PipeValue> | BotAction<PipeValue>[]) => BotAction<PipeValue|undefined>
+const pipeActionOrActions = 
+  (actionOrActions: BotAction<PipeValue> | BotAction<PipeValue>[]): BotAction<PipeValue|undefined> =>
+    async(page, ...injects) => {
+      if (Array.isArray(actionOrActions)) {
+        return await pipe()(...actionOrActions)(page, ...injects)
+      } else {
+        return await actionOrActions(page, ...pipeInjects(injects)) // simulate pipe
+      }
+    }
 ```
-This is a unique kind of Pipe for special cases when you don't know if you're given an array of BotAction's or just one BotAction that is different than the typical spread array of BotAction's. One of the "Utilities" uses this in support of the closure function.
+This is a unique kind of Pipe to help when you don't know if you're given an array of BotAction's or just one BotAction. This is different from the common approach of spreading an array of BotAction's.
+
+For an usage example, see [forAll()()](/api/utilities#for-all).
+
+## Runners
+These are less optimized, less configurable versions of `chain()` and `pipe()()`. It's recommended to avoid using these directly, but both `chain()()` and `pipe()()()` use them respectively.
+
+### chainRunner
+```typescript
+const chainRunner =
+  (...actions: BotAction[]): BotAction =>
+    async(page, ...injects) => {
+      for(const action of actions) {
+        await action(page, ...injects)
+      }
+    }
+```
+
+### pipeRunner
+```typescript
+const pipeRunner = 
+  <R extends PipeValue = PipeValue, P extends PipeValue = PipeValue>
+  (...actions: BotAction<PipeValue|void>[]): BotAction<PipeValue<R>> =>
+    async(page, ...injects) => {
+      let pipe: Pipe = createEmptyPipe()
+
+      if (injectsHavePipe(injects)) {
+        pipe = getInjectsPipeOrEmptyPipe<P>(injects)
+        injects = injects.slice(0, injects.length - 1)
+      }
+
+      for(const action of actions) {
+        const nextPipeValueOrUndefined: PipeValue|void = await action(page, ...injects, pipe)
+        pipe = wrapValueInPipe(nextPipeValueOrUndefined as PipeValue|undefined)
+      }
+
+      return pipe.value as any as PipeValue<R>
+    }    
+```
