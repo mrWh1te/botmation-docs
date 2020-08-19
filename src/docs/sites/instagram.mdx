@@ -2,23 +2,77 @@
 title: Instagram
 ---
 
-Botmation v2.x has a few special BotAction's included in for creating web bots that crawl the Instagram web app.
+Botmation v2.x has a few special BotAction's included for creating web bots that crawl Instagram's web app.
 
-> These Instagram functions are `deprecated` in Botmation v2.x. They will be deleted in Botmation v3.x. Before that, those functions will be published in a new npm module, same license as before. This way, Botmation can focus on the building blocks of web bots and other npm modules can exist for each domain and speciality.
+> These Instagram functions are `deprecated` in Botmation v2.x. They will be deleted in Botmation v3.x. Before that, those functions will be published in a separate npm module, with the same license as before. This way, Botmation can focus on the building blocks of web bots and other npm modules can exist to add to it for any domain.
 
 ## Overview
 
 The current set of BotAction's are for the initial login flow. Here is a working [example](https://github.com/mrWh1te/Botmation/blob/master/src/examples/instagram.ts) of them in use.
 
 ## login() BotAction
+```typescript
+const login = ({username, password}: {username: string, password: string}): BotAction =>
+  chain(
+    errors('Instagram login()')(
+      goTo(getInstagramLoginUrl()),
+      click(FORM_AUTH_USERNAME_INPUT_SELECTOR),
+      type(username),
+      click(FORM_AUTH_PASSWORD_INPUT_SELECTOR),
+      type(password),
+      click(FORM_AUTH_SUBMIT_BUTTON_SELECTOR),
+      waitForNavigation,
+      wait(1000),
+      log('Login Complete')
+    )
+  )
+```
+This BotAction is a composition that uses [errors()()](/api/errors#errors) to wrap the main assembled BotAction's, in case something goes wrong here, dev's will have an easier time knowing if errors are thrown here.
+
+The composition is declarative, therefore needs little explaining. `login()` is a higher-order function that takes a typed object for the `username` and `password`.
 
 ## isGuest ConditionalBotAction
+```typescript
+const isGuest: ConditionalBotAction = 
+  indexedDBStore('redux', 'paths')(
+    getIndexedDBValue('users.viewerId'),
+    map(viewerId => viewerId ? false : true),
+  )
+```
+This BotAction is a composition that uses [indexedDBStore()()](/api/indexed-db#indexeddbstore) to assemble BotAction's with the IndexedDB Database name and Store name [injected](/advanced/injects). This simply grabs the value for the `users.viewerId` key then maps it to the corresponding boolean value.
 
 ## isLoggedIn ConditionalBotAction
+```typescript
+const isLoggedIn: ConditionalBotAction =
+  indexedDBStore('redux', 'paths')(
+    getIndexedDBValue('users.viewerId'),
+    map(viewerId => viewerId ? true : false)
+  )
+```
+This BotAction is a composition that uses [indexedDBStore()()](/api/indexed-db#indexeddbstore) to assemble BotAction's with the IndexedDB Database name and Store name [injected](/advanced/injects). This simply grabs the value for the `users.viewerId` key then maps it to the corresponding boolean value.
 
 ## isTurnOnNotificationsModalActive ConditionalBotAction
+```typescript
+const isTurnOnNotificationsModalActive: ConditionalBotAction = async(page) => {
+  const modalHeader = await page.$(MAIN_MODAL_HEADER_SELECTOR)
+  const modalHeaderText = await page.evaluate(el => el === null || el.textContent === null ? '' : el.textContent, modalHeader)
+
+  return modalHeader !== null && modalHeaderText === TURN_OFF_NOTIFICATIONS_MODAL_HEADER_TEXT
+}
+```
+Sometimes after login, Instagram prompts the User with a modal about turning on notifications. This ConditionalBotAction returns `true` if that modal is open.
 
 ## closeTurnOnNotificationsModal BotAction
+```typescript
+const closeTurnOnNotificationsModal: BotAction = async (page) => {
+  // click button with text "Not Now" inside the dialog
+  const [button] = await page.$x("//button[contains(., '" + TURN_OFF_NOTIFICATIONS_BUTTON_LABEL + "')]")
+  if (button) {
+    await button.click()
+  }
+}
+```
+This BotAction will close the "Turn on Notifications" modal. Please use [givenThat()()](/api/utilities#given-that) with [isTurnOnNotificationsModalActive](/sites/instagram#isturnonnotificationsmodalactive-conditionalbotaction) to run this BotAction only if that modal is open.
 
 ## Helpers
 
