@@ -2,22 +2,29 @@
 title: Error Handling
 ---
 
-Error handling has been omitted entirely from the library's core. Assembly Lines don't try to catch any errors, and this was done in favor of creating a simple composable solution for finding errors in deeply nested assembly lines. Debugging async code is hard & time consuming. So a solution was designed to help narrow down thrown errors to the exact BotAction. This is done with a special type of BotAction, called `errors()()`.
+Error handling was omitted from Botmation's core. Assembly Lines don't catch errors, and this was done in favor of creating a composable solution for helping devs find errors in deeply nested assembly lines.
 
-`errors()()` wraps assembled BotAction's in a try/catch, where errors caught are logged to the console with the Errors Block Name provided in the first `errors()` call. Let's see an example:
+Debugging async code is hard & time consuming. The solution catchs errors and helps narrow where they are coming from in complex lines of BotAction's. The solution is another BotAction called `errors()()`.
+
+## Errors BotAction
+
+`errors()()` wraps assembled BotAction's in a try/catch, where errors caught are logged to the NodeJS console with the "Errors Block Name" provided in the first `errors()` call. Let's see an example:
 
 ```typescript
 await chain(
-    errors('A specific error block name')(
-        // actions to run in a wrapped try/catch:
+    errors('News Scraper')(
+        // actions here are ran in a wrapped try/catch:
         goTo('site to scrape'),
-        // ... 
+
     ),
     log('this runs, even if errors()() catches an error')
 )(page)
 ```
-So if any actions in the assembled `errors()()` call throws an error, the error is caught by the `errors()()` BotAction and then logged to the console with the Error Block Name provided. After an error is thrown, the remaining assembled actions assembled are ignored (they don't run), but the higher order assembly-line continues.
+So if any actions in the assembled `errors()()` second call throws an error, the error is caught by the `errors()()` BotAction, logged to the NodeJS console with it's block name. After an error is thrown, the remaining assembled actions assembled are ignored, and the higher line continues. So if an error is caught in the "News Scraper" block, the `log()` function will still run.
 
-`errors()()` checks the higher order context `injects` for a Pipe, and runs the assembled actions in a Pipe, only if a Pipe was detected. It tries to keep the style of assembly consistent.
+## Nesting to isolate errors
+`errors()()` is nestable as deeply as necessary. This helps isolate the origins of tough to find async errors. The closest parent `errors()()` block will swallow the thrown error. Therefore, `errors()()` can "block" your code, in any context, into separate identifiable parts, for isolating async errors.
 
-Also, you can nest `errors()()` as deeply as you want. This is to help isolate, tough to find async bugs, in deeply nested assembly lines. Make sure to give each one an uniquely identifying Error Block Name, so you can identify where the error was caught. If a nested `errors()()` catches a thrown error, it swallows it, so higher level `errors()()` will not see it. This helps isolate bugs in the async functionality.
+## Works in Pipe or Chain
+
+`errors()()` checks the higher order context `injects` for a Pipe object, to determine how it runs the assembled actions. If a Pipe object is detected, it runs its actions in a Pipe otherwise in a Chain. This keeps the style of BotAction assembly consistent with the parent context.
