@@ -2,44 +2,119 @@
 title: 'Utilities'
 ---
 
-These higher order functions provide utilities to building Assembly Lines with multiple branching logic. From writing an if statement, to a basic for loop. These functions are both fun to play with and can reduce your overall code, while keeping it all declaratively functional.
+These BotAction's provide logical branching and looping in a functional manner.
 
-The higher-order functions run the assembled actions in a Pipe.
+These functions are both fun to play with and can reduce your overall code, while keeping it declarative and functional.
+
+> The assembled BotAction's are ran in a Pipe.
 
 ## Given That
+A functional "if statement".
 ```typescript
-givenThat(condition: ConditionalBotAction) => 
-  (...actions: BotAction<any>[]) => BotAction
+const givenThat = 
+  (condition: ConditionalBotAction) => 
+    (...actions: BotAction<any>[]): BotAction => 
+      async(page, ...injects) => {
+        if (await condition(page, ...pipeInjects(injects))) {
+          await pipe()(...actions)(page, ...injects)
+        }
+      }
 ```
-It's a functional "if statement". Takes an async function, similar to a `BotAction` (same parameters but called a `ConditionalBotAction`) that is expected to return a promise that resolves to a Boolean value. If that promise resolves to `TRUE`, only then, will it run the assembled actions.
+Takes an async function, similar to a `BotAction` (same parameters but called a [ConditionalBotAction](/advanced/conditionals#conditional-botaction)) that is expected to return a promise that resolves to a Boolean value. If that promise resolves to `true`, only then, will it run the assembled actions.
 
 The [example Instagram bot](https://github.com/mrWh1te/Botmation/blob/master/src/examples/instagram.ts), uses `givenThat()()`, to attempt login, only if the bot is a Guest on the page then only operates as a logged in User, after checking if the bot is logged in on the page.
 
 ## For All
+It's a functional "forEach loop".
 ```typescript
-forAll(collection: any[] | Dictionary) => 
-  (botActionOrActionsFactory: (...args: any[]) => BotAction<any>[] | BotAction<any>) => BotAction
+const forAll =
+  (collection: any[] | Dictionary) =>
+    (botActionOrActionsFactory: (...args: any[]) => BotAction<any>[] | BotAction<any>): BotAction =>
+      async(page, ...injects) => {
+        if (Array.isArray(collection)) {
+          for(let i = 0; i < collection.length; i++) {
+            await pipeActionOrActions(botActionOrActionsFactory(collection[i]))(page, ...injects)
+          }
+        } else {
+          for (const [key, value] of Object.entries(collection)) {
+            await pipeActionOrActions(botActionOrActionsFactory(key, value))(page, ...injects)
+          }
+        }
+      }
 ```
-It's a functional "forEach loop". This `BotAction` takes a collection, either an array of any type or a simple json object with key/value pairs to iterate with a callback function that returns a Bot Action or an array of Bot Action's to iterate against.
+This `BotAction` takes a collection, either an array of any type or a simple json object with key/value pairs to iterate with a callback function that returns a Bot Action or an array of Bot Action's to iterate against.
 
 The [screenshotAll()](https://github.com/mrWh1te/Botmation/blob/master/src/botmation/actions/files.ts) Bot Action wraps the `forAll()()` Bot Action, to run `goTo()` and `screenshot()` actions, on a collection of urls provided.
 
-## Do While
-```typescript
-doWhile(condition: ConditionalBotAction) => 
-  (...actions: BotAction<any>[]) => BotAction
-```
-It's a functional "doWhile loop". It runs the actions first, then checks the condition as to whether or not it should run the actions again. It will keep running the chain of actions in a loop until the condition resolves `FALSE` or rejects.
-
 ## For As Long
+It's a functional "while loop".
+
 ```typescript
-forAsLong(condition: ConditionalBotAction) => 
-  (...actions: BotAction[]) => BotAction
+const forAsLong = 
+  (condition: ConditionalBotAction) => 
+    (...actions: BotAction[]): BotAction => 
+      async(page, ...injects) => {
+        let resolvedCondition = await condition(page, ...pipeInjects(injects))
+
+        while (resolvedCondition) {
+          await pipe()(...actions)(page, ...pipeInjects(injects))
+
+          resolvedCondition = false
+          resolvedCondition = await condition(page, ...pipeInjects(injects))
+        }
+      }
 ```
-It's a functional "while loop". It checks the condition before running the actions each time. It stops looping if the condition resolves False or rejects.
+It resolves the [ConditionalBotAction](/advanced/conditionals#conditional-botaction) before running the actions each time. It stops looping if the condition resolves False or rejects.
+
+For a concept example, see [Loops: For As Long](/advanced/loops#for-as-long).
+
+## Do While
+It's a functional "doWhile loop".
+
+```typescript
+const doWhile = 
+  (condition: ConditionalBotAction) => 
+    (...actions: BotAction<any>[]): BotAction => 
+      async(page, ...injects) => {
+        let resolvedCondition = true
+        while (resolvedCondition) {
+          await pipe()(...actions)(page, ...injects)
+
+          resolvedCondition = false
+          resolvedCondition = await condition(page, ...pipeInjects(injects))
+        }
+      }
+```
+It runs the BotAction's first, then resolves the [ConditionalBotAction](/advanced/conditionals#conditional-botaction) as to whether or not it should run the actions again. It will keep running the pipe of Botaction's in a loop until the condition resolves `false` or rejects.
+
+For a concept example, see [Loops: Do While](/advanced/loops#do-while).
 
 ## Wait
+This BotAction pauses for the time provided before the next BotAction assembled runs.
+
 ```typescript
-wait(milliseconds: number) => BotAction
+const wait = (milliseconds: number): BotAction => async() => {
+  await sleep(milliseconds)
+} 
 ```
-This Bot Action is not like the others in this group, but a utility never the less. This pauses execution before next Bot Action in an Assembly Line, for the time provided.
+This Bot Action is not like the others in this group, but a utility never the less. 
+
+Example:
+```typescript
+await chain(
+  goTo('https://google.com'),
+  wait(5000), // wait 5 seconds before going to duckduckgo.com
+  goTo('https://duckduckgo.com')
+)(page)
+```
+
+## Helpers
+
+The one helper here is for the [wait() BotAction](/api/utilities#wait).
+
+### sleep()
+This async function returns a Promise that does not resolve until the time provided lapses.
+```typescript
+const sleep = async(milliseconds: number): Promise<NodeJS.Timeout> =>
+  new Promise(resolve => setTimeout(resolve, milliseconds))
+```
