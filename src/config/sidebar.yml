@@ -12,8 +12,6 @@
     link: '/examples'
   - label: 'Install'
     link: '/install'
-  - label: 'Tutorial'
-    link: '/tutorial'
 
 - label: 'Advanced'
   items:
@@ -29,6 +27,8 @@
       link: '/advanced/error-handling'
     - label: 'Concurrency'
       link: '/advanced/concurrency'
+    - label: 'Tutorial'
+      link: '/tutorial'
 
 - label: 'Sites'
   items:
