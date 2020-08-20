@@ -2,11 +2,16 @@
 title: 'Inject'
 ---
 
-A highly composable BotAction for setting the first few `injects` in a new line of actions while appending the higher order `injects` at the end.
+A highly composable BotAction for setting the first set of [injects](/advanced/injects) in a new line of BotAction's while appending the higher order `injects` at the end.
 
 ## Inject
+This higher-order BotAction is useful for composing BotAction's that inject a particular set of stuff into assembled BotAction's. [files()()](/api/files#files) and [indexedDBStore()()](/api/indexeddb#indexeddbstore) are both composed with `inject()()`.
+
 ```typescript
-inject(...newInjects: any[]) => 
-  (...actions: BotAction<PipeValue|void>[]) => BotAction<any>
+const inject =
+  (...newInjects: any[]) => 
+    (...actions: BotAction<PipeValue|void>[]): BotAction<any> => 
+      async(page, ...injects) => 
+        await assemblyLine()(...actions)(page, ...newInjects, ...injects)
 ```
-It is used to compose higher-order injecting assembly-line functions like `files()()` or `indexedDBStore()()`.
+Here is an usage [example](/advanced/injects#inject-botaction).
