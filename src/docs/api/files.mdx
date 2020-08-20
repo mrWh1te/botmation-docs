@@ -2,33 +2,83 @@
 title: 'Files'
 ---
 
-These focus on building and saving files to the local disk like taking a screenshot of the current window or generating a PDF of the whole page.
+These BotAction's focus on reading and writing files to local disk, such as taking a saving a PNG screenshot or saving a PDF of the whole page.
 
-These functions, and the Cookies' actions, are all compatible with the higher-order `files()()` BotAction to customize the `injects` with `BotFileOptions` for all assembled actions. The `BotFilesAction` interface types the `injects` expected when assembled inside `files()()`.
+These functions, and the [Cookies' BotAction's](/api/cookies), are all compatible with the higher-order `files()()` BotAction to inject an enriched (hydrated with safe defaults) `BotFileOptions` for all assembled actions.
+
+> BotAction's that implement the `BotFilesAction` interface, type their `injects` a little more specifically to expect `BotFileOptions` as the first one. This is what `files()()` does to its assembled BotAction's.
 
 ## Files
+A higher-order `BotAction` that will take a partial of `BotFileOptions`, enrich them with safe defaults, then inject it as the first inject for all assembled BotAction's in the second call. 
+
 ```typescript
-files(fileOptions?: Partial<BotFileOptions>) => 
-  (...actions: BotAction[]) => BotAction
+const files = (fileOptions?: Partial<BotFileOptions>) =>
+  (...actions: BotAction[]): BotAction =>
+    inject(enrichBotFileOptionsWithDefaults(fileOptions))(
+      errors('files()()')(...actions)
+    )
 ```
-A higher-order `BotAction` that will take a partial of `BotFileOptions`, enrich them with safe defaults, then inject it as the first inject for all assembled actions in the second call.
+Works great for BotAction's implementing the `BotFilesAction` interface.
+
+For an usage example, see the [Instagram example](https://github.com/mrWh1te/Botmation/blob/master/src/examples/instagram.ts).
 
 ## Screenshot
+Takes a screenshot of the current page, where ever it's scrolled too, and saves it as a PNG file with the given file name. 
 ```typescript
-screenshot(fileName: string) => BotFilesAction
-```
-Takes a screenshot of the current page, where ever it's scrolled too, and saves it as a PNG file with the given file name.
+const screenshot = (fileName: string, botFileOptions?: Partial<BotFileOptions>): BotFilesAction => 
+  async (page, options) => {
+    const hydratedOptions = enrichBotFileOptionsWithDefaults({...options, ...botFileOptions})
 
-You can change the directory where it's saved by overloading the `BotFileOptions`.
+    const fileUrl = getFileUrl(hydratedOptions.screenshots_directory, hydratedOptions, fileName) + '.png'
+    await page.screenshot({path: fileUrl})
+  }
+```
+By default, saves the file in the local directory. You can change the directory where it's saved by overloading the `BotFileOptions`.
+
+For an usage example, see the [Screenshots Bot](/examples#screenshots-bot).
 
 ## Screenshot All
+Takes one screenshot of each URL provided. Filenames are created from urls by replacing nonsafe characters with underscores.
+
 ```typescript
-screenshotAll(...urls: string[]) => BotFilesAction
+const screenshotAll = (urls: string[], botFileOptions?: Partial<BotFileOptions>): BotFilesAction => 
+  async(page, options) => {
+    const hydratedOptions = enrichBotFileOptionsWithDefaults({...options, ...botFileOptions})
+
+    await forAll(urls)(
+      url => ([
+        goTo(url),
+        screenshot(url.replace(/[^a-zA-Z]/g, '_'))
+      ])
+    )(page, hydratedOptions)
+  }
 ```
-Simple Bot Action, for taking a screenshot of multiple site pages. Provide a comma separated list of URL strings ie `screenshotAll('https://google.com', 'https://twitter.com')`. It will create the screenshots in the current active directory, which can be adjusted by overloading `BotFileOptions`.
+By default, saves the file in the local directory. You can change the directory where it's saved by overloading the `BotFileOptions`.
+
+Example:
+```typescript
+await chain(
+  screenshotAll('https://google.com', 'https://twitter.com')
+)(page)
+```
 
 ## Save PDF
+Saves a PDF of the entire web page.
 ```typescript
-savePDF(fileName: string, botFileOptions?: Partial<BotFileOptions>) => BotFilesAction
+const savePDF = (fileName: string, botFileOptions?: Partial<BotFileOptions>): BotFilesAction => async(page, options) => {
+  const hydratedOptions = enrichBotFileOptionsWithDefaults({...options, ...botFileOptions})
+
+  const fileUrl = getFileUrl(hydratedOptions.pdfs_directory, hydratedOptions, fileName) + '.pdf'
+
+  await page.pdf({path: fileUrl, format: 'A4'})
+}
 ```
-Simple Bot Action, for taking a screenshot of multiple site pages. Provide a comma separated list of URL strings ie `screenshotAll('https://google.com', 'https://twitter.com')`. It will create the screenshots in the current active directory, which can be adjusted by overloading `BotFileOptions`.
+By default, saves the file in the local directory. You can change the directory where it's saved by overloading the `BotFileOptions`.
+
+Example:
+```typescript
+await chain(
+  goTo('https://google.com'),
+  savePDF('google-homepage') // saves: google-homepage.pdf
+)(page)
+```
