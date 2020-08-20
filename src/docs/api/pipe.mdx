@@ -2,22 +2,150 @@
 title: 'Pipe'
 ---
 
-These focus on piping.
+These BotAction's manipulate the value of a Pipe object. They should not be used in a Chain.
 
 ## Map
+Map transforms the Pipe value with the provided a pure function.
+
 ```typescript
-map<R extends PipeValue = PipeValue>(mapFunction: (pipedValue: PipeValue) => R) => BotAction<R>
+const map = <R extends PipeValue = PipeValue>(mapFunction: (pipedValue: any) => R): BotAction<R> => 
+  async (page, ...injects) => 
+    mapFunction(getInjectsPipeValue(injects))
 ```
-Map accepts a pure function to run against the Pipe's value. If you need to cast the Pipe's value, map it from one type to another, you can do so simply with `map()`.
+
+For an usage example see [Instagram's isGuest BotAction](/sites/instagram#isguest-conditionalbotaction).
 
 ## Pipe Value
-```typescript
-pipeValue<R extends PipeValue = PipeValue>(valueToPipe: R|undefined) => BotAction<R|undefined>
-```
 This can be used to set the Pipe value for the next BotAction in an Assembly Line.
 
-## Empty Pipe
 ```typescript
-emptyPipe: BotAction
+const pipeValue = <R extends PipeValue = PipeValue>(valueToPipe: R|undefined): BotAction<R|undefined> => async () => valueToPipe
 ```
+
+Example:
+```typescript
+await pipe()(
+  pipeValue('Hello World'),
+  log() // logs 'Pipe: Hello World'
+)(page)
+```
+
+## Empty Pipe
 This BotAction simply returns `undefined` which empties the Pipe. An empty Pipe is one that `value` is `undefined`.
+```typescript
+const emptyPipe: BotAction = async () => undefined
+```
+
+Example:
+```typescript
+await pipe('Hello World')(
+  log(), // logs 'Pipe: Hello World'
+  emptyPipe,
+  log(), // logs 'Pipe: Empty'
+)(page)
+```
+
+## Helpers
+
+These Helpers are for all BotAction's, including the ones focused just on Chain. They are functions designed to be Assembly Line safe, for creating BotAction's that can safely use a Pipe, but safely run in Chain with safe fallbacks.
+
+### unpipeInjects()
+This function allows you to unwrap the Pipe value from the Pipe object and specify the number of [injects](/advanced/injects) that you are expecting. Therefore, if the BotAction runs with less `injects`, it can fill them with `undefined` or what you specify.
+```typescript
+const unpipeInjects = <P extends PipeValue = PipeValue>(injectsMaybePiped: any[], minimumInjectsCount = 0, minimumInjectsFill = undefined): [P, ...any[]] => {
+  if (minimumInjectsCount > 0 && injectsMaybePiped.length < minimumInjectsCount) {
+    const minimumInjects = []
+    for(let i = 0; i < minimumInjectsCount; i++) {
+      // check for inject AND that the inject isn't a Pipe
+      if (injectsMaybePiped[i] && !isPipe(injectsMaybePiped[i])) {
+        minimumInjects.push(injectsMaybePiped[i])
+      } else {
+        minimumInjects.push(minimumInjectsFill)
+      }
+    }
+
+    return [getInjectsPipeValue(injectsMaybePiped), ...minimumInjects]
+  }
+
+  return [getInjectsPipeValue(injectsMaybePiped), ...removePipe(injectsMaybePiped)]
+}
+```
+This way you can safely use a Pipe with injects when you may not get the `injects` you want or even a Pipe object.
+
+### removePipe()
+This function removes the Pipe object from [injects](/advanced/injects) if `injects` have it.
+
+```typescript
+const removePipe = (injects: any[]): any[] => {
+  if (injectsHavePipe(injects)) {
+    return injects.slice(0, injects.length - 1)
+  }
+
+  return injects
+}
+```
+It is helpful in making BotAction's that are Chain focused. 
+
+### getInjectsPipeOrEmptyPipe()
+This function gets the Pipe object from [injects](/advanced/injects). If `injects` is missing the Pipe object, it returns an empty Pipe with the value `undefined`.
+```typescript
+const getInjectsPipeOrEmptyPipe = <P = any>(injects: any[]): Pipe<P> =>
+  injects.length > 0 && isPipe(injects[injects.length - 1]) ? injects[injects.length - 1] : createEmptyPipe()
+```
+This is helpful for creating BotAction's where you want to use the Pipe object safely, even if there is none ie when assembled in a Chain.
+
+### createEmptyPipe()
+This function creates an empty Pipe object.
+```typescript
+const createEmptyPipe = (): EmptyPipe => wrapValueInPipe()
+```
+The default Pipe object in a Pipe is this. When a BotAction, in a Pipe, doesn't return a value, the next BotAction is injected an empty Pipe object.
+
+### wrapValueInPipe()
+This function creates a Pipe object with the value provided.
+```typescript
+const wrapValueInPipe = <P = any>(value?: P): Pipe<P> =>  ({
+  brand: 'Pipe',
+  value
+})
+```
+This function is helpful for writing Assembly Line BotAction's that deal with piping.
+
+### injectsHavePipe()
+This function returns a boolean for whether or not the [injects](/advanced/injects) have a Pipe object.
+```typescript
+const injectsHavePipe = (injects: any[]): boolean => {
+  if (injects.length === 0) {
+    return false
+  }
+
+  return isPipe(injects[injects.length - 1])
+}
+```
+This is a way to determine if the BotAction is assembled in a Pipe or a Chain. If the `injects` has a Pipe object, then it's assembled in a Chain.
+
+### getInjectsPipeValue()
+This function returns the Pipe object's value from [injects](/advanced/injects). If the `injects` don't have a Pipe object, then the value `undefined` is returned.
+```typescript
+const getInjectsPipeValue = (injects: any[]): any => {
+  if (injectsHavePipe(injects)) {
+    return injects[injects.length - 1].value
+  }
+
+  return undefined
+}
+```
+This function is helpful for writing BotAction's that want to use the Pipe value safely, even in a Chain, when you're not interested in the `injects`.
+
+### pipeInjects()
+This function adds an empty Pipe object to [injects](/advanced/injects) if the `injects` don't have a Pipe object.
+```typescript
+const pipeInjects = (injects: any[]): any[] => {
+  if (injectsHavePipe(injects)) {
+    return injects
+  }
+
+  return [...injects, createEmptyPipe()]
+}
+```
+This can be used to simulate a BotAction being assembled in a Pipe.
