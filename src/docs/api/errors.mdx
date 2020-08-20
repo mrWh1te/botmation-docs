@@ -2,11 +2,34 @@
 title: 'Errors'
 ---
 
-This single `BotAction` provides a way to catch thrown errors in assembled `BotAction`'s. 
+This single BotAction is the go to approach in blocking segments of assembly lines with identifiable names for catching errors. 
+
+It can be nested, which is helpful to isolatie obscure async errors, deeply nested in assembly lines.
+
+Learn more in the [Error Handling documentation](/advanced/error-handling).
 
 ## Errors
+Errors assembles BotAction's of the second call `errors()()` in a try/catch to swallow the error, and log it with the name provided in the first call `errors()`.
+
+If the returned BotAction catches an error, it does not disrupt it's line of assembly.
 ```typescript
-errors(errorsBlockName: string = 'Unnamed Errors Block') => 
-  (...actions: BotAction<PipeValue|void>[]) => BotAction<any>
+export const errors =
+  (errorsBlockName: string = 'Unnamed Errors Block') => 
+    (...actions: BotAction<PipeValue|void>[]): BotAction<any> => 
+      async(page, ...injects) => {
+        try {
+          if (injectsHavePipe(injects)) {
+            return await pipe()(...actions)(page, ...injects)
+          }
+  
+          await chain(...(actions as BotAction[]))(page, ...injects)
+        } catch(error) {
+          logError('caught in ' + errorsBlockName)
+          console.error(error)
+          console.log('\n') // append artificial "margin-bottom"
+        }
+      }
 ```
-Log any caught error in the assembled actions with the `errorsBlockName`. After an error is caught, the remaining unran actions are ignored, but the higher order assembly line where the `errors()()` was used, continues, unaffected.
+`errors()()()` detects for a Pipe object in the injects before choosing the assembly method, to maintain consistency with its own assembly.
+
+For an usage example, see [Errors BotAction](/advanced/error-handling#errors-botaction)
