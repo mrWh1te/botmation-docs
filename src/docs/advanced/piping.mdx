@@ -49,10 +49,10 @@ Here we are getting a value from the `redux` IndexedDB database, in a store call
 
 Also, there are separate functions in this library, that are found in the module, that are not BotAction's, but regular functions, to help reduce boilerplate called Helpers. For example, there are many Helper functions for piping.
 
-To name a few, there are `unpipeInjects()`, `removePipe()`, `getInjectsPipeValue()`, `wrapValueInPipe()`, `pipeInjects()`, and so forth. When starting out with piping, the first three are the most relevant as they help write pipeable BotAction's that can be still be used safely in a Chain.
+To name a few, there are [unpipeInjects()](/api/pipe#unpipeinjects), [removePipe()](/api/pipe#removepipe), [getInjectsPipeValue()](/api/pipe#getinjectspipevalue), [wrapValueInPipe()](/api/pipe#wrapvalueinpipe), [pipeInjects()](/api/pipe#pipeinjects), and so forth. When starting out with piping, the first three are the most relevant as they help write pipeable BotAction's that can be still be used safely in a Chain.
 
-If you're not interested in whats injected, but need the Pipe value, use `getInjectsPipeValue()` as it has safe fallbacks for when there is no Pipe, in case the BotAction is assembled in a Chain. See the Local Storage BotAction's for examples, in how it's used.
+If you're not interested in whats injected, but need the Pipe value, use [getInjectsPipeValue()](/api/pipe#getinjectspipevalue) as it has safe fallbacks for when there is no Pipe, in case the BotAction is assembled in a Chain. See the Local Storage BotAction's for examples, in how it's used.
 
-If you're interested in the injects and the Pipe value, use `unpipeInjects()`, which allows you to specify the number of `injects` you're expecting, to safely retrieve them with the Pipe value, even if there was no Pipe, or some `injects` didn't get injected. See the IndexedDB BotAction's for examples.
+If you're interested in the injects and the Pipe value, use [unpipeInjects()](/api/pipe#unpipeinjects), which allows you to specify the number of [injects](/advanced/injects) you're expecting, to safely retrieve them with the Pipe value, even if there was no Pipe, or some [injects](/advanced/injects) didn't get injected. See the IndexedDB BotAction's for examples.
 
-If you just want the `injects` without any Pipe, use `removePipe()`.
+If you just want the [injects](/advanced/injects) without any Pipe, use [removePipe()](/api/pipe#removepipe).
