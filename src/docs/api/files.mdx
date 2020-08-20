@@ -82,3 +82,67 @@ await chain(
   savePDF('google-homepage') // saves: google-homepage.pdf
 )(page)
 ```
+
+## Helpers
+
+Botmation consolidates all BotAction's that read and write files to disk with the same Helpers to maintain consistency with how these files are managed.
+
+If you're going to make other Local Disk related BotFilesAction's, please use these Helpers.
+
+### enrichBotFileOptionsWithDefaults()
+This Helper standardizes the directory structure for file management. The word "enrich" in this project is like "hydrating" models, with the focus on safe defaults that don't break program execution.
+
+```typescript
+enrichBotFileOptionsWithDefaults = (options: Partial<BotFileOptions> = {}): BotFileOptions => ({
+  screenshots_directory: '',
+  pdfs_directory: '',
+  cookies_directory: '',
+  ...options
+})
+```
+The safe defaults is the local directory.
+
+Let's look at the data structure [BotFileOptions](https://github.com/mrWh1te/Botmation/blob/1a689d3691e84aaf30318d0b3c56447e299bbd8b/src/botmation/interfaces/bot-file-options.ts#L14):
+```typescript
+interface BotFileOptions {
+  parent_output_directory?: string
+  screenshots_directory: string
+  pdfs_directory: string  
+  cookies_directory: string
+}
+```
+`parent_output_directory` is optional. It designates a directory ie "assets", "files", etc for all Files. If you specify any other directory, they will be put inside that `parent_output_directory`.
+
+Otherwise, you can put the files in their own directories, locally.
+
+### createFolderURL()
+Creates a folder url based on the names passed in with a pattern of starting with `.` (local) followed by each folder name with a preceding `/`.
+
+```typescript
+const createFolderURL = (...folderNames: string[]): string => 
+  folderNames.reduce((folderUrl, folderName) => folderUrl + '/' + folderName, '.')
+```
+Does not append a backslash. Therefore, can be used to create partial URL's or complete directory and filename URL's.
+
+### getFileUrl()
+Builds a URL for the requested file type (specific directory option in `BotFileOptions`), and uses provided `BotFileOptions` to build a URL with the file name to the managed File.
+
+```typescript
+const getFileUrl = (fileDirectory: string, filesOptions: BotFileOptions, fileName: string = ''): string => {
+  const fileNameWithPrefix = fileName === '' ? '' : '/' + fileName 
+
+  if (filesOptions?.parent_output_directory) {
+    if (fileDirectory) {
+      return createFolderURL(filesOptions.parent_output_directory, fileDirectory) + fileNameWithPrefix
+    }
+
+    return createFolderURL(filesOptions.parent_output_directory) + fileNameWithPrefix
+  }
+
+  if (fileDirectory) {
+    return createFolderURL(fileDirectory) + fileNameWithPrefix
+  }
+  
+  return './' + fileNameWithPrefix
+}
+```
