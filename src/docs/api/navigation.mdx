@@ -2,36 +2,102 @@
 title: 'Navigation'
 ---
 
-These higher order functions provide simple ways to change the Page's URL.
+These BotAction's provide simple ways to change the Page's URL.
 
 ## Go To
+Navigates the page to the url provided, unless the active url is the url provided, then it emits a warning in the console.
 ```typescript
-goTo(url: string, goToOptions?: DirectNavigationOptions) => BotAction
-```  
-Navigates the page to the url provided, unless the active url is the url provided, then it emits a warning in the console
-  
-Default `goToOptions` are provided, therefore, optional. You can override the defaults with whatever you want, it follows the `DirectNavigationOptions` from the `@types/puppeteer` package
+const goTo = (url: string, goToOptions?: Partial<DirectNavigationOptions>): BotAction => 
+  async(page) => {
+    goToOptions = enrichGoToPageOptions(goToOptions)  
+
+    // same url check
+    if (page.url() === url) {
+      return
+    }
+
+    await page.goto(url, goToOptions)
+  }
+```
+`goToOptions` are provided aa they are enriched with safe defaults. See Puppeteer's [Documentation on page.goto()](https://devdocs.io/puppeteer/#pagegotourl-options) for details.
+
+For an usage example, see [Functional Bot](/examples#functional-bot).
 
 ## Go Back
-```typescript
-goBack(options?: NavigationOptions) => BotAction
-```
 Similar to hitting the browser's "Back" button, to load the previous URL.
 
-## Go Forward
 ```typescript
-goForward(options?: NavigationOptions) => BotAction
+const goBack = (options?: NavigationOptions): BotAction => 
+  async(page) => {
+    await page.goBack(options)  
+  }
 ```
+
+Example:
+```typescript
+await chain(
+  goTo('https://duckduckgo.com/'),
+  goTo('https://google.com'),
+  goBack() // goes back to duckduckgo.com
+)
+```
+
+## Go Forward
 Similar to hitting the brower's "Forward" button, to go forward after going back.
 
-## Reload
 ```typescript
-reload(options?: NavigationOptions) => BotAction
+const goForward = (options?: NavigationOptions): BotAction => 
+  async(page) => {
+    await page.goForward(options)  
+  }
 ```
+
+Example:
+```typescript
+await chain(
+  goTo('https://duckduckgo.com/'),
+  goTo('https://google.com'),
+  goBack(), // goes back to duckduckgo.com
+  goForward() // goes back to google.com
+)
+```
+
+## Reload
 Similar to hitting the brower's "Refresh" button, to reload the page with the same URL.
 
-## Wait for Navigation
 ```typescript
-waitForNavigation: BotAction
+const reload = (options?: NavigationOptions): BotAction =>
+  async(page) => {
+    await page.reload(options)
+  }
 ```
-Simply awaits Puppeteer's Page's `waitForNavigation` async method that can be helpful when navigating Single Page Applications after submitting a form that causes the page to change, so we can wait until the Page completes navigation before continuing. 
+
+Example:
+```typescript
+await chain(
+  goTo('https://duckduckgo.com/'),
+  reload() // reloads duckduckgo.com
+)
+```
+
+## Wait for Navigation
+Waits for the page to navigate to a new URL or reloads. It is useful for when you run code which indirectly changes the page, like submitting a form by clicking "Submit".
+```typescript
+const waitForNavigation: BotAction = async(page) => {
+  await page.waitForNavigation()
+}
+```
+
+For an usage example, see the [Instagram login() BotAction](/sites/instagram#login-botaction).
+
+## Helpers
+
+### enrichGoToPageOptions()
+
+Puppeteer page's `goto()` method has many options to customize the navigation. See their [documentation](https://devdocs.io/puppeteer/#pagegotourl-options) for details on available options.
+```typescript
+const enrichGoToPageOptions = (overloadDefaultOptions: Partial<DirectNavigationOptions> = {}): DirectNavigationOptions => ({
+  waitUntil: 'networkidle0',
+  ...overloadDefaultOptions
+})
+```
