@@ -2,16 +2,35 @@
 title: 'Input'
 ---
 
-These higher order functions provide a simple way to click elements in the page or type with a keyboard.
+These BotAction's provide ways to input into a page as User.
 
 ## Click
+Does a left-mouse click on a HTML element by the provided HTML selector.
+
 ```typescript
-click(selector: string) => BotAction
+const click = (selector: string): BotAction => async(page) =>
+  await page.click(selector)
 ```
-Does a left-mouse click on the HTML element, given the selector provided ie `click('form input[type="submit"]')`
+Example: 
+```typescript
+await chain(
+  click('form input[type="submit"]'),
+  waitForNavigation
+)(page)
+```
 
 ## Type
+Type with an imaginary "keyboard" the copy provided.
+
 ```typescript
-type(copy: string) => BotAction
+const type = (copy: string): BotAction => async(page) =>
+  await page.keyboard.type(copy)
 ```
-Will type with a "keyboard" the copy provided ie after clicking a form text input `type('text value')`
+
+Example: 
+```typescript
+await chain(
+  click('form input[name="username"]'),
+  type('my-username')
+)(page)
+```

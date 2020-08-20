@@ -2,28 +2,164 @@
 title: 'Local Storage'
 ---
 
-These focus on interacting with the Page's Local Storage.
+These BotAction's interact with the Page's Local Storage.
 
 ## Clear All Local Storage
+
+Clears all key/value pairs in the Page's Local Storage.
+
 ```typescript
-clearAllLocalStorage: BotAction
+const clearAllLocalStorage: BotAction = 
+  async (page) => {
+    await page.evaluate(
+      clearLocalStorage
+    )
+  }
 ```
-Clears all key/value pairs in Local Storage
+
+Example:
+```typescript
+await chain(
+  clearAllLocalStorage
+)(page)
+```
 
 ## Remove Local Storage Item
+
+Removes one key/value pair from Local Storage based on the key provided through the higher-order params or Pipe.
+
 ```typescript
-removeLocalStorageItem(key?: string) => BotAction
+const removeLocalStorageItem = 
+  (key?: string): BotAction =>
+    async(page, ...injects) => {
+      const pipeValue = getInjectsPipeValue(injects)
+
+      if (!key) {
+        if (pipeValue) {
+          if (pipeValue.key) {
+            key = pipeValue.key
+          } else {
+            key = pipeValue
+          }
+        }
+      }
+
+      await page.evaluate(
+        removeLocalStorageKeyValue,
+        key ? key : 'missing-key'
+      )
+    }
 ```
-Removes one key/value pair from Local Storage based on the key provided through the higher-order params or Pipe. The key can be passed in as the Pipe's value or as the Pipe's value wrapped object ie `{key: 'some-key'}`.
+The key can be passed in as the Pipe's value or as the Pipe's value wrapped object ie `{key: 'some-key'}`.
+
+Example:
+```typescript
+await chain(
+  removeLocalStorageItem('auth-token')
+)(page)
+```
 
 ## Set Local Storage Item
+
+Sets one key/value pair in Local Storage by the key provided.
+
 ```typescript
-setLocalStorageItem(key?: string, value?: string) => BotAction
+const setLocalStorageItem = 
+  (key?: string, value?: string): BotAction => 
+    async(page, ...injects) => {
+      const pipeValue = getInjectsPipeValue(injects)
+
+      if (!value) {
+        if (pipeValue) {
+          // idea here is that the Pipe value is anothe object with keys {key: '', value: ''} -> to map as what we are setting in the DB
+          if (pipeValue.value) {
+            value = pipeValue.value
+          } else {
+            // with potential fallback that the Pipe's value IS the value to set, and we'll get the key from the BotAction's higher order `key` param
+            value = pipeValue
+          }
+        }
+      }
+      if (!key) {
+        if (pipeValue && pipeValue.key) {
+          key = pipeValue.key
+        }
+      }
+
+      await page.evaluate(
+        setLocalStorageKeyValue,
+        key ? key : 'missing-key',
+        value ? value : 'missing-value'
+      )
+    }
 ```
-Sets one key/value pair in Local Storage by the key provided. Both the key and value can be passed in through a mixture of higher-order params and Pipe values. Higher-order params override injected values, including Pipe. The Pipe value can be value you want to set directly, or an object for the key and/or value ie `{key: 'some-key', value: 'some-value'}`.
+Both the key and value can be passed in through a mixture of higher-order params and Pipe values. Higher-order params override injected values, including Pipe. The Pipe value can be value you want to set directly, or an object for the key and/or value ie `{key: 'some-key', value: 'some-value'}`.
+
+```typescript
+await chain(
+  setLocalStorageItem('auth-token', 'some-real-auth-token-value')
+)(page)
+```
 
 ## Get Local Storage Item
+
+Gets the value of one item from Local Storage by key.
+
 ```typescript
-getLocalStorageItem(key?: string) => BotAction<string|null>
+const getLocalStorageItem = 
+  (key?: string): BotAction<string|null> => 
+    async(page, ...injects) => {
+      const pipeValue = getInjectsPipeValue(injects)
+
+      if (!key) {
+        if (pipeValue) {
+          if (pipeValue.key) {
+            key = pipeValue.key
+          } else {
+            key = pipeValue
+          }
+        }
+      }
+
+      return await page.evaluate(
+        getLocalStorageKeyValue,
+        key ? key : 'missing-key'
+      )
+    }
 ```
-Gets the value of one item from Local Storage by key. If the key does not exist, it returns `null`, just like Local Storage. The key can be Piped in as the Pipe's value or an object wrapped key ie `{key: 'some-key'}`.
+If the key does not exist, it returns `null`, just like Local Storage. The key can be Piped in as the Pipe's value or an object wrapped key ie `{key: 'some-key'}`.
+
+For an usage example, see [Pipe BotAction](/advanced/piping#pipe-botaction).
+
+## Helpers
+
+In order to interact with Local Storage in the Puppeteer Page, separate functions need to be "evaluated" in the Page. Therefore, the following Helper functions are setup as if running inside a Browser Page, instead of NodeJS. 
+
+> If you `console.log()` in an evaluated Page function, don't look for it in NodeJS's console, but the Puppeteer Page's console.
+
+### setLocalStorageKeyValue()
+```typescript
+const setLocalStorageKeyValue = (key: string, value: string) => {
+  localStorage.setItem(key, value)
+}
+```
+
+### getLocalStorageKeyValue()
+```typescript
+const getLocalStorageKeyValue = (key: string): string|null => 
+  localStorage.getItem(key)
+```
+
+### removeLocalStorageKeyValue()
+```typescript
+const removeLocalStorageKeyValue = (key: string) => {
+  localStorage.removeItem(key)
+}
+```
+
+### clearLocalStorage()
+```typescript
+const clearLocalStorage = () => {
+  localStorage.clear()
+}
+```
