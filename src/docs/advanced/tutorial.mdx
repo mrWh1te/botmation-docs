@@ -2,18 +2,133 @@
 title: Tutorial
 ---
 
-# -Under Construction-
+In this tutorial, we're going to make a web bot that logs into LinkedIn.
 
-In this tutorial, we're going to make a Bot that likes posts on LinkedIn.
+## Introduction
 
-Automating tasks on the web intro
+Automating tasks in the web through Puppeteer is about programatically controlling the browser as if you were a real User. Automating tasks, is as much capturing what you would normally do, step by step, but in code.
 
-Break down the task into steps.
+The Chrome [Puppeteer Recorder](https://chrome.google.com/webstore/detail/puppeteer-recorder/djeegiggegleadkkbgopoonhjimgehda?hl=en) extension is a great example to see what we'll be doing in this tutorial, except the final code will be declaratively composed with BotAction's.
 
-Research selectors/etc for the steps
 
-Build BotAction's for the steps
+## Break down
 
-Compose BotAction's with steps for simple readable end solution of a few lines
-  ie if guest, login 
-     if user, then go to feed and scrape for content and like content from people list or by hash tags
+For this tutorial, we're going to begin building a web bot to automate interactions on LinkedIn, such as Liking Posts.
+
+<img src="/yellow_bot.PNG" alt="Yellow Bot" align="right" width="150px" />
+
+For now, we're going to focus on logging in.
+
+## Research
+
+When it comes to logging in, it's best to find a service's login page, instead of relying on what you find on the home page, a dropdown, or modal. The home page and general site UX are subject to change frequently, while a dedicated login page remains mostly unchanged, and therefore will experience less breaking changes, as the web app evolves.
+
+For [LinkedIn](https://www.linkedin.com), they have a dedicated [Login page](https://www.linkedin.com/login). Perfect.
+
+Next, we need to do build a `login()` BotAction for LinkedIn. In order for the bot to login, it will have to click the form's input fields, enter the correct information, hit the "Sign in" button, then wait for the new page to load.
+
+Most of these steps requires the bot to interact with specific HTML elements. Therefore, we need to figure out what those are, and write HTML selectors to uniquely pick them out. In order to that, you could use the [Puppeteer Recorder](https://chrome.google.com/webstore/detail/puppeteer-recorder/djeegiggegleadkkbgopoonhjimgehda?hl=en) extension, but for understanding, let's go through it manually.
+
+For starters, you'll need to look at the rendered HTML source code for the Form that we want to interact with. 
+> Right-click around the center of the form, then click "Inspect Element"
+
+From here, we're looking for the specific HTML elements that the bot will interact with such as the `input`'s and the `button`.
+
+Let's look at a cleaned up version of the Login page's form:
+```html
+<form method="post" class="login__form" action="/checkpoint/lg/login-submit" novalidate="">
+  <div class="form__input--floating">
+    <input id="username" name="session_key" type="text" aria-describedby="error-for-username" required="" validation="email|tel" autofocus="" aria-label="Email or Phone">
+    <label class="form__label--floating" for="username" aria-hidden="true">
+      Email or Phone
+    </label>
+    
+    <input id="password" type="password" aria-describedby="error-for-password" name="session_password" required="" validation="password" aria-label="Password">
+    <label for="password" class="form__label--floating" aria-hidden="true">
+      Password
+    </label>
+    
+    <button class="btn__primary--large from__button--floating" data-litms-control-urn="login-submit" type="submit" aria-label="Sign in">
+      Sign in
+    </button>
+  </div>
+</form>
+```
+> There were many hidden inputs and other HTML elements, but for simplicity sake, I removed them
+
+We only care about three things in this form:
+
+1. Username input field
+2. Password input field
+3. Submit form button
+
+That's all it takes for a User to Sign in on this page, and therefore that's the main focus of this BotAction.
+
+When it comes to writing HTML selectors, it's best to avoid uniquely generated identifiers, and mostly rely on HTML structure and possibly classes or attributes. For this example, the following selectors are generic enough to survive possible page changes, form collisions (usually a dedicated login page only has one form), but specific enough to not get confused with other elements:
+1. Username input field
+```typescript
+form input[id="username"]
+```
+2. Password input field
+```typescript
+form input[id="password"]
+```
+3. Submit form button
+```typescript
+form button[type="submit"]
+```
+## Building the BotAction
+In order to build this BotAction, we're going to assemble a line of other BotAction's, specifically [goTo()](/api/navigation#go-to), [click()](/api/input#click), [type()](/api/input#type), [waitForNavigation](/api/navigation#wait-for-navigation) and [log()](/api/console#log).
+
+The flow is simple. Go to the login page, click the input fields, type the information, click the submit button, wait for navigation to complete, and log a friendly success message.
+
+Let's see the code:
+```typescript
+const login = (emailOrPhone: string, password: string): BotAction =>
+  chain(
+    goTo('https://www.linkedin.com/login'),
+    click('form input[id="username"]'),
+    type(emailOrPhone),
+    click('form input[id="password"]'),
+    type(password),
+    click('form button[type="submit"]'),
+    waitForNavigation,
+    log('LinkedIn Login Complete')
+  )
+```
+
+In order to make this function customizable, a higher-order function wraps it to provide the `emailOrPhone` and `password` values as the information entered into the form.
+
+If you're new to composing BotAction's, read more here in this [overview documentation](/overview#composing-botactions).
+
+## Assembling the Bot
+
+Now let's assemble the Bot that will log in and take a screenshot of our feed:
+```typescript
+// Separate Helper Function
+const generateTimeStamp = (): string => {
+  let x = new Date();
+
+  // Title the screenshot file with a timestamp
+  // "year-month-date-hours-minutes" ie "2020-8-21-13-20"
+  return x.getFullYear() + '-' + 
+       ( x.getMonth() + 1 ) + '-' + 
+         x.getDate() + '-' + 
+         x.getHours() + '-' + 
+         x.getMinutes();
+}
+
+// Main script
+(async() => {
+  const browser = await puppeteer.launch({headless: false});
+  const pages = await browser.pages();
+  const page = pages.length === 0 ? await browser.newPage() : pages[0];
+
+  // Bot
+  await chain(
+    login('linkedin-account@email.com', 'linkedin-account-password'),
+    goTo('https://www.linkedin.com/feed/'),
+    screenshot(generateTimeStamp()) // filename ie "2020-8-21-13-20.png" 
+  )(page);
+})()
+```

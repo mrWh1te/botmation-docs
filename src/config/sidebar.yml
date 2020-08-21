@@ -28,7 +28,7 @@
     - label: 'Concurrency'
       link: '/advanced/concurrency'
     - label: 'Tutorial'
-      link: '/tutorial'
+      link: '/advanced/tutorial'
 
 - label: 'Sites'
   items:

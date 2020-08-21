@@ -41,7 +41,7 @@ const isGuest: ConditionalBotAction =
     map(viewerId => viewerId ? false : true),
   )
 ```
-This BotAction is a composition that uses [indexedDBStore()()](/api/indexed-db#indexeddbstore) to assemble BotAction's with the IndexedDB Database name and Store name [injected](/advanced/injects). This simply grabs the value for the `users.viewerId` key then maps it to the corresponding boolean value.
+This BotAction is a composition that uses [indexedDBStore()()](/api/indexed-db#indexeddbstore) to assemble BotAction's with the IndexedDB Database name and Store name [injected](/advanced/injects). This simply grabs the value for the `users.viewerId` key then [maps](/api/pipe#map) it to the corresponding boolean value.
 
 ## isLoggedIn ConditionalBotAction
 ```typescript
@@ -51,7 +51,7 @@ const isLoggedIn: ConditionalBotAction =
     map(viewerId => viewerId ? true : false)
   )
 ```
-This BotAction is a composition that uses [indexedDBStore()()](/api/indexed-db#indexeddbstore) to assemble BotAction's with the IndexedDB Database name and Store name [injected](/advanced/injects). This simply grabs the value for the `users.viewerId` key then maps it to the corresponding boolean value.
+This BotAction is a composition that uses [indexedDBStore()()](/api/indexed-db#indexeddbstore) to assemble BotAction's with the IndexedDB Database name and Store name [injected](/advanced/injects). This simply grabs the value for the `users.viewerId` key then [maps](/api/pipe#map) it to the corresponding boolean value.
 
 ## isTurnOnNotificationsModalActive ConditionalBotAction
 ```typescript
