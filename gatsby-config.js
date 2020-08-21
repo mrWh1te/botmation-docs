@@ -2,7 +2,7 @@ module.exports = {
   siteMetadata: {
     siteTitle: `Botmation Documentation`,
     defaultTitle: `Botmation Documentation`,
-    siteTitleShort: `Botmation Docs v2.0.0`,
+    siteTitleShort: `Botmation Docs v2.0.x`,
     siteDescription: `Documentation for the TypeScript library Botmation`,
     siteUrl: `https://botmation.dev`,
     siteAuthor: `Michael Lage`,
@@ -25,8 +25,8 @@ module.exports = {
     {
       resolve: `gatsby-plugin-manifest`,
       options: {
-        name: `Rocketseat Gatsby Themes`,
-        short_name: `RS Gatsby Themes`,
+        name: `Botmation Docs`,
+        short_name: `Botmation Docs`,
         start_url: `/`,
         background_color: `#ffffff`,
         display: `standalone`,
@@ -43,7 +43,7 @@ module.exports = {
     {
       resolve: `gatsby-plugin-canonical-urls`,
       options: {
-        siteUrl: `https://rocketdocs.netlify.com`,
+        siteUrl: `https://botmation.dev`,
       },
     },
     `gatsby-plugin-offline`,
