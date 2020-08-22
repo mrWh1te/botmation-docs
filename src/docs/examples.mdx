@@ -4,40 +4,6 @@ title: 'Examples'
 
 In the `./src/examples` [directory](https://github.com/mrWh1te/Botmation/tree/master/src/examples) of Botmation's repo, exists a small collection of example bots, pre-built, to help you get started:
 
-## Object-Oriented Bot
-Classes are great for encapsulating functionality. It's possible to use Botmation to compose instance functions that operate on the bot's `page`. Here's an example:
-
-```typescript
-class ExampleSiteBot {
-  private page: Puppeteer.Page;
-
-  constructor(page: Puppeteer.Page) {
-    this.page = page;
-  }
-
-  public async login() {
-    await chain(
-      goTo('http://example.com/login.html'),
-      click('form input[name="username"]'),
-      type(username),
-      click('form input[name="password"]'),
-      type(password),
-      click('form button[type="submit"]'),
-      waitForNavigation,
-      log('Login Complete')
-    )(this.page);
-  }
-
-  public async takeAPhoto(fileName: string) {
-    await screenshot(fileName)(this.page);
-  }
-}
-```
-
-We can create an instance of this class and `await` the `login()` method then `await` the `takeAPhoto()` as needed.
-
-Here is an [object-oriented example](https://github.com/mrWh1te/Botmation/tree/master/src/examples/simple_objectoriented.ts), where the class provides a composable `actions()` method and supports [Injects](advanced/injecting).
-
 ## Functional Bot
 Functional is lean and reduces barriers in reusing code. Here is a [simple functional example](https://github.com/mrWh1te/Botmation/tree/master/src/examples/simple_functional.ts) that takes a screenshot:
 
@@ -128,3 +94,37 @@ await chain(
 ConditionalBotAction's return a Promise that resolves a boolean value. `givenThat()()()` runs the ConditionalBotAction and waits for the value to resolve. If the value resolves `true`, then it runs the assembled BotAction's.
 
 Therefore, the console will log `is guest so logging in` only if the `isGuest` BotAction resolves `true` and similar for `is logged in`.
+
+## Object-Oriented Bot
+Classes are great for encapsulating functionality. It's possible to use Botmation to compose instance functions that operate on the bot's `page`. Here's an example:
+
+```typescript
+class ExampleSiteBot {
+  private page: Puppeteer.Page;
+
+  constructor(page: Puppeteer.Page) {
+    this.page = page;
+  }
+
+  public async login() {
+    await chain(
+      goTo('http://example.com/login.html'),
+      click('form input[name="username"]'),
+      type(username),
+      click('form input[name="password"]'),
+      type(password),
+      click('form button[type="submit"]'),
+      waitForNavigation,
+      log('Login Complete')
+    )(this.page);
+  }
+
+  public async takeAPhoto(fileName: string) {
+    await screenshot(fileName)(this.page);
+  }
+}
+```
+
+We can create an instance of this class and `await` the `login()` method then `await` the `takeAPhoto()` as needed.
+
+Here is an [object-oriented example](https://github.com/mrWh1te/Botmation/tree/master/src/examples/simple_objectoriented.ts), where the class provides a composable `actions()` method and supports [Injects](advanced/injecting).
