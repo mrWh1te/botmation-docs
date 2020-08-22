@@ -3,7 +3,7 @@ module.exports = {
     siteTitle: `Botmation Documentation`,
     defaultTitle: `Botmation Documentation`,
     siteTitleShort: `Botmation Docs v2.0.x`,
-    siteDescription: `Documentation for the TypeScript library Botmation`,
+    siteDescription: `Compose web bots declaratively with the simple TypeScript framework called Botmation`,
     siteUrl: `https://botmation.dev`,
     siteAuthor: `Michael Lage`,
     siteImage: `/banner.png`,
