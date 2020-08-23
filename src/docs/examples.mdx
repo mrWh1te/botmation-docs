@@ -2,7 +2,7 @@
 title: 'Examples'
 ---
 
-In the `./src/examples` [directory](https://github.com/mrWh1te/Botmation/tree/master/src/examples) of Botmation's repo, exists a small collection of example bots, pre-built, to help you get started:
+In the "./src/examples" [directory](https://github.com/mrWh1te/Botmation/tree/master/src/examples) of Botmation's repo, exists a small collection of example bots, pre-built, to help you get started:
 
 ## Functional Bot
 Functional is lean and reduces barriers in reusing code. Here is a [simple functional example](https://github.com/mrWh1te/Botmation/tree/master/src/examples/simple_functional.ts) that takes a screenshot:
@@ -21,7 +21,7 @@ await chain(
 ```
 
 ## Screenshots Bot
-This [screenshots example](https://github.com/mrWh1te/Botmation/tree/master/src/examples/screenshots.ts) demonstrates the power of Puppeteer in the ease of generating PNG screenshots, when combined with Botmation, in a composable way, to reduce the amount of code you write in generating screenshots of many websites. It uses an Utility BotAction called [forAll()()](/api/utilities#for-all), let's see it in action:
+This [screenshots example](https://github.com/mrWh1te/Botmation/tree/master/src/examples/screenshots.ts) demonstrates the power of Puppeteer in the ease of generating PNG screenshots, and ease of Botmation, in composing a bot that saves screenshots of many websites. Let's see it in action:
 
 ```typescript
 const browser = await puppeteer.launch({headless: false});
@@ -55,9 +55,11 @@ await chain(
 )(page);
 ```
 
+> It uses an Utility BotAction called [forAll()()](/api/utilities#for-all)
+
 ## Instagram Bot
 
-This [Instagram example](https://github.com/mrWh1te/Botmation/tree/master/src/examples/instagram.ts) uses an Utility BotAction called [givenThat()()](/api/utilities#given-that) as a functional if statement to check the authentication status of the bot.
+The [Instagram example](https://github.com/mrWh1te/Botmation/tree/master/src/examples/instagram.ts) is built with BotAction's made for Instagram's web app. They are included in Botmation v2.x. 
 
 Let's look at a simplified version:
 
@@ -89,14 +91,14 @@ await chain(
 
 [isGuest](/sites/instagram#isguest-conditionalbotaction) and [isLoggedIn](/sites/instagram#isloggedin-conditionalbotaction) are a special kind of BotAction called ConditionalBotAction. These two, and [login()](/sites/instagram#login-botaction) are part of the `Botmation` npm package that can be imported for you to use and are specific for Instagram's web app.
 
-> It's currently planned to support Instagram's auth BotAction's inside the Botmation npm package until major v3.0.0. Soon, to be released as a separate new npm package ie `botmation-instagram` will provide the same BotAction's. There will be separate npm packages for each collection of BotAction's focused on a particular website ie Twitter, Instagram, LinkedIn, etc.
+> It's currently planned to support Instagram's auth BotAction's inside the Botmation npm package until major v3.0.0. Soon, to be released as a separate new npm package ie `botmation-instagram` will provide the same BotAction's with the same license. There will be separate npm packages for each collection of BotAction's focused on each website like Twitter, Instagram, LinkedIn, Reddit, etc.
 
 ConditionalBotAction's return a Promise that resolves a boolean value. `givenThat()()()` runs the ConditionalBotAction and waits for the value to resolve. If the value resolves `true`, then it runs the assembled BotAction's.
 
 Therefore, the console will log `is guest so logging in` only if the `isGuest` BotAction resolves `true` and similar for `is logged in`.
 
 ## Object-Oriented Bot
-Classes are great for encapsulating functionality. It's possible to use Botmation to compose instance functions that operate on the bot's `page`. Here's an example:
+Classes are great for encapsulating functionality, but make it harder to reuse composed functionality. Regardless, it's possible to use Botmation to compose instance functions that operate on the bot's `page`. Here's an example:
 
 ```typescript
 class ExampleSiteBot {
