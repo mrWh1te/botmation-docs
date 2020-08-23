@@ -2,7 +2,9 @@
 title: Injects
 ---
 
-Botmation's pattern of composing BotAction's has support for injecting other dependencies to help complete a task. 
+Botmation's pattern of composing BotAction's has support for injecting other dependencies to help complete various tasks. 
+
+> Injecting dependencies is a good pattern for Unit-Testing as they can be mocked easily
 
 ## BotAction Interface
 
@@ -13,9 +15,9 @@ interface BotAction<R = void, I extends Array<any> = any[]> extends Function {
 }
 ```
 
-See, there is a second param, after `page` called `injects` which, by default, is a spread array of `any`. It's optional, you don't have to use it. But, it can be handy. All Assembly Lines supports the `injects` system.
+See, there is a second param, after `page` called `injects` which, by default, is a spread array of `any`. It's optional, you don't have to use it. But, it's useful. All Assembly Lines supports the `injects` system.
 
-If you need to provide an object(s), value(s), service(s), etc. consistently to a line of BotAction's, you can do so by injecting them. Let's see how we inject them in the first place:
+If many BotAction's in a line need an object(s), value(s), service(s), etc. then inject them. Let's see how:
 
 ```typescript
 const service = new ServiceA()
@@ -30,7 +32,9 @@ The assembled BotAction's in the `chain()` will be called with `service` and `to
 
 ## Inject BotAction
 
-Now, what if you want to compose a line of actions, but with new injects? You can use the `inject()()` BotAction to pass in new injects, prepended to the higher level injects. A few BotAction's are composed with `inject()()` like `files()()` and `indexedDBStore()()`. Those composed BotAction's inject the first few `injects` provided in the first `inject()` call then pass in the other injects from the higher context, for the declared BotAction's.
+Now, what if you want to compose a line of actions, but with new injects? You can use the `inject()()` BotAction to pass in new injects. The higher level injects will be appended to the new ones.
+
+A few BotAction's are composed with `inject()()` such as `files()()` and `indexedDBStore()()`. Those composed BotAction's inject specific `injects` from the first `inject()` call, and append the other injects from the higher context, for the assembled BotAction's.
 
 Here's an example:
 ```typescript
@@ -48,4 +52,4 @@ await chain(
                         // but, will still have `generalService` as its 1st inject
 )(page, generalService)
 ```
-This gives granular control of what's passed in the spread `injects` array for assembled BotAction's.
+This gives granular control of what's passed in the spreaded `injects` array for assembled BotAction's in various scopes.

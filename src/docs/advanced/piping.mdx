@@ -2,9 +2,9 @@
 title: Piping
 ---
 
-There's another kind of Assembly Line, a special kind, for passing data from one BotAction to the next. It's called Pipe. When BotAction's are assembled in a Pipe, the values they return, are "piped" into subsequent BotAction's. Pipes wrap the values resolved from each BotAction, in a branded Pipe object (for type gaurding), then injects the Pipe object at the end of the spread `injects` array for each subsequent BotAction.
+There's a special kind of Assembly Line for passing data from one BotAction to the next called Pipe. When BotAction's are assembled in a Pipe, the values they return, are "piped" into subsequent BotAction's. Pipes wrap the values resolved from each assembled BotAction, in a branded Pipe object (for type gaurding), then injects the Pipe object at the end of the spreaded `injects` array.
 
-This is useful for de-composing implicit functionality that depends on data collected from the page. For example, if a website stores the User auth token in Local Storage, a single a BotAction can get the value, then the next BotAction can operate on it, all through a Pipe. 
+This is useful for de-composing complex functionality that depends on data collected from a page. For example, if a website stores the User auth token in Local Storage, a single a BotAction can get the value, then the next BotAction can operate on it, all through a Pipe.
 
 ## Pipe BotAction
 
@@ -16,9 +16,9 @@ await pipe()(
    log('User ID is in the Pipe') // has '12345' as the Pipe valued logged to console
 )(page)
 ```
-[setLocalStorageItem()](/api/local-storage#set-local-storage-item) sets a key/value in Local Storage. It does not return a value. BotAction's assembled in Pipe's don't have to return a value. However, [getLocalStorageItem()](/api/local-storage#get-local-storage-item) reads the value by the `key` provided, then returns it. 
+[setLocalStorageItem()](/api/local-storage#set-local-storage-item) sets a key/value in Local Storage. It does not return a value. BotAction's assembled in Pipe's don't have to return a value. However, [getLocalStorageItem()](/api/local-storage#get-local-storage-item) reads the value by the `key` provided, then returns it. `log()` then logs the message and Pipe object value.
 
-> "Console" BotAction's support logging Pipe values, when assembled in a Pipe, so the [log()](/api/console#log) call seen here, will log in additional statement to the console with the Pipe value of `"12345"`.
+> "Console" BotAction's support logging Pipe values, when assembled in a Pipe and return the Pipe value like passing it along. Read more in the API docs for [log()](/api/console#log).
 
 ## Pipe object
 `pipe()()()` runs the assembled actions, one at a time, and checks the values returned from each. When a function doesn't return a value, that is considered, emptying the Pipe. Empty pipes are still injected and have an `undefined` value:
@@ -29,7 +29,7 @@ const anEmptyPipeObject = {
     value: undefined
 }
 ```
-When running a `pipe()()` in a context without Piping, `pipe()()()` will inject an empty Pipe object into the first assembled BotAction, unless you override that by passing in a value to in the first `pipe()` call.
+When running a `pipe()()` in a context without Piping, `pipe()()()` will inject an empty Pipe object into the first assembled BotAction, unless you override that by passing in a value to pipe, in the first `pipe()` call.
 
 ## BotAction's specific to Piping
 
@@ -48,6 +48,8 @@ Here we are getting a value from the `redux` IndexedDB database, in a store call
 ## Helpers for Piping
 
 Also, there are separate functions in this library, that are found in the module, that are not BotAction's, but regular functions, to help reduce boilerplate called Helpers. For example, there are many Helper functions for piping.
+
+<img src="/yellow_bot.PNG" alt="Yellow Bot" width="150px" align="right" />
 
 To name a few, there are [unpipeInjects()](/api/pipe#unpipeinjects), [removePipe()](/api/pipe#removepipe), [getInjectsPipeValue()](/api/pipe#getinjectspipevalue), [wrapValueInPipe()](/api/pipe#wrapvalueinpipe), [pipeInjects()](/api/pipe#pipeinjects), and so forth. When starting out with piping, the first three are the most relevant as they help write pipeable BotAction's that can be still be used safely in a Chain.
 
