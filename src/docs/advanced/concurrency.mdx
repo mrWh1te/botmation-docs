@@ -39,6 +39,6 @@ import { Cluster } from 'puppeteer-cluster'
 ```
 
 ## Dynamic Clustering Bots
-To create a Bot for clustering (bots in a cluster are ran concurrently), you can create an async function that takes an object `{page: Page, data: any}` as a param, for dynamically queueing the Puppeteer code, multiple times with varying options like starting URL.
+To create a Bot for clustering (bots in a cluster are ran concurrently), you create an async function that takes an object `{page: Page, data: any}` as a param, for dynamically queueing the Puppeteer code, multiple times with varying options such as starting URL.
 
-Check out [puppeteer-cluster](https://github.com/thomasdondorf/puppeteer-cluster) for great documentation on all that's possible.
+Check out [puppeteer-cluster](https://github.com/thomasdondorf/puppeteer-cluster) for documentation.
