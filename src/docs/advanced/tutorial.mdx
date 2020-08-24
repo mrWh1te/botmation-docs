@@ -2,39 +2,32 @@
 title: Tutorial
 ---
 
-In this tutorial, we're going to make a web bot that logs into LinkedIn.
-
 ## Introduction
 
-Automating tasks in the web through Puppeteer is about programatically controlling the browser as if you were a real User. Automating tasks, is as much capturing what you would normally do, step by step, but in code.
+Automating tasks in the web through Puppeteer is about programatically controlling the browser as if you were a real User. Automating tasks is done by capturing what Users do in web apps, step by step, but in code.
 
 The Chrome [Puppeteer Recorder](https://chrome.google.com/webstore/detail/puppeteer-recorder/djeegiggegleadkkbgopoonhjimgehda?hl=en) extension is a great example to see what we'll be doing in this tutorial, except the final code will be declaratively composed with BotAction's.
 
-
-## Break down
-
-For this tutorial, we're going to begin building a web bot to automate interactions on LinkedIn, such as Liking Posts.
+In this tutorial, we're going to make a web bot that logs into LinkedIn.
 
 <img src="/yellow_bot.PNG" alt="Yellow Bot" align="right" width="150px" />
 
-For now, we're going to focus on logging in.
-
 ## Research
 
-When it comes to logging in, it's best to find a service's login page, instead of relying on what you find on the home page, a dropdown, or modal. The home page and general site UX are subject to change frequently, while a dedicated login page remains mostly unchanged, and therefore will experience less breaking changes, as the web app evolves.
+When it comes to logging in, it's best to find a service's login page, instead of relying on what you find on the home page, a dropdown, or modal. The home page and general site UX are subject to change frequently, while a dedicated login page remains mostly unchanged, and therefore will experience less breaking changes, as time moves forward.
 
 For [LinkedIn](https://www.linkedin.com), they have a dedicated [Login page](https://www.linkedin.com/login). Perfect.
 
-Next, we need to do build a `login()` BotAction for LinkedIn. In order for the bot to login, it will have to click the form's input fields, enter the correct information, hit the "Sign in" button, then wait for the new page to load.
+> Some websites do not link their dedicated login page, for various reasons, but it's worth trying a few URL patterns such as "example.com/login", "example.com/auth/login.html", if you don't find it initially.
 
-Most of these steps requires the bot to interact with specific HTML elements. Therefore, we need to figure out what those are, and write HTML selectors to uniquely pick them out. In order to that, you could use the [Puppeteer Recorder](https://chrome.google.com/webstore/detail/puppeteer-recorder/djeegiggegleadkkbgopoonhjimgehda?hl=en) extension, but for understanding, let's go through it manually.
+Next, we need to do build a `login()` BotAction for LinkedIn. In order for the bot to login, it will have to go to the login page, click the form's input fields, enter the correct information, hit the "Sign in" button, then wait for the new page to load.
 
-For starters, you'll need to look at the rendered HTML source code for the Form that we want to interact with. 
+Most of these steps requires the bot to interact with specific HTML elements such as `input` and `button`. Therefore, we need to figure out how to refer to them, by writing HTML selectors that identify them.
+
+Let's look at the rendered HTML source code for the Login Form. 
 > Right-click around the center of the form, then click "Inspect Element"
 
-From here, we're looking for the specific HTML elements that the bot will interact with such as the `input`'s and the `button`.
-
-Let's look at a cleaned up version of the Login page's form:
+Here's a cleaned up version of the page's login form:
 ```html
 <form method="post" class="login__form" action="/checkpoint/lg/login-submit" novalidate="">
   <div class="form__input--floating">
@@ -54,19 +47,19 @@ Let's look at a cleaned up version of the Login page's form:
   </div>
 </form>
 ```
-> There were many hidden inputs and other HTML elements, but for simplicity sake, I removed them
+> There were many hidden inputs and other HTML elements that don't matter, so for simplicity sake, I removed them
 
 <img src="/blue_bot.png" alt="Orange Bot" align="right" width="130px" />
 
-We only care about three things in this form:
+We care about three things from this form:
 
 1. Username input field
 2. Password input field
 3. Submit form button
 
-That's all it takes for a User to Sign in on this page, and therefore that's the main focus of this BotAction.
+For each one of these, we're going to write a HTML selector to grab it. 
 
-When it comes to writing HTML selectors, it's best to avoid uniquely generated identifiers, and mostly rely on HTML structure and possibly classes or attributes. For this example, the following selectors are generic enough to survive possible page changes, form collisions (usually a dedicated login page only has one form), but specific enough to not get confused with other elements:
+When it comes to writing HTML selectors, it's best to avoid uniquely generated identifiers, and mostly rely on HTML structure, CSS classes/id's and HTML attributes. For this example, the following selectors are generic enough to survive possible page changes, but possibly not specific enough to avoid future form collisions:
 1. Username input field
 ```typescript
 form input[id="username"]
@@ -79,8 +72,12 @@ form input[id="password"]
 ```typescript
 form button[type="submit"]
 ```
+
+Fortunately, most dedicated login pages only have one visible form, so this should suffice.
+
 ## Building the BotAction
-In order to build this BotAction, we're going to assemble a line of other BotAction's, specifically [goTo()](/api/navigation#go-to), [click()](/api/input#click), [type()](/api/input#type), [waitForNavigation](/api/navigation#wait-for-navigation) and [log()](/api/console#log).
+
+This BotAction is going to be an assembly of other BotAction's, specifically [goTo()](/api/navigation#go-to), [click()](/api/input#click), [type()](/api/input#type), [waitForNavigation](/api/navigation#wait-for-navigation) and [log()](/api/console#log).
 
 The flow is simple. Go to the login page, click the input fields, type the information, click the submit button, wait for navigation to complete, and log a friendly success message.
 
@@ -99,13 +96,13 @@ const login = (emailOrPhone: string, password: string): BotAction =>
   )
 ```
 
-In order to make this function customizable, a higher-order function wraps it to provide the `emailOrPhone` and `password` values as the information entered into the form.
+This function is customizable through its higher-order function that provides the `emailOrPhone` and `password` values as information to enter into the form.
 
 If you're new to composing BotAction's, read more here in this [overview documentation](/overview#composing-botactions).
 
 ## Assembling the Bot
 
-Now let's assemble the Bot that will log in and take a screenshot of our feed:
+Now let's assemble the Bot that will log in and take a screenshot of our LinkedIn feed:
 ```typescript
 // Separate Helper Function
 const generateTimeStamp = (): string => {
@@ -127,10 +124,19 @@ const generateTimeStamp = (): string => {
   const page = pages.length === 0 ? await browser.newPage() : pages[0];
 
   // Bot
-  await chain(
+  const linkedin_bot = chain(
     login('linkedin-account@email.com', 'linkedin-account-password'),
     goTo('https://www.linkedin.com/feed/'),
     screenshot(generateTimeStamp()) // filename ie "2020-8-21-13-20.png" 
-  )(page);
+  );
+
+  await linkedin_bot(page);
 })()
 ```
+
+Simple, declarative, and composable. We can reuse our `linkedin_bot` multiple times, and the parts that compose it.
+
+## Challenge
+How would you go about making `linkedin_bot` dynamic as in a function that accepts the auth information so the bot could be used in multiple pages with varying credentials?
+
+Hint: Use a higher-order function
