@@ -25,19 +25,19 @@ The possibilities for assembling bots are endless.
 > If you are new to Functional programming, but are familiar with Object-Oriented, consider this. Functional programming replaces Classes with a composable system for assembling functions together, like building blocks, to *compose* bigger functions as instances of Classes, using only the functionality required. The pattern removes Classes as a code sharing barrier and minimizes runtime overhead.
 
 ## What is a BotAction?
-A BotAction is a web bot part. They can be assembled together, like building blocks, to build web bots and compose bigger BotAction's.
+A BotAction is in essence, a web bot part. They are assembled together, like building blocks, to build web bots and compose bigger more powerful BotAction's.
 
-A BotAction is an async function that does one task, small or big. For example, change the page URL, take a screenshot of the window, type something with a keyboard, click something with a mouse, manage your Instagram account (login, like friends' posts), run all the tasks of a bot by managing multiple online identities, etc.
+A BotAction is an async function that does a task, small or big. For example, change the page URL, take a screenshot of the window, type something with a keyboard, click something with a mouse, manage your Instagram account (login, like friends' posts), run all the tasks of your bot in managing multiple online identities, etc.
 
-BotAction's are organized by type. Some are simple, while others are complex. They can be customized with higher-order functions and composed with other BotAction's. More on that later.
+Botmation's BotAction's are organized by type. Some are simple, while others are complex. Some are customized with higher-order functions or composed with other BotAction's. But, more on that later.
 
 ## Running BotAction's
 
-BotAction's are ran to completion by resolving their returned Promise.
+BotAction's are ran by resolving their returned Promise.
 
 > If you're unfamiliar with async functions in JavaScript, they are simply functions that return Promises. Promises is a way to handle async functionality like reacting to events when you don't know when they'll take place. This is important since a lot of Puppeteer's API is asynchronous.
 
-Some BotAction's are returned from higher-order functions whose params make the BotAction customizable.
+Some BotAction's are returned from higher-order functions whose params customize the BotAction.
 
 For example, this is how you run the `goTo()` & `waitForNavigation` BotAction's:
 ```typescript
