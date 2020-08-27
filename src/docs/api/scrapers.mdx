@@ -1,0 +1,36 @@
+---
+title: 'Scrapers'
+---
+
+These BotAction's scrape the page's `document` with a HTML parser. The default parser is [cheerio](https://github.com/cheeriojs/cheerio).
+
+You can override the HTML parser via higher-order param, or as the first [inject](/advanced/injects). 
+
+## HTML Parser
+A higher-order BotAction that will take a function to set as the first [inject](/advanced/injects) for assembled BotAction's. This function, if not overriden with a higher-order version, is applied on the string form of the scraped HTML.
+
+> If you are trying to use a Class, just create a function that references it and maybe creates an instance from it's Constructor to return that. The HTML parser function is ran in NodeJS, *not* evaluated in the page.
+
+```typescript
+const htmlParser = (htmlParser: Function) =>
+  (...actions: BotAction[]): BotAction => 
+    pipe()(
+      inject(htmlParser)(
+        errors('htmlParser()()')(...actions)
+      )
+    )
+```
+Works great for BotAction's implementing the `ScraperBotAction` interface.
+
+For an usage example, see the [LinkedIn example](https://github.com/mrWh1te/Botmation/blob/master/src/examples/linkedin.ts).
+
+## $
+
+## $$
+
+## Helpers
+
+### getElementOuterHTML()
+
+
+### getElementsOuterHTML()

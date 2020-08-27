@@ -59,6 +59,8 @@
       link: '/api/navigation'
     - label: 'Pipe'
       link: '/api/pipe'
+    - label: 'Scrapers'
+      link: '/api/scrapers'
     - label: 'Utilities'
       link: '/api/utilities'
     
