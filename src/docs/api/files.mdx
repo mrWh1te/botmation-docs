@@ -42,16 +42,12 @@ Takes one screenshot of each URL provided. Filenames are created from urls by re
 
 ```typescript
 const screenshotAll = (urls: string[], botFileOptions?: Partial<BotFileOptions>): BotFilesAction => 
-  async(page, options) => {
-    const hydratedOptions = enrichBotFileOptionsWithDefaults({...options, ...botFileOptions})
-
-    await forAll(urls)(
-      url => ([
-        goTo(url),
-        screenshot(url.replace(/[^a-zA-Z]/g, '_'))
-      ])
-    )(page, hydratedOptions)
-  }
+  forAll(urls)(
+    url => ([
+      goTo(url),
+      screenshot(url.replace(/[^a-zA-Z]/g, '_'), botFileOptions) // filenames are created from urls by replacing nonsafe characters with underscores
+    ])
+  )
 ```
 By default, saves the file in the local directory. You can change the directory where it's saved by overloading the `BotFileOptions`.
 
