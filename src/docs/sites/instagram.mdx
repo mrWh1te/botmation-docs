@@ -91,3 +91,19 @@ const getInstagramLoginUrl = () =>
   getInstagramBaseUrl() + INSTAGRAM_URL_EXT_LOGIN + '/'
 ```
 Returns Instagram's web app's URL for its login page
+
+## Selectors
+
+Helpful HTML element selectors in the Instagram web app, can be imported directly from the main `botmation` package.
+
+These are the following:
+```typescript
+// Auth - Login Page
+const FORM_AUTH_USERNAME_INPUT_SELECTOR = 'html body section main form input[name="username"]'
+const FORM_AUTH_PASSWORD_INPUT_SELECTOR = 'html body section main form input[name="password"]'
+const FORM_AUTH_SUBMIT_BUTTON_SELECTOR = 'html body section main form button[type="submit"]'
+
+// Modals - Home Page
+const MAIN_MODAL_SELECTOR = 'html body div[role="dialog"]'
+const MAIN_MODAL_HEADER_SELECTOR = 'html body div[role="dialog"] h2'
+```
