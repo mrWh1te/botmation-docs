@@ -1,0 +1,151 @@
+---
+title: LinkedIn
+---
+
+These BotAction's focus on managing a LinkedIn account. From logging in, to liking feed posts, it's a small collection to help get you started. 
+
+> These functions are to be published in their own npm package for importing instead of copying/pasting.
+
+## Overview
+
+The current set of BotAction's are for the initial login flow into LinkedIn's web app. Here is a working [example](https://github.com/mrWh1te/Botmation/blob/master/src/examples/linkedin.ts) of them in use.
+
+> Currently in development are BotAction's to dynamically process a news feed and messages
+
+## login() BotAction
+```typescript
+const login = (emailOrPhone: string, password: string): BotAction =>
+  chain(
+    errors('LinkedIn login()')(
+      goTo('https://www.linkedin.com/login'),
+      click('form input[id="username"]'),
+      type(emailOrPhone),
+      click('form input[id="password"]'),
+      type(password),
+      click('form button[type="submit"]'),
+      waitForNavigation,
+      log('LinkedIn Login Complete')
+    )
+  )
+```
+This BotAction is a composition that uses [errors()()](/api/errors#errors) to wrap the main assembled BotAction's, in case something goes wrong here (ie a selector is updated so `click()` fails), dev's will have an easier time debugging when errors are thrown here.
+
+The composition is declarative, therefore needs little explaining. `login()` is a higher-order function that takes a `emailOrPhone` and `password` strings to automatically perform the login flow in the web app.
+
+## isGuest ConditionalBotAction
+```typescript
+const isGuest: ConditionalBotAction = pipe()(
+  // data feature for user notifications
+  getLocalStorageItem('voyager-web:badges'),
+  map(value => value === null) // Local Storage returns null if not found
+)
+```
+After some investigating, it appears that Local Storage is used to maintain the state of the application's features, where each key is a major app feature. The particular key here references, what appears to be, a "Notifications" feature which is global to the app (in the Layout) and belongs only to Users.
+
+## isLoggedIn ConditionalBotAction
+```typescript
+const isLoggedIn: ConditionalBotAction = pipe()(
+  // data feature for user notifications
+  getLocalStorageItem('voyager-web:badges'),
+  map(value => typeof value === 'string') // Local Storage returns string value if found
+)
+```
+After some investigating, it appears that Local Storage is used to maintain the state of the application's features, where each key is a major app feature. The particular key here references, what appears to be, a "Notifications" feature which is global to the app (in the Layout) and belongs only to Users.
+
+## getFeedPosts BotAction
+```typescript
+const getFeedPosts = (filterPromotedContent: boolean = true): BotAction<CheerioStatic[]> =>
+  pipe()(
+    goToFeed,
+    $$(feedPostsSelector),
+    map((cheerioPosts: CheerioStatic[]) => {
+      if (!filterPromotedContent) {
+        return cheerioPosts
+      }
+
+      return cheerioPosts.filter(post => post('.feed-shared-actor__sub-description').text().toLowerCase() !== 'promoted')
+    })
+  )
+```
+
+## postIsAuthoredByAPerson ConditionalBotAction
+```typescript
+const postIsAuthoredByAPerson = (post: CheerioStatic, ...peopleNames: string[]): ConditionalBotAction => 
+  async() => 
+    // if the CheerioStatic post has close matching in author text box a name from peopleNames list, then TRUE else FALSE
+    peopleNames.some(name => name.toLowerCase() === post(feedPostAuthorSelector).text().toLowerCase())
+```
+This BotAction will take a `post` and test its scraped HTML for an Author to see if the Author of the post matches one of the names provided. Can be used to "Like" posts belonging to certain people.
+
+## like BotAction
+```typescript
+const like = (post: CheerioStatic): BotAction =>
+  // Puppeteer.page.click() returned promise will reject if the selector isn't found
+  //    so if button is Pressed, it will reject since the aria-label value will not match
+  errors('LinkedIn like() - Could not Like Post: Either already Liked or button not found')(
+    click( 'div[data-id="' + post('div[data-id]').attr('data-id') + '"] button[aria-label="Like ' + post(feedPostAuthorSelector).text() + '’s post"]')
+  )
+```
+Instagram's web app changes the `aria-label` attribute value, depending on whether or not the button has been "Liked", so this BotAction will only "Like" the post provided, and not toggle it.
+
+## likeAllFrom BotAction
+```typescript
+const likeAllFrom = (...peopleNames: string[]): BotAction => 
+  pipe()(
+    getFeedPosts(),
+    forAll()(
+      post => givenThat(postIsAuthoredByAPerson(post, ...peopleNames))(
+        // scroll to post necessary to click off page link? ie click anchor link (new scrollTo() "navigation" BotAction?)
+        // the feature, auto-scroll, was added to `page.click()` but in a later Puppeteer version, irc
+        like(post)
+      )
+    )
+  )
+```
+This BotAction is a work in progress since it needs to filter the feeds' posts by type, ie posts representing comments of someone you follow, versus posts representing articles posted by people you follow, etc. Each one has a varying layout, therefore their own unique scraping requirements. 
+
+> See this [Proposal](https://github.com/mrWh1te/Botmation/issues/61) for links with developmental progress and notes.
+
+## toggleMessagingOverlay BotAction
+```typescript
+const toggleMessagingOverlay: BotAction =
+  click(messagingOverlayHeaderSelector)
+```
+
+By default, when someone logs into the LinkedIn web app, the "Messaging" center in the bottom-right is open, covering part of the web app. This BotAction will toggle that "Messaging" overlay open and close.
+
+## goHome BotAction
+```typescript
+const goHome: BotAction = 
+  goTo('https://www.linkedin.com/', {waitUntil: 'domcontentloaded'})
+```
+
+## goToFeed BotAction
+```typescript
+const goToFeed: BotAction = 
+  goTo('https://www.linkedin.com/feed/', {waitUntil: 'domcontentloaded'})
+```
+
+## goToMessaging BotAction
+```typescript
+const goToMessaging: BotAction = 
+  goTo('https://www.linkedin.com/messaging/', {waitUntil: 'domcontentloaded'})
+```
+
+## goToNotifications BotAction
+```typescript
+const goToNotifications: BotAction = 
+  goTo('https://www.linkedin.com/notifications/', {waitUntil: 'domcontentloaded'})
+```
+
+## Selectors
+
+Helpful HTML element selectors in the LinkedIn web app:
+```typescript
+// Selectors for Messaging Overlay
+export const messagingOverlayHeaderSelector = 'header.msg-overlay-bubble-header'
+
+// Selectors for the main News Feeds
+export const feedPostsSelector = '.application-outlet .feed-outlet [role="main"] div[data-id]'
+export const feedPostAuthorSelector = '.feed-shared-actor__title'
+```
