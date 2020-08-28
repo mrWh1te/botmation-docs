@@ -12,7 +12,38 @@ The current set of BotAction's are for the initial login flow into LinkedIn's we
 
 > Currently in development are BotAction's to dynamically process a news feed and messages
 
-## login() BotAction
+## Navigation 
+Simple functions for navigating to various parts of the LinkedIn web app.
+
+### goHome
+```typescript
+const goHome: BotAction = 
+  goTo('https://www.linkedin.com/', {waitUntil: 'domcontentloaded'})
+```
+
+### goToFeed
+```typescript
+const goToFeed: BotAction = 
+  goTo('https://www.linkedin.com/feed/', {waitUntil: 'domcontentloaded'})
+```
+
+### goToMessaging
+```typescript
+const goToMessaging: BotAction = 
+  goTo('https://www.linkedin.com/messaging/', {waitUntil: 'domcontentloaded'})
+```
+
+### goToNotifications
+```typescript
+const goToNotifications: BotAction = 
+  goTo('https://www.linkedin.com/notifications/', {waitUntil: 'domcontentloaded'})
+```
+
+## Auth
+
+These BotAction's focus on logging into the LinkedIn web app.
+
+### login()
 ```typescript
 const login = (emailOrPhone: string, password: string): BotAction =>
   chain(
@@ -32,7 +63,7 @@ This BotAction is a composition that uses [errors()()](/api/errors#errors) to wr
 
 The composition is declarative, therefore needs little explaining. `login()` is a higher-order function that takes a `emailOrPhone` and `password` strings to automatically perform the login flow in the web app.
 
-## isGuest ConditionalBotAction
+### isGuest
 ```typescript
 const isGuest: ConditionalBotAction = pipe()(
   // data feature for user notifications
@@ -42,7 +73,7 @@ const isGuest: ConditionalBotAction = pipe()(
 ```
 After some investigating, it appears that Local Storage is used to maintain the state of the application's features, where each key is a major app feature. The particular key here references, what appears to be, a "Notifications" feature which is global to the app (in the Layout) and belongs only to Users.
 
-## isLoggedIn ConditionalBotAction
+### isLoggedIn
 ```typescript
 const isLoggedIn: ConditionalBotAction = pipe()(
   // data feature for user notifications
@@ -52,7 +83,10 @@ const isLoggedIn: ConditionalBotAction = pipe()(
 ```
 After some investigating, it appears that Local Storage is used to maintain the state of the application's features, where each key is a major app feature. The particular key here references, what appears to be, a "Notifications" feature which is global to the app (in the Layout) and belongs only to Users.
 
-## getFeedPosts BotAction
+## Feed
+These BotAction's focus on operating in the main Feed of LinkedIn's web app.
+
+### getFeedPosts
 ```typescript
 const getFeedPosts = (filterPromotedContent: boolean = true): BotAction<CheerioStatic[]> =>
   pipe()(
@@ -68,7 +102,7 @@ const getFeedPosts = (filterPromotedContent: boolean = true): BotAction<CheerioS
   )
 ```
 
-## postIsAuthoredByAPerson ConditionalBotAction
+### postIsAuthoredByAPerson
 ```typescript
 const postIsAuthoredByAPerson = (post: CheerioStatic, ...peopleNames: string[]): ConditionalBotAction => 
   async() => 
@@ -77,7 +111,7 @@ const postIsAuthoredByAPerson = (post: CheerioStatic, ...peopleNames: string[]):
 ```
 This BotAction will take a `post` and test its scraped HTML for an Author to see if the Author of the post matches one of the names provided. Can be used to "Like" posts belonging to certain people.
 
-## like BotAction
+### like
 ```typescript
 const like = (post: CheerioStatic): BotAction =>
   // Puppeteer.page.click() returned promise will reject if the selector isn't found
@@ -88,7 +122,7 @@ const like = (post: CheerioStatic): BotAction =>
 ```
 Instagram's web app changes the `aria-label` attribute value, depending on whether or not the button has been "Liked", so this BotAction will only "Like" the post provided, and not toggle it.
 
-## likeAllFrom BotAction
+### likeAllFrom
 ```typescript
 const likeAllFrom = (...peopleNames: string[]): BotAction => 
   pipe()(
@@ -106,37 +140,16 @@ This BotAction is a work in progress since it needs to filter the feeds' posts b
 
 > See this [Proposal](https://github.com/mrWh1te/Botmation/issues/61) for links with developmental progress and notes.
 
-## toggleMessagingOverlay BotAction
+## Messaging
+These BotAction's focus on operating in the main Messaging area of LinkedIn's web app.
+
+### toggleMessagingOverlay
 ```typescript
 const toggleMessagingOverlay: BotAction =
   click(messagingOverlayHeaderSelector)
 ```
 
 By default, when someone logs into the LinkedIn web app, the "Messaging" center in the bottom-right is open, covering part of the web app. This BotAction will toggle that "Messaging" overlay open and close.
-
-## goHome BotAction
-```typescript
-const goHome: BotAction = 
-  goTo('https://www.linkedin.com/', {waitUntil: 'domcontentloaded'})
-```
-
-## goToFeed BotAction
-```typescript
-const goToFeed: BotAction = 
-  goTo('https://www.linkedin.com/feed/', {waitUntil: 'domcontentloaded'})
-```
-
-## goToMessaging BotAction
-```typescript
-const goToMessaging: BotAction = 
-  goTo('https://www.linkedin.com/messaging/', {waitUntil: 'domcontentloaded'})
-```
-
-## goToNotifications BotAction
-```typescript
-const goToNotifications: BotAction = 
-  goTo('https://www.linkedin.com/notifications/', {waitUntil: 'domcontentloaded'})
-```
 
 ## Selectors
 
