@@ -2,14 +2,18 @@
 title: 'Scrapers'
 ---
 
-These BotAction's scrape the page's `document` with a HTML parser. The default parser is [cheerio](https://github.com/cheeriojs/cheerio).
+These BotAction's scrape the page's `document` and are called ScraperBotAction's. They use a HTML parser to convert the `outerHTML` property of an HTML Element(s) into an interactive object with a similar API to jQuery.
 
-You can override the HTML parser via higher-order param, or as the first [inject](/advanced/injects). 
+The default HTML parser is [cheerio](https://github.com/cheeriojs/cheerio)'s [load() function](https://github.com/cheeriojs/cheerio#loading).
+
+You can override the HTML parser by providing a function to operate on the `outerHTML` via the optional higher-order param `higherOrderHTMLParser`, or the optional first [inject](/advanced/injects). If both are provided, the higher-order param will override the injected one, so if you want to use multiple, feel free too.
 
 ## HTML Parser
-A higher-order BotAction that will take a function to set as the first [inject](/advanced/injects) for assembled BotAction's. This function, if not overriden with a higher-order version, is applied on the string form of the scraped HTML.
+This higher-order BotAction will [inject](/advanced/injects) the provided HTML parser function of the first `htmlParser()` call, into the assembled BotAction's of the second call `htmlParser()()`.
 
-> If you are trying to use a Class, just create a function that references it and maybe creates an instance from it's Constructor to return that. The HTML parser function is ran in NodeJS, *not* evaluated in the page.
+A method for BotAction's implementing the `ScraperBotAction` interface to override the default HTML parser.
+
+Assembled BotAction's can override the injected HTML parser by providing their own via their own optional higher-order param.
 
 ```typescript
 const htmlParser = (htmlParser: Function) =>
@@ -20,17 +24,107 @@ const htmlParser = (htmlParser: Function) =>
       )
     )
 ```
-Works great for BotAction's implementing the `ScraperBotAction` interface.
 
 For an usage example, see the [LinkedIn example](https://github.com/mrWh1te/Botmation/blob/master/src/examples/linkedin.ts).
 
 ## $
+This ScraperBotAction will parse the HTML of the first Element in the document that matches the provided selector. 
+
+```typescript
+const $ = <R = CheerioStatic>(htmlSelector: string, higherOrderHTMLParser?: Function): ScraperBotAction<R> => 
+  async(page, injectedHTMLParser) => {
+    let parser: Function
+
+    if (!higherOrderHTMLParser) {
+      if (injectedHTMLParser) {
+        parser = injectedHTMLParser
+      } else {
+        parser = cheerio.load
+      }
+    } else {
+      parser = higherOrderHTMLParser
+    }
+
+    const scrapedHTML = await page.evaluate(getElementOuterHTML, htmlSelector)
+    return parser(scrapedHTML)
+  }
+```
+
+Example:
+```typescript
+await pipe()(
+  goToDashboard, // fake -> load site with "dashboard"
+  // look at the header for the badge UI representing # of notifications
+  $('header .user .notifications .badge'),
+  // by default, it returns a CheerioStatic instance
+  map(notificationsCount => notificationsCount.text()), // grab the text from the "element"
+  log('# of Notifications') // Pipe: 2
+)(page)
+```
 
 ## $$
+This ScraperBotAction will parse the HTML of all Elements in the document that match the provided selector.
+
+```typescript
+const $$ = <R = CheerioStatic[]>(htmlSelector: string, higherOrderHTMLParser?: Function): ScraperBotAction<R> => 
+  async(page, ...injects) => {
+    let parser: Function
+
+    // Future support piping the HTML selector with higher-order overriding
+    const [,injectedHTMLParser] = unpipeInjects(injects, 1)
+
+    if (higherOrderHTMLParser) {
+      parser = higherOrderHTMLParser
+    } else {
+      if (injectedHTMLParser) {
+        parser = injectedHTMLParser
+      } else {
+        parser = cheerio.load
+      }
+    }
+
+    const scrapedHTMLs = await page.evaluate(getElementsOuterHTML, htmlSelector)
+    const cheerioEls: CheerioStatic[] = scrapedHTMLs.map(scrapedHTML => parser(scrapedHTML)) 
+    return cheerioEls as any as R
+  }
+```
+
+Example:
+```typescript
+await pipe()(
+  goToNewsFeed, // fake -> load site with "news feed"
+  // selector to grab each "element" from the Feed container
+  // Each element represents a Post in the Feed with children
+  //    elements representing data like Author, Date, Actual Text, etc 
+  $$('section.app .feed [data-id]'),
+  // by default, it returns a CheerioStatic[]
+  forAll()( // loop the CheerioStatic[]
+    feedPostEl => ([
+      // scroll and "like" the post IF the post belongs to a friend
+      // in the `friends` array (ie by name matching post authors)
+      givenThat(postBelongsTo(feedPostEl, ...friends))(
+        scrollTo(feedPostEl.attr('id')),
+        like(feedPostEl)
+      )
+    ])
+  )
+)(page)
+```
 
 ## Helpers
 
+In order to "scrape" the page's document's HTML, these Helper functions are evaluated in the page's context. To avoid race conditions with the document's nodes, the `outerHTML` property (string representation of the HTML element and children) is returned to the NodeJS context than parsed with a HTML parser.
+
 ### getElementOuterHTML()
 
+```typescript
+const getElementOuterHTML = (htmlSelector: string): string|undefined => 
+  document.querySelector(htmlSelector)?.outerHTML
+```
 
 ### getElementsOuterHTML()
+
+```typescript
+const getElementsOuterHTML = (htmlSelector: string): string[] => 
+  Array.from(document.querySelectorAll(htmlSelector)).map(el => el.outerHTML)
+```
