@@ -59,7 +59,9 @@ export const Wrapper = (props) => {
   );
 }
 
-// original
+
+//
+// Original
 export const Main = styled.main`
   padding: 0 40px;
   height: 100%;
