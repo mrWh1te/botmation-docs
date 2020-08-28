@@ -34,6 +34,8 @@
   items:
     - label: 'Instagram'
       link: '/sites/instagram'
+    - label: 'LinkedIn'
+      link: '/sites/linkedin'
 
 - label: 'API'
   items:
