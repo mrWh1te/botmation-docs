@@ -89,25 +89,6 @@ It runs the BotAction's first, then resolves the [ConditionalBotAction](/advance
 
 For a concept example, see [Loops: Do While](/advanced/loops#do-while).
 
-## Wait
-This BotAction pauses for the time provided before the next BotAction assembled runs.
-
-```typescript
-const wait = (milliseconds: number): BotAction => async() => {
-  await sleep(milliseconds)
-} 
-```
-This Bot Action is not like the others in this group, but a utility never the less. 
-
-Example:
-```typescript
-await chain(
-  goTo('https://google.com'),
-  wait(5000), // wait 5 seconds before going to duckduckgo.com
-  goTo('https://duckduckgo.com')
-)(page)
-```
-
 ## Helpers
 
 The one helper here is for the [wait() BotAction](/api/utilities#wait).
