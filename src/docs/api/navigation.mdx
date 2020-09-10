@@ -110,7 +110,7 @@ await chain(
 ```
 
 ## Scroll To
-This BotAction evaluates a scrollTo helper function in the context of the Puppeteer page based on the HTML selector provided. It calls the HTML node element's `scrollIntoView()` method. Once that method is called, it artificially waits for it to complete scrolling with a timespan set in milliseconds, default of 2500.
+This BotAction evaluates a `scrollToElement()` helper function in the context of the Puppeteer page based on the HTML selector provided. It calls the HTML node element's `scrollIntoView()` method. Once that method is called, it artificially waits for it to complete scrolling with a timespan set in milliseconds, default of 2500.
 
 ```typescript
 const scrollTo = (htmlSelector: string, waitTimeForScroll: number = 2500): BotAction => 
@@ -132,4 +132,12 @@ const enrichGoToPageOptions = (overloadDefaultOptions: Partial<DirectNavigationO
   waitUntil: 'networkidle0',
   ...overloadDefaultOptions
 })
+```
+
+### scrollToElement()
+
+This helper function is ran inside the Page's context to scroll to a particular HTML node element.
+```typescript
+const scrollToElement = (htmlSelector: string) => 
+  document.querySelector(htmlSelector)?.scrollIntoView({behavior: 'smooth'})
 ```
