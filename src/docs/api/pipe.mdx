@@ -271,6 +271,9 @@ This can be used to simulate a BotAction being assembled in a Pipe.
 
 ### createCasesSignal()
 This function is used by `pipeCase()()` and `pipeCases()()` to create a `CasesSignal` object to return. If no params are provided, the safe default is a `CasesSignal` that has no matches, the overall condition did not pass, and the pipe value is undefined.
+
+This function is found in a separate `helpers/cases.ts` file
+
 ```typescript
 const createCasesSignal = <V = any>(matches: Dictionary<V> = {}, conditionPass: boolean = false, pipeValue?: PipeValue): CasesSignal<V> => ({
   brand: 'Cases_Signal',
@@ -280,10 +283,10 @@ const createCasesSignal = <V = any>(matches: Dictionary<V> = {}, conditionPass: 
 })
 ```
 
-> This function is found in a separate `helpers/cases.ts` file
-
 ### casesSignalToPipeValue()
 This function is helpful with the [map()](/api/pipe#map) BotAction. It can be provided directly as a means to map the CasesSignal object to its pipe value. Therefore, when combined after a `pipeCase()()` call, it will change the pipe object value to the `CasesSignal.pipeValue`.
+
+This function is found in a separate `helpers/cases.ts` file
 
 ```typescript
 const casesSignalToPipeValue = (casesSignal: CasesSignal|any): PipeValue => 
@@ -303,4 +306,14 @@ await pipe(5)(
 )(page)
 ```
 
-> This function is found in a separate `helpers/cases.ts` file
+### isCasesSignal()
+This function is a type guard for the `CasesSignal` type. It's found in the `types/cases.ts` file.
+
+```typescript
+const isCasesSignal = <V = any>(value: any): value is CasesSignal<V> => 
+  typeof value === 'object' && 
+  value !== null && 
+  value.brand === 'Cases_Signal' && 
+  typeof value.conditionPass === 'boolean' && 
+  isDictionary<V>(value.matches)
+```
