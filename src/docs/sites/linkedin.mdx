@@ -190,3 +190,75 @@ export const feedPostAuthorSelector = '.feed-shared-actor__title'
 ## Helpers
 
 These functions are not BotAction's, but useful in creating a web bot for Linkedin.
+
+### postIsUserPost()
+This function is a `ConditionalCallback` that fits with `pipeCase()` and `pipeCases()`. It tests the provided `CheerioStatic` function, a "post" from the feed, on whether or not it fits the criteria for a User post, the common published posts.
+
+```typescript
+const postIsUserPost: ConditionalCallback<CheerioStatic> = (post: CheerioStatic) => {
+  const sharedActorFeedSupplementaryInfo = post('.feed-shared-actor__supplementary-actor-info').text().trim().toLowerCase()
+
+  return sharedActorFeedSupplementaryInfo.includes('1st') || sharedActorFeedSupplementaryInfo.includes('following')
+}
+```
+It checks for a particular part of the HTML where the connection meta information is displayed, ie to what degree of connection are you, or if not connected, are you following this User.
+
+### postIsAuthoredByAPerson()
+This higher-order function returns a `ConditionalCallback` that fits with `pipeCase()` and `pipeCases()`. It tests the provided `CheerioStatic` function, a "post" from the feed, on whether or not it was authored by a particular person.
+
+```typescript
+const postIsAuthoredByAPerson = (...peopleNames: string[]): ConditionalCallback<CheerioStatic> => (post: CheerioStatic) =>
+  peopleNames.some(name => name.toLowerCase() === post(feedPostAuthorSelector).text().toLowerCase())
+```
+
+### postIsPromotion()
+This function is a `ConditionalCallback` that fits with `pipeCase()` and `pipeCases()`. It tests the provided `CheerioStatic` function, a "post" from the feed, on whether or not it fits the criteria for a Promoted post, aka an advertisement.
+
+```typescript
+const postIsPromotion: ConditionalCallback<CheerioStatic> = (post: CheerioStatic) =>
+  post('.feed-shared-actor__sub-description').text().trim().toLowerCase().includes('promoted')
+```
+
+### postIsJobPostings()
+This function is a `ConditionalCallback` that fits with `pipeCase()` and `pipeCases()`. It tests the provided `CheerioStatic` function, a "post" from the feed, on whether or not it fits the criteria for a Job Postings post.
+
+```typescript
+const postIsJobPostings: ConditionalCallback<CheerioStatic> = (post: CheerioStatic) => {
+  const dataId = post('[data-id]').attr('data-id')
+
+  if(!dataId) return false
+
+  const dataIdParts = dataId.split(':')
+
+  return dataIdParts.length >= 5 &&
+         dataIdParts[2] === 'aggregate' &&
+         dataIdParts.slice(3).some(part => part === 'jobPosting')
+}
+```
+
+### postIsUserInteraction()
+This function is a `ConditionalCallback` that fits with `pipeCase()` and `pipeCases()`. It tests the provided `CheerioStatic` function, a "post" from the feed, on whether or not it fits the criteria for an User Interaction post.
+
+The LinkedIn web app sometimes presents posts to highlight an User you're connected with, or following, has recently "reacted" to a post in the feed. This includes "liking", "loving", "celebrating", "commenting on" posts.
+
+```typescript
+const postIsUserInteraction: ConditionalCallback<CheerioStatic> = (post: CheerioStatic) => {
+  const feedPostSiblingText = post('h2.visually-hidden:contains("Feed post") + div span').text().trim().toLowerCase()
+
+  return feedPostSiblingText.includes('likes this') || 
+         feedPostSiblingText.includes('loves this') ||
+         feedPostSiblingText.includes('celebrates this') ||
+         feedPostSiblingText.includes('commented on this')
+}
+```
+
+### postHasntFullyLoadedYet()
+This function is a `ConditionalCallback` that fits with `pipeCase()` and `pipeCases()`. It tests the provided `CheerioStatic` function, a "post" from the feed, on whether or not it fits the criteria for being a fully loaded post. 
+
+The LinkedIn web app lazily loads offscreen content to expediate rendering performance of the feed. In doing such, it leaves container div's that represent posts, that may get scraped, but lack all the important information to make the informed decision. Therefore, this ConditionalCallback can be used to run code for loading a post fully, in case it has not.
+
+```typescript
+const postHasntFullyLoadedYet: ConditionalCallback<CheerioStatic> = (post: CheerioStatic) => {
+  return post('[data-id]').text().trim() === ''
+}
+```
