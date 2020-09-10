@@ -2,9 +2,11 @@
 title: 'Scrapers'
 ---
 
-These BotAction's scrape the page's `document` and are called ScraperBotAction's. They use a HTML parser to convert the `outerHTML` property of an HTML Element(s) into an interactive object with a similar API to jQuery.
+These BotAction's scrape the Page's `document` by doing something within the Page's context. 
 
-The default HTML parser is [cheerio](https://github.com/cheeriojs/cheerio)'s [load() function](https://github.com/cheeriojs/cheerio#loading).
+Scrapers use a HTML parser to convert the `outerHTML` property of an HTML Element(s) into an interactive object.
+
+The default HTML parser is [cheerio's](https://github.com/cheeriojs/cheerio) [load() function](https://github.com/cheeriojs/cheerio#loading).
 
 You can override the HTML parser by providing a function to operate on the `outerHTML` via the optional higher-order param `higherOrderHTMLParser`, or the optional first [inject](/advanced/injects). If both are provided, the higher-order param will override the injected one, so if you want to use multiple, feel free too.
 
@@ -110,6 +112,17 @@ await pipe()(
   )
 )(page)
 ```
+
+## Evaluate
+
+This BotAction isn't a Scraper but an important building block for scraping. It's a simple BotAction that wraps Puppeteer Page's [evaluate()](https://devdocs.io/puppeteer/index#pageevaluatepagefunction-args) method to execute JavaScript in the Page. It takes a function, and parameters and returns what the function returns.
+
+```typescript
+const evaluate = (functionToEvaluate: EvaluateFn<any>, ...functionParams: any[]): BotAction<any> => 
+  async(page) => await page.evaluate(functionToEvaluate, ...functionParams)
+```
+
+For an example, see the Navigation BotAction [scrollTo()](/api/navigation#scroll-to)
 
 ## Helpers
 
