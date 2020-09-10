@@ -1,0 +1,82 @@
+---
+title: Abort
+---
+
+These BotAction's focus on returning an `AbortLineSignal`. The signal's purpose is to inform the assembling BotAction to break the assembled line, to return early. However, the signal itself can be processed in any way needed. Therefore, to understand how the `AbortLineSignal` works in a bot, it has to be seen in the context of each Assembler as some have unique behavior.
+
+To learn more about aborting, read the [Advanced Aborting](/advanced/aborting) documentation.
+
+## Abort
+
+This BotAction simply returns an `AbortLineSignal` based on the params provided with safe fallbacks for no params. The default `AbortLineSignal` has no `pipeValue` and is set to abort only one line of assembly.
+
+> It is *not* necessary to use the `abort()` BotAction to return an `AbortLineSignal`. Any BotAction can use and return the value from the `createAbortLineSignal()` helper, used in `abort()` BotAction.
+
+```typescript
+const abort = (assembledLines = 1, pipeValue?: PipeValue): BotAction<AbortLineSignal> =>
+  async() => createAbortLineSignal(assembledLines, pipeValue)
+```
+
+For a pratical example, see [abortPipe()](/api/abort#abort-pipe). 
+
+## Abort Pipe
+
+This BotAction returns an `AbortLineSignal` if the `value` provided matches the pipe object's value. `value` can be a function, which then is called as a Conditional Callback with the pipe object's value. If the callback returns truthy, it will return an AbortLineSignal.
+
+By default, the AbortLineSignal returned has an `assembledLines` count of `1`, but can be overriden with the optional second parameter.
+
+If the value doesn't match the pipe object's value (including function), then a `CasesSignal` is returned.
+
+```typescript
+const abortPipe = (value: CaseValue, abortPipeValue: PipeValue = undefined, assembledLines: number = 1): BotAction<AbortLineSignal|PipeValue|CasesSignal> => 
+  pipeCase(value)(
+    abort(assembledLines + 2, abortPipeValue)
+  )
+```
+
+Here's an example:
+```typescript
+await switchPipe('some-value')(
+   abortPipe('bad-value'), // unsupported, unhandled, error prone case, etc just abort
+   pipeCase('some-value')(
+     // this value is supported and will match therefore cause this line to run
+   )
+)(page)
+```
+
+## Helpers
+
+### createAbortLineSignal()
+
+Simple function to create an `AbortLineSignal` object with safe defaults for no params. No params provided yields an AbortLineSignal with `1` `assembledLines` to break, no `pipeValue`.
+
+```typescript
+const createAbortLineSignal = (assembledLines = 1, pipeValue?: PipeValue): AbortLineSignal => ({
+  brand: 'Abort_Signal',
+  assembledLines: Math.abs(assembledLines),
+  pipeValue
+})
+```
+
+### processAbortLineSignal()
+
+Simple helper function for BotAction's that assemble other BotAction's that may need to process an `AbortLineSignal` object. Default case is to reduce the AbortLineSignal `assembledLines` count by 1, unless it's count is 1 or 0. On 1, return the AbortLineSignal `pipeValue` and on 0, return the AbortLineSignal as is, for the infinity case.
+
+If the optional second param `reduceAssembledLinesBy` is set to a number greater than the `assembledLines` count of the AbortLineSignal, it simply returns the `pipeValue`.
+
+```typescript
+const processAbortLineSignal = (abortLineSignal: AbortLineSignal, reduceAssembledLinesBy = 1): AbortLineSignal|PipeValue => {
+  switch(abortLineSignal.assembledLines) {
+    case 0:
+      return abortLineSignal
+    case 1:
+      return abortLineSignal.pipeValue
+    default:
+      if (abortLineSignal.assembledLines < reduceAssembledLinesBy) {
+        return abortLineSignal.pipeValue
+      } else {
+        return createAbortLineSignal(abortLineSignal.assembledLines - reduceAssembledLinesBy, abortLineSignal.pipeValue)
+      }
+  }
+}
+```
