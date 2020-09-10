@@ -109,6 +109,19 @@ await chain(
 )(page)
 ```
 
+## Scroll To
+This BotAction evaluates a scrollTo helper function in the context of the Puppeteer page based on the HTML selector provided. It calls the HTML node element's `scrollIntoView()` method. Once that method is called, it artificially waits for it to complete scrolling with a timespan set in milliseconds, default of 2500.
+
+```typescript
+const scrollTo = (htmlSelector: string, waitTimeForScroll: number = 2500): BotAction => 
+  chain(
+    evaluate(scrollToElement, htmlSelector),
+    wait(waitTimeForScroll)
+  )
+```
+
+For an example, see LinkedIn's Feed [ifPostNotLoadedTriggerLoadingThenScrape()](https://github.com/mrWh1te/Botmation/blob/e968078fc5e7767db6831c0461afce8b574ac1fe/src/botmation/sites/linkedin/actions/feed.ts#L45) BotAction, which scrolls to an off screen feed post, to cause lazy loading of its content.
+
 ## Helpers
 
 ### enrichGoToPageOptions()
