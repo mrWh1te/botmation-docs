@@ -45,6 +45,125 @@ await pipe('Hello World')(
 )(page)
 ```
 
+## Pipe Case
+This BotAction is similar to [givenThat()()](/api/utilities#given-that) in that it evaluates a condition, or in this case conditions, and if at least one condition passes (is true), then the assembled BotAction's are ran. Instead of providing ConditionalBotAction's, the first call `pipeCase()` accepts a spread array of PipeValue's, including Functions. The values provided are tested against the pipe object's value. If the value is a function, it's called as a callback with the pipe object's value (as the first param) to test the return value as true.
+
+> Pipe Case is similar to an if statement where the conditions of the expression are combined with `||` or. At least one case must evaluate as `true` in order for the if statement to be considered true.
+
+```typescript
+const pipeCase = 
+  (...valuesToTest: CaseValue[]) =>
+    (...actions: BotAction<PipeValue|AbortLineSignal|void>[]): BotAction<PipeValue|AbortLineSignal|CasesSignal> => 
+      async(page, ...injects) => {
+        if (injectsHavePipe(injects)) {
+          const pipeObjectValue = getInjectsPipeValue(injects)
+          
+          const matches: Dictionary = valuesToTest.reduce((foundMatches, value, index) => {
+            if (typeof value === 'function') {
+              if (value(pipeObjectValue)) {
+                (foundMatches as Dictionary)[index] = value
+              } 
+            } else {
+              if (value === pipeObjectValue) {
+                (foundMatches as Dictionary)[index] = value
+              }
+            }
+
+            return foundMatches
+          }, {}) as Dictionary
+
+          if (Object.keys(matches).length > 0) {
+            const returnValue:PipeValue|AbortLineSignal = await pipe()(...actions)(page, ...injects)
+
+            if (isAbortLineSignal(returnValue)) {
+              return processAbortLineSignal(returnValue)
+            } else {
+              return createCasesSignal(matches, true, returnValue)
+            }
+          } else {
+            return createCasesSignal(matches, false, pipeObjectValue)
+          }
+        }
+        
+        return createCasesSignal()
+      }
+```
+
+`pipeCase()()` similar to `pipeCases()()` returns an unique JSON object with the [CasesSignal type](https://github.com/mrWh1te/Botmation/blob/master/src/botmation/types/cases.ts). This standardizes the response to interpret what case(s) matched the pipe object value, whether or not the if statement, as a whole condition, passed. Furthermore, there's an optional `pipeValue` to carry back from the result of the assembled BotAction's, which are ran in a Pipe.
+
+It takes `assembledLines` of at least 2 to [abort](/advanced/aborting) a `pipeCase()()` from an assembled BotAction. Here's a table that explains it's aborting behavior given the number of `assembledLines` of an AbortLineSignal returned by an assembled BotAction.
+
+| assembledLines | effect                                                         |
+|       -        |         -                                                     |
+| 0              | breaks pipeCase()() line, returns the same AbortLineSignal                     |
+| 1              | breaks pipeCase()() line, returns a CasesSignal with the AbortLineSignal.pipeValue       |
+| 2              | breaks pipeCase()() line, returns AbortLineSignal's pipeValue         |
+| 3+             | breaks pipeCase()() line, returns same AbortLineSignal with its assembledLines count reduced by 2    |
+
+For an example, see LinkedIn's [likeUserPostsFrom()](https://github.com/mrWh1te/Botmation/blob/e968078fc5e7767db6831c0461afce8b574ac1fe/src/botmation/sites/linkedin/actions/feed.ts#L79) BotAction.
+
+## Pipe Cases
+This BotAction is similar to [givenThat()()](/api/utilities#given-that) in that it evaluates a condition, or in this case conditions, and if all conditions pass (are true), then the assembled BotAction's are ran. Instead of providing ConditionalBotAction's, the first call `pipeCases()` accepts a spread array of PipeValue's, including functions. The values provided are tested against the pipe object's value. If the value is a function, it's called as a callback with the pipe object's value (as the first param) to test the return value as true.
+
+> Pipe Cases is similar to an if statement where the conditions of the expression are combined with `&&` and. All of the cases must evaluate to `true`, in order for the if statement to be considered true.
+
+```typescript
+const pipeCases = 
+  (...valuesToTest: CaseValue[]) =>
+    (...actions: BotAction<PipeValue|AbortLineSignal|void>[]): BotAction<PipeValue|AbortLineSignal|CasesSignal> => 
+      async(page, ...injects) => {
+        const matches: Dictionary = {}
+
+        if (injectsHavePipe(injects)) {
+          const pipeObjectValue = getInjectsPipeValue(injects)
+          
+          for (const [i, value] of valuesToTest.entries()) {
+            if (typeof value === 'function') {
+              if (value(pipeObjectValue)) {
+                matches[i] = value
+              } else {
+                break
+              }
+            } else {
+              if (value === pipeObjectValue) {
+                matches[i] = value
+              } else {
+                break
+              }
+            }
+          }
+
+          if (Object.keys(matches).length === valuesToTest.length) {
+            const returnValue:PipeValue|AbortLineSignal = await pipe()(...actions)(page, ...injects)
+
+            if (isAbortLineSignal(returnValue)) {
+              return processAbortLineSignal(returnValue)
+            } else {
+              return createCasesSignal(matches, true, returnValue)
+            }
+          } else {
+            return createCasesSignal(matches, false, pipeObjectValue)
+          }
+        }
+        
+        return createCasesSignal(matches)
+      }
+
+```
+
+`pipeCases()()` similar to `pipeCase()()` returns an unique JSON object with the [CasesSignal type](https://github.com/mrWh1te/Botmation/blob/master/src/botmation/types/cases.ts). This standardizes the response to interpret what case(s) matched the pipe object value, whether or not the if statement, as a whole condition, passed. Furthermore, there's an optional `pipeValue` to carry back from the result of the assembled BotAction's, which are ran in a Pipe.
+
+It takes `assembledLines` of at least 2 to [abort](/advanced/aborting) a `pipeCase()()` from an assembled BotAction. Here's a table that explains it's aborting behavior given the number of `assembledLines` of an AbortLineSignal returned by an assembled BotAction.
+
+| assembledLines | effect                                                         |
+|       -        |         -                                                     |
+| 0              | breaks pipeCase()() line, returns the same AbortLineSignal                     |
+| 1              | breaks pipeCase()() line, returns a CasesSignal with the AbortLineSignal.pipeValue       |
+| 2              | breaks pipeCase()() line, returns AbortLineSignal's pipeValue         |
+| 3+             | breaks pipeCase()() line, returns same AbortLineSignal with its assembledLines count reduced by 2    |
+
+For an example, see LinkedIn's [likeUserPostsFrom()](https://github.com/mrWh1te/Botmation/blob/e968078fc5e7767db6831c0461afce8b574ac1fe/src/botmation/sites/linkedin/actions/feed.ts#L79) BotAction.
+
 ## Helpers
 
 These Helpers are for all BotAction's, including the ones focused just on Chain. They are functions designed to be Assembly Line safe, for creating BotAction's that can safely use a Pipe, but safely run in Chain with safe fallbacks.
@@ -149,3 +268,39 @@ const pipeInjects = (injects: any[]): any[] => {
 }
 ```
 This can be used to simulate a BotAction being assembled in a Pipe.
+
+### createCasesSignal()
+This function is used by `pipeCase()()` and `pipeCases()()` to create a `CasesSignal` object to return. If no params are provided, the safe default is a `CasesSignal` that has no matches, the overall condition did not pass, and the pipe value is undefined.
+```typescript
+const createCasesSignal = <V = any>(matches: Dictionary<V> = {}, conditionPass: boolean = false, pipeValue?: PipeValue): CasesSignal<V> => ({
+  brand: 'Cases_Signal',
+  conditionPass,
+  matches,
+  pipeValue
+})
+```
+
+> This function is found in a separate `helpers/cases.ts` file
+
+### casesSignalToPipeValue()
+This function is helpful with the [map()](/api/pipe#map) BotAction. It can be provided directly as a means to map the CasesSignal object to its pipe value. Therefore, when combined after a `pipeCase()()` call, it will change the pipe object value to the `CasesSignal.pipeValue`.
+
+```typescript
+const casesSignalToPipeValue = (casesSignal: CasesSignal|any): PipeValue => 
+  isCasesSignal(casesSignal) ? casesSignal.pipeValue : undefined
+```
+
+Example:
+```typescript
+await pipe(5)(
+  pipeCase(5)(
+    // some actions that will run
+    // last BotAction returns a value
+  ),
+  // CasesSignal has pipeValue with last returned value
+  map(casesSignalToPipeValue),
+  log('Cases Signal pipe value')
+)(page)
+```
+
+> This function is found in a separate `helpers/cases.ts` file
