@@ -106,13 +106,17 @@ Switch Pipes provide a way to assemble BotAction's with the same Pipe object. Ea
 
 > Switch Pipe "switches" each Pipe object injected, back to the original one received.
 
-Switch Pipe was built to provide a functional switch statement. Similar to an if statement, but a switch statement tests each *case* condition provided to determine which code blocks to run. Switch Pipe makes this possible by providing the same Pipe object to each BotAction who can then test or operate on it for various cases. 
+Switch Pipe was built to provide a functional switch statement. Similar to an if statement, a switch statement tests a *case* condition to determine if its code blocks should run, except switch supports multiple cases. Switch Pipe makes this possible by providing the same Pipe object to each BotAction, which then can test or operate on it for each case.
 
-BotAction's like [pipeCase()()](/api/pipe#pipe-case) or [pipeCases()()](/api/pipe#pipe-cases) test the received Pipe object value against its own provided values, to determine if their assembled BotAction's should run. Both these functions return a `CasesSignal` that can catalyze Switch Pipe into aborting with one less `assembledLines`.
+BotAction's like [pipeCase()()](/api/pipe#pipe-case) or [pipeCases()()](/api/pipe#pipe-cases) fit perfectly here. They test the received Pipe object value against its own provided values, to determine if their assembled BotAction's should run. 
 
-Switch Pipe has unique aborting functionality. By default, an AbortLineSignal with `assembledLines` of `1`, is absorbed by Switch Pipe until it receives a CasesSignal with `conditionPass` is true.
+Both these functions return a `CasesSignal` that can catalyze Switch Pipe into aborting with one less `assembledLines`.
 
-When a CasesSignal's `conditionPass` is `true`, it lowers the required `assembledLines` count to enable breaking the assembled line with an AbortLineSignal with 1 `assembledLines`. This is how a switch, case, break block can be composed functionally.
+Switch Pipe has unique aborting functionality that mirrors `break;` inside a switch code block. By default, an AbortLineSignal with `assembledLines` of `1`, is absorbed by Switch Pipe, kind of like it's ignored, until Switch Pipe receives a CasesSignal with `conditionPass` as true.
+
+[pipeCase()()](/api/pipe#pipe-case) and [pipeCases()()](/api/pipe#pipe-cases) return CasesSignal's with `conditionPass` set to `true` when they've ran their assembled BotAction's.
+
+So when an assembled `pipeCase()()` runs its assembled BotAction's, it will catalyze Switch Pipe into lowering the required `assembledLines` count by 1. This enables a conditional breaking of the assembled Switch Pipe line, similar to how a switch, case and break work together.
 
 ```typescript
 const switchPipe = 
@@ -126,7 +130,6 @@ const switchPipe =
         if (injectsHavePipe(injects)) {
           injects = injects.slice(0, injects.length - 1)
         }
-
         injects.push(wrapValueInPipe(toPipe))
 
         let hasAtLeastOneCaseMatch = false
@@ -159,13 +162,16 @@ const switchPipe =
             actionsResults.push(resolvedActionResult)
           }
         }
+
         return actionsResults
       }
 ```
 
-Except for `abort(0)`, which breaks the entire bot, Switch Pipe, in order to absorb `abort(1)` when no cases have matched, it will pre-process received AbortLineSignal's by 1. It does that by reducing the AbortLineSignal's `assembledLines` count by 1, when the Switch Pipe has *yet* to receive a CasesSignal with `conditionPass = true` from an assembled BotAction. Once Switch Pipe receives a CasesSignal with a true `conditionPass`, it stops pre-processes received AbortLineSignal's so `abort(1)` can break the line.
+Except for `abort(0)`, which aborts the entire bot, Switch Pipe absorbs `abort(1)` when no cases have matched. It does this by reducing received AbortLineSignal's `assembledLines` count by 1, when the Switch Pipe has *yet* to receive a CasesSignal with `conditionPass = true`, from an assembled BotAction.
 
-Here's a table to understand it's aborting logic, ran after it has conditionally subtracted `1` from the AbortLineSignal's `assembledLines` count:
+Once Switch Pipe receives a CasesSignal with a true `conditionPass`, it stops pre-processing received AbortLineSignal's, enabling `abort(1)` to break a Switch Pipe line and return the actions' results.
+
+Here's a table to understand it's unique aborting logic. This logic is applied after Switch Pipe subtracts `1` from an AbortLineSignal's `assembledLines` count, if it has yet to have a case match:
 
 | assembledLines | effect                                                         |
 |       -        |         -                                                     |
