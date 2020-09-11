@@ -85,6 +85,10 @@ This `BotAction` takes a collection, either an array of any type or a simple jso
 
 It's possible to pipe in the `collection` as the first `forAll()` call's parameter is optional.
 
+The callback function is provided three params that are the collection's iterated value, the index casted as a string, and the collection itself. The index is normalized as a string to support the case of iterating an object's key->value pairs.
+
+With each loop iteration, the pipe value injected into the initial assembled BotAction changes. It's created before each loop iteration line, with the same params as the callback, except wrapped in an array. The three values will be the collection's iterated value, the index the loop is iterating on, and the collection itself.
+
 This function assembles a line of BotAction's with each loop iteration, it runs many BotAction lines. Therefore, it has advanced [aborting](/advanced/aborting) behavior to give granular control. Here's a table to understand the effects AbortLineSignal's have with varying `assembledLines` counts:
 
 | assembledLines | effect                                                         |
