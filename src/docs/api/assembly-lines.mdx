@@ -101,6 +101,81 @@ The second call `assemblyLine()()` assembles declared BotAction's. The third cal
 
 For an usage example, see [inject()()](/api/inject#inject).
 
+## Switch Pipe
+Switch Pipes provide a way to assemble BotAction's with the same Pipe object. Each BotAction assembled in the second call of `switchPipe()()` will receive the *same* Pipe value wrapped in the *same* Pipe object, no matter what these BotAction's return.
+
+> Switch Pipe "switches" each Pipe object injected, back to the original one received.
+
+Switch Pipe was built to provide a functional switch statement. Similar to an if statement, but a switch statement tests each *case* condition provided to determine which code blocks to run. Switch Pipe makes this possible by providing the same Pipe object to each BotAction who can then test or operate on it for various cases. 
+
+BotAction's like [pipeCase()()](/api/pipe#pipe-case) or [pipeCases()()](/api/pipe#pipe-cases) test the received Pipe object value against its own provided values, to determine if their assembled BotAction's should run. Both these functions return a `CasesSignal` that can catalyze Switch Pipe into aborting with one less `assembledLines`.
+
+Switch Pipe has unique aborting functionality. By default, an AbortLineSignal with `assembledLines` of `1`, is absorbed by Switch Pipe until it receives a CasesSignal with `conditionPass` is true.
+
+When a CasesSignal's `conditionPass` is `true`, it lowers the required `assembledLines` count to enable breaking the assembled line with an AbortLineSignal with 1 `assembledLines`. This is how a switch, case, break block can be composed functionally.
+
+```typescript
+const switchPipe = 
+  (toPipe?: PipeValue) => 
+    (...actions: BotAction<PipeValue|AbortLineSignal|CasesSignal|void>[]): BotAction<any[]|AbortLineSignal|PipeValue> =>
+      async(page, ...injects) => {
+        if (!toPipe) {
+          toPipe = getInjectsPipeValue(injects)
+        }
+
+        if (injectsHavePipe(injects)) {
+          injects = injects.slice(0, injects.length - 1)
+        }
+
+        injects.push(wrapValueInPipe(toPipe))
+
+        let hasAtLeastOneCaseMatch = false
+        const actionsResults = []
+
+        for(const action of actions) {
+          let resolvedActionResult = await action(page, ...injects)
+
+          if (isCasesSignal(resolvedActionResult) && resolvedActionResult.conditionPass) {
+            hasAtLeastOneCaseMatch = true
+            actionsResults.push(resolvedActionResult)
+          } else if (isAbortLineSignal(resolvedActionResult)) {
+            if (resolvedActionResult.assembledLines === 0) {
+              return resolvedActionResult
+            }
+
+            if (!hasAtLeastOneCaseMatch) {
+              resolvedActionResult = processAbortLineSignal(resolvedActionResult)
+            }
+
+            if (!isAbortLineSignal(resolvedActionResult)) {
+              actionsResults.push(resolvedActionResult)
+            } else if (resolvedActionResult.assembledLines === 1) {
+              actionsResults.push(resolvedActionResult.pipeValue)
+              return actionsResults
+            } else {
+              return processAbortLineSignal(resolvedActionResult)
+            }
+          } else {
+            actionsResults.push(resolvedActionResult)
+          }
+        }
+        return actionsResults
+      }
+```
+
+Except for `abort(0)`, which breaks the entire bot, Switch Pipe, in order to absorb `abort(1)` when no cases have matched, it will pre-process received AbortLineSignal's by 1. It does that by reducing the AbortLineSignal's `assembledLines` count by 1, when the Switch Pipe has *yet* to receive a CasesSignal with `conditionPass = true` from an assembled BotAction. Once Switch Pipe receives a CasesSignal with a true `conditionPass`, it stops pre-processes received AbortLineSignal's so `abort(1)` can break the line.
+
+Here's a table to understand it's aborting logic, ran after it has conditionally subtracted `1` from the AbortLineSignal's `assembledLines` count:
+
+| assembledLines | effect                                                         |
+|       -        |         -                                                     |
+| 0              | don't break Switch Pipe line, append the AbortLineSignal.pipeValue to the returned array                     |
+| 1              | break Switch Pipe line, append the AbortLineSignal.pipeValue to the returned array then return that array       |
+| 2+              | break Switch Pipe line, return AbortLineSignal with assembledLines reduced by 1         |
+
+For a complete example with pipe casing and aborts, see LinkedIn's Feed BotAction [likeUserPostsFrom()](/sites/linkedin#like-user-posts-from).
+
+
 ## Pipe Action Or Actions
 This BotAction fits a niche purpose, of running BotAction's in a Pipe that are returned from a callback function.
 ```typescript
