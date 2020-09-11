@@ -2,14 +2,39 @@
 title: Aborting
 ---
 
-Botmation's Assembly Lines support the ability to stop executing a line of BotAction's, before the end of the line reaches. This is caused by an `AbortLineSignal` returned by an assembled BotAction, processed by the BotAction's Assembly Line or similar.
+It may become necessary to abort an assembly line of BotAction's. Maybe something is noticed, or something is no longer possible, and therefore it's not helpful to run the remaining que'ed BotAction's assembled. In order to do this, a BotAction simply must return an `AbortLineSignal`. All BotAction's that assemble other BotAction's recognize this signal. Most of them process it the same way, but a few like the Utilities have unique cause and effect relationships with the signal to provide granular control.
 
-The AbortLineSignal has an important property called `assembledLines` which informs the Assembler how many lines of assembly to break. `assembledLines` of `1` is intended to break only one line of assembly. `2` should break the current line and the one above and so forth. There are exceptions such as `switchPipe()()`, which ignores AbortLineSignal's with `assembledLines` of `1`, when it hasn't yet received a `CasesSignal` with its condition passed. That's because `abort()` is treated like `break;` from the traditional `switch(){}` block in a `switchPipe()()`.
+## Assembled Lines Count
 
-AbortLineSignal has an optional param called `pipeValue` that can carry a value back to the final assembler. For example, maybe in a line of BotActions, code checks the page for something and that something is missing, which the subsequent BotActions rely on. Therefore, the assembled BotAction's will fail if they run, so to prevent that, the initial BotAction can abort the assembled line by returning an AbortLineSignal.
+```typescript
+type AbortLineSignal = {
+  brand: 'Abort_Signal',
+  assembledLines: number,
+  pipeValue?: PipeValue
+}
+```
 
-> Any BotAction can return an AbortLineSignal, to inform its assembler BotAction to break its line. The optional `pipeValue` param is a way to signal to the assembler as to what went wrong, to log it, maybe try again with a different setup or whatever.
+The AbortLine Signal has an important property called `assembledLines` which informs the Assembler how many lines of assembly to break. `assembledLines` of `1` is intended to only break the line it was assembled in. The safe defaults for no params in the [abort()](/api/abort#abort) BotAction set `assembledLines` to `1`.
+
+## Process AbortLine Signal
+ 
+By default, every time an assembler receives an AbortLine Signal, it processes it by reducing the `assembledLines` count by `1`. Each count represents a line of assembly to abort.
+
+It depends on the number of `assembledLines` of the AbortLine Signal. `2` should break the current line and the one above. `3` should break the current line, the one above, & the one above that; and so forth. There are exceptions such as `switchPipe()()`, which ignores the default AbortLine Signal (`assembledLines` of `1`), when it hasn't yet received a `CasesSignal` with its condition passed. That's because `abort()` works like `break;` in the traditional `switch(){}` block, when assembled in a [Switch Pipe](/api/assembly-lines#switch-pipe).
+
+
+> Any BotAction can return an AbortLine Signal, to inform its assembler BotAction to break its line. 
 
 It's possible to break a line of assembly, then restart it with a different setup. Some BotAction's, like Utilities, have unique `AbortLineSignal` behavior that allow the breaking of various parts of a BotAction without breaking the BotAction itself, ie a [forAll()](/api/utilities#for-all) loop iteration (which runs an assembled line of BotActions for each loop iteration) can abort out of a loop iteration as one `assembledLines` and out of the entire loop with two.
 
-Finally, AbortLineSignal supports a special case to fully abort out of all lines of assembly (terminate the bot early) by returning an `AbortLineSignal` with `assembledLines` set to `0`. It's considered an *infinite* signal, to prevent all remaining BotAction's from running.
+
+### Infinity AbortLine Signal
+It's possible to abort further lines of assembly, and even abort the entire bot.
+
+Finally, AbortLine Signal supports a special case to fully abort out of all lines of assembly (terminate the bot early) by returning an `AbortLineSignal` with `assembledLines` set to `0`. It's considered an *infinite* signal, to prevent all remaining BotAction's from running.
+
+
+## Optional Pipe Value
+AbortLine Signal has an optional param called `pipeValue` that can carry a value back to the final assembler. For example, maybe in a line of BotActions, the code determines something vital is missing in the page, which subsequent BotActions rely on. Therefore, the following BotAction's will fail if they run, so to prevent that, the BotAction aborts the assembled line by returning an AbortLine Signal with a `pipeValue` that could distinguish the problem, for the next BotAction to handle.
+
+> The optional `pipeValue` param does not get returned by a [Chain](/api/assembly-lines#chain).
