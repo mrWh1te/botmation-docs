@@ -30,7 +30,7 @@ await chain(
 
 > All [Utility BotAction's](/api/utilities) run assembled BotAction's in a Pipe
 
-## Conditional BotAction
+### Conditional BotAction
 
 The first call `givenThat()` accepts a special kind of BotAction called ConditionalBotAction. ConditionalBotAction are like BotAction's, except they *always* return a boolean value.
 
@@ -38,9 +38,11 @@ The first call `givenThat()` accepts a special kind of BotAction called Conditio
 
 For a more technical explanation, `givenThat()()` returns a customized BotAction for the whole flow. When you resolve the returned BotAction, it runs through a series of steps. First, it resolves the `ConditionalBotAction` in a Pipe for the value it returns. Then runs the assembled BotAction's if the value was `true`. However, it does not return the final pipe value to be compatible with Chain's.
 
-## Conditionals with Pipe Value
+## Conditionals checking Pipe Value
 
 There are other BotAction's like `givenThat()()` for running a line of BotActions if a condition pass. They evaluate the equality of values supplied against the Pipe object value. They are called [pipeCase()()](/api/pipe#pipe-case) && [pipeCases()()](/api/pipe#pipe-cases) which run the assembled BotAction's of their second call against the values provided in their first call.
+
+### Conditional Callback
 
 Instead of handling a ConditionalBotAction in their first call, they expect a Pipe value, which can be almost anything, including a function. When a function is provided, it's called as a callback with the pipe value as its only parameter. These functions are called ConditionalCallback's. Here is the interface:
 
@@ -58,4 +60,19 @@ These BotAction's support multiple values, and handle their overall if condition
 
 There are benefits to this approach, as you can supply simple sync functions to create conditional expressions to determine whether or not some functionality needs to run. Both of these will pipe in the same Pipe object that they are testing into their first assembled BotAction's. Therefore, it's possible to nest these to create more elaborate conditions that combine or/and `||`/`&&`. 
 
-You can combine these BotAction's with a [Switch Pipe](/api/assembly-lines#switch-pipe), to create a switch, case(s), and break(s) (with the [Abort](/api/abort#abort) BotAction) flow to specify diversify further the handled use-cases. While [Switch Pipe](/api/assembly-lines#switch-pipe), [Pipe Case](/api/pipe#pipe-case), [Pipe Cases](/api/pipe#pipe-cases), and [Abort](/api/abort#abort) were all created together, to work together in this particular way, they are all BotAction's that can be assembled with or without each other.
+You can combine these BotAction's with a [Switch Pipe](/api/assembly-lines#switch-pipe), to create a switch, case(s), and break(s) (with the [Abort](/api/abort#abort) BotAction) flow to specify diversify further the handled use-cases. While [Switch Pipe](/api/assembly-lines#switch-pipe), [Pipe Case](/api/pipe#pipe-case), [Pipe Cases](/api/pipe#pipe-cases), and [Abort](/api/abort#abort) were all created together, to work together in this particular way, they are all BotAction's that can be assembled with or without each other. For an example of all three combined, see [LinkedIn's likeUserPostsFrom()](/sites/linkedin#like-user-posts-from) BotAction.
+
+### Cases Signal
+
+[Pipe Case](/api/pipe#pipe-case) and [Pipe Cases](/api/pipe#pipe-cases) return an unique object called `CasesSignal`, unless they are aborted completely. The CasesSignal has an important key called `conditionPass` which is a boolean to explain whether or not their condition evaluated as `true`. Also, CasesSignal includes the values that matched the pipe object value, including the functions, on a `matches` key. It's a simple JSON object with key->value pairs. The keys are the index'es of the values matched, set to their corresponding values. If you need to know which cases of [Pipe Case](/api/pipe#pipe-case) matched, you can read the returned CasesSignal `matches` object.
+
+```typescript
+type CasesSignal<V = any> = {
+  brand: 'Cases_Signal',
+  matches: Dictionary<V>,
+  conditionPass: boolean,
+  pipeValue?: PipeValue
+}
+```
+
+CasesSignal is recognized by [Switch Pipe](/api/assembly-lines#switch-pipe), and once a CasesSignal `conditionPass` is `true`, [Switch Pipe](/api/assembly-lines#switch-pipe) lowers its `assembledLines` for aborting by one. That's how `abort()` does not break a [Switch Pipe](/api/assembly-lines#switch-pipe) line, until a Pipe Case(s) has returned a CasesSignal with `conditionPass` as `true`. Therefore, it mirrors the behavior of a traditional switch, case, break code block. For an example, see [LinkedIn's likeUserPostsFrom()](/sites/linkedin#like-user-posts-from) BotAction.
