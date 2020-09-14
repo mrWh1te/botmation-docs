@@ -80,22 +80,6 @@ const closeTurnOnNotificationsModal: BotAction = async (page) => {
 ```
 This BotAction will close the "Turn on Notifications" modal. Please use [givenThat()()](/api/utilities#given-that) with [isTurnOnNotificationsModalActive](/sites/instagram#isturnonnotificationsmodalactive-conditionalbotaction) to run this BotAction only if that modal is open.
 
-## Helpers
-
-### getInstagramBaseUrl()
-```typescript
-const getInstagramBaseUrl = () =>
-  INSTAGRAM_BASE_URL
-```
-Returns Instagram's web app's base URL without a trailing slash, ie: `https://www.instagram.com`
-
-### getInstagramBaseUrl()
-```typescript
-const getInstagramLoginUrl = () => 
-  getInstagramBaseUrl() + INSTAGRAM_URL_EXT_LOGIN + '/'
-```
-Returns Instagram's web app's URL for its login page
-
 ## Selectors
 
 Helpful HTML element selectors in the Instagram web app, can be imported directly from the main `botmation` package.
@@ -111,3 +95,19 @@ const FORM_AUTH_SUBMIT_BUTTON_SELECTOR = 'html body section main form button[typ
 const MAIN_MODAL_SELECTOR = 'html body div[role="dialog"]'
 const MAIN_MODAL_HEADER_SELECTOR = 'html body div[role="dialog"] h2'
 ```
+
+## Helpers
+
+### getInstagramBaseUrl()
+```typescript
+const getInstagramBaseUrl = () =>
+  INSTAGRAM_BASE_URL
+```
+Returns Instagram's web app's base URL without a trailing slash, ie: `https://www.instagram.com`
+
+### getInstagramBaseUrl()
+```typescript
+const getInstagramLoginUrl = () => 
+  getInstagramBaseUrl() + INSTAGRAM_URL_EXT_LOGIN + '/'
+```
+Returns Instagram's web app's URL for its login page
