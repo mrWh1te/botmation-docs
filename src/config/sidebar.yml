@@ -13,6 +13,13 @@
   - label: 'Install'
     link: '/install'
 
+- label: 'Sites'
+  items:
+    - label: 'Instagram'
+      link: '/sites/instagram'
+    - label: 'LinkedIn'
+      link: '/sites/linkedin'
+
 - label: 'Advanced'
   items:
     - label: 'Aborting'
@@ -31,13 +38,6 @@
       link: '/advanced/concurrency'
     - label: 'Tutorial'
       link: '/advanced/tutorial'
-
-- label: 'Sites'
-  items:
-    - label: 'Instagram'
-      link: '/sites/instagram'
-    - label: 'LinkedIn'
-      link: '/sites/linkedin'
 
 - label: 'API'
   items:
