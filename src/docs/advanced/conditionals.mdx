@@ -38,13 +38,13 @@ The first call `givenThat()` accepts a special kind of BotAction called Conditio
 
 For a more technical explanation, `givenThat()()` returns a customized BotAction for the whole flow. When you resolve the returned BotAction, it runs through a series of steps. First, it resolves the `ConditionalBotAction` in a Pipe for the value it returns. Then runs the assembled BotAction's if the value was `true`. However, it does not return the final pipe value to be compatible with Chain's.
 
-## Conditionals checking Pipe Value
+## Conditionals evaluating Pipe Value
 
-There are other BotAction's like `givenThat()()` for running a line of BotActions if a condition pass. They evaluate the equality of values supplied against the Pipe object value. They are called [pipeCase()()](/api/pipe#pipe-case) && [pipeCases()()](/api/pipe#pipe-cases) which run the assembled BotAction's of their second call against the values provided in their first call.
+There are other BotAction's like `givenThat()()` for running a line of BotActions if a condition passes. They evaluate the equality of values supplied against the Pipe object value. They are called [pipeCase()()](/api/pipe#pipe-case) && [pipeCases()()](/api/pipe#pipe-cases) which run the assembled BotAction's of their second call, if their condition in the first call passes.
 
 ### Conditional Callback
 
-Instead of handling a ConditionalBotAction in their first call, they expect a Pipe value, which can be almost anything, including a function. When a function is provided, it's called as a callback with the pipe value as its only parameter. These functions are called ConditionalCallback's. Here is the interface:
+Instead of handling a ConditionalBotAction in their first call, they expect a Pipe value, which can be almost anything, including a synchronous function. When a synchronous function is provided, it's called as a callback with the Pipe value as its only parameter. These functions are called ConditionalCallback's. Here is the interface:
 
 ```typescript
 interface ConditionalCallback<V = PipeValue> extends Function {
@@ -52,15 +52,17 @@ interface ConditionalCallback<V = PipeValue> extends Function {
 }
 ```
 
-They take a PipeValue and operate on it, in order to return a boolean value, representing the condition of the case past.
+They take a PipeValue and operate on it to return a boolean value, representing if the condition past or not.
 
-These BotAction's support multiple values, and handle their overall if condition differently. `pipeCase()()` will test all of its values as separate expressions to match against the Pipe value. If *one or more* of those expressions evaluates as `true` then it runs its assembled BotAction's. In essence, it combines each value in the conditional expression with `||`.
+These BotAction's support multiple values, and handle their overall "if condition" differently. [pipeCase()()](/api/pipe#pipe-case) will test all of its values as separate expressions to match against the Pipe value. If *one or more* of those expressions evaluates as `true` then it runs its assembled BotAction's. In essence, it combines each value in the conditional expression with `||`.
 
-`pipeCases()()` on the otherhand will test all of its values until one of them evaluates as `false`. All of its values *must* match the Pipe value, in order for the assembled BotAction's to run. In essence, it combines each value in the conditional expression with `&&`.
+[pipeCases()()](/api/pipe#pipe-cases), on the otherhand, will test all of its values until one of them evaluates as `false`, breaking the condition evaluation. All of its values *must* match the Pipe value, in order for the assembled BotAction's to run. In essence, it combines each value in the conditional expression with `&&`.
 
-There are benefits to this approach, as you can supply simple sync functions to create conditional expressions to determine whether or not some functionality needs to run. Both of these will pipe in the same Pipe object that they are testing into their first assembled BotAction's. Therefore, it's possible to nest these to create more elaborate conditions that combine or/and `||`/`&&`. 
+With this approach, you can supply simple sync functions to create conditional expressions to determine whether or not some functionality needs to run. Both BotAction's will pipe in the same Pipe object that they are testing into their first assembled BotAction's. Therefore, it's possible to nest these to create more elaborate "if conditions" that combine or/and `||`/`&&`. 
 
-You can combine these BotAction's with a [Switch Pipe](/api/assembly-lines#switch-pipe), to create a switch, case(s), and break(s) (with the [Abort](/api/abort#abort) BotAction) flow to specify diversify further the handled use-cases. While [Switch Pipe](/api/assembly-lines#switch-pipe), [Pipe Case](/api/pipe#pipe-case), [Pipe Cases](/api/pipe#pipe-cases), and [Abort](/api/abort#abort) were all created together, to work together in this particular way, they are all BotAction's that can be assembled with or without each other. For an example of all three combined, see [LinkedIn's likeUserPostsFrom()](/sites/linkedin#like-user-posts-from) BotAction.
+Finally, you can compose these BotAction's with a [Switch Pipe](/api/assembly-lines#switch-pipe), to create a switch, case(s), and break(s) (with the [Abort](/api/abort#abort) BotAction) flow to handle more use-cases. For an example of all three combined, see [LinkedIn's likeUserPostsFrom()](/sites/linkedin#like-user-posts-from) BotAction.
+
+While [Switch Pipe](/api/assembly-lines#switch-pipe), [Pipe Case](/api/pipe#pipe-case), [Pipe Cases](/api/pipe#pipe-cases), and [Abort](/api/abort#abort) were all created together to work together in this particular way, they are all BotAction's that can be assembled with or without each other.
 
 ### Cases Signal
 

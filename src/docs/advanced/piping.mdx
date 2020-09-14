@@ -45,6 +45,12 @@ const isGuest: ConditionalBotAction =
 
 Here we are getting a value from the `redux` IndexedDB database, in a store called `paths`, by the key `users.viewerId`. The returned value (Pipe value) is mapped to the correct value for `isGuest`. Basically, if the `viewerId` is defined, then the Bot is considered logged in, and `isGuest` is `false` otherwise `true`.
 
+## Switch Pipe
+
+For a different kind of Piping assembler, check out [Switch Pipe](/api/assembly-lines#switch-pipe). It works similar to `pipe()()` except it injects the same Pipe object, from the its injects or the higher-order call, into each assembled BotAction.
+
+To learn more about `switchPipe()()` read its [documentation](/api/assembly-lines#switch-pipe).
+
 ## Helpers for Piping
 
 Also, there are separate functions in this library, that are found in the module, that are not BotAction's, but regular functions, to help reduce boilerplate called Helpers. For example, there are many Helper functions for piping.
