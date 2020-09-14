@@ -13,8 +13,17 @@
   - label: 'Install'
     link: '/install'
 
+- label: 'Sites'
+  items:
+    - label: 'Instagram'
+      link: '/sites/instagram'
+    - label: 'LinkedIn'
+      link: '/sites/linkedin'
+
 - label: 'Advanced'
   items:
+    - label: 'Aborting'
+      link: '/advanced/aborting'
     - label: 'Piping'
       link: '/advanced/piping'
     - label: 'Injects'
@@ -30,13 +39,10 @@
     - label: 'Tutorial'
       link: '/advanced/tutorial'
 
-- label: 'Sites'
-  items:
-    - label: 'Instagram'
-      link: '/sites/instagram'
-
 - label: 'API'
   items:
+    - label: 'Abort'
+      link: '/api/abort'
     - label: 'Assembly Lines'
       link: '/api/assembly-lines'
     - label: 'Console'
@@ -59,6 +65,8 @@
       link: '/api/navigation'
     - label: 'Pipe'
       link: '/api/pipe'
+    - label: 'Scrapers'
+      link: '/api/scrapers'
     - label: 'Utilities'
       link: '/api/utilities'
     

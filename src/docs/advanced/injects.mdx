@@ -10,7 +10,7 @@ Botmation's pattern of composing BotAction's has support for injecting other dep
 
 Let's take a look at the actual BotAction Function interface:
 ```typescript
-interface BotAction<R = void, I extends Array<any> = any[]> extends Function {
+interface BotAction<R = void|AbortLineSignal, I extends Array<any> = any[]> extends Function {
   (page: Page, ...injects: I) : Promise<R>
 }
 ```
@@ -30,7 +30,7 @@ await chain(
 
 The assembled BotAction's in the `chain()` will be called with `service` and `todaysDate` as the second and third parameters.
 
-## Inject BotAction
+## Inject()() BotAction
 
 Now, what if you want to compose a line of actions, but with new injects? You can use the `inject()()` BotAction to pass in new injects. The higher level injects will be appended to the new ones.
 

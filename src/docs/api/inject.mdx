@@ -14,4 +14,7 @@ const inject =
       async(page, ...injects) => 
         await assemblyLine()(...actions)(page, ...newInjects, ...injects)
 ```
+
+Since `inject()()` directly uses [assemblyLine()()](/api/assembly-lines#assembly-line), it follows its aborting behavior.
+
 Here is an usage [example](/advanced/injects#inject-botaction).

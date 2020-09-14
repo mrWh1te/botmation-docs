@@ -90,6 +90,38 @@ const waitForNavigation: BotAction = async(page) => {
 
 For an usage example, see the [Instagram login() BotAction](/sites/instagram#login-botaction).
 
+## Wait
+This BotAction pauses for the time provided before the next BotAction assembled runs.
+
+```typescript
+const wait = (milliseconds: number): BotAction => async() => {
+  await sleep(milliseconds)
+} 
+```
+This Bot Action is not like the others in this group, but a utility never the less. 
+
+Example:
+```typescript
+await chain(
+  goTo('https://google.com'),
+  wait(5000), // wait 5 seconds before going to duckduckgo.com
+  goTo('https://duckduckgo.com')
+)(page)
+```
+
+## Scroll To
+This BotAction evaluates a `scrollToElement()` helper function in the context of the Puppeteer page based on the HTML selector provided. It calls the HTML node element's `scrollIntoView()` method. Once that method is called, it artificially waits for it to complete scrolling with a timespan set in milliseconds, default of 2500.
+
+```typescript
+const scrollTo = (htmlSelector: string, waitTimeForScroll: number = 2500): BotAction => 
+  chain(
+    evaluate(scrollToElement, htmlSelector),
+    wait(waitTimeForScroll)
+  )
+```
+
+For an example, see LinkedIn's Feed [ifPostNotLoadedTriggerLoadingThenScrape()](https://github.com/mrWh1te/Botmation/blob/e968078fc5e7767db6831c0461afce8b574ac1fe/src/botmation/sites/linkedin/actions/feed.ts#L45) BotAction, which scrolls to an off screen feed post, to cause lazy loading of its content.
+
 ## Helpers
 
 ### enrichGoToPageOptions()
@@ -100,4 +132,20 @@ const enrichGoToPageOptions = (overloadDefaultOptions: Partial<DirectNavigationO
   waitUntil: 'networkidle0',
   ...overloadDefaultOptions
 })
+```
+
+### sleep()
+
+This async function returns a Promise that does not resolve until the time provided lapses.
+```typescript
+const sleep = async(milliseconds: number): Promise<NodeJS.Timeout> =>
+  new Promise(resolve => setTimeout(resolve, milliseconds))
+```
+
+### scrollToElement()
+
+This helper function is ran inside the Page's context to scroll to a particular HTML node element.
+```typescript
+const scrollToElement = (htmlSelector: string) => 
+  document.querySelector(htmlSelector)?.scrollIntoView({behavior: 'smooth'})
 ```

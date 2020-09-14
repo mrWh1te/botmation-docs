@@ -13,7 +13,7 @@ Errors assembles BotAction's of the second call `errors()()` in a try/catch to s
 
 If the returned BotAction catches an error, it does not disrupt it's line of assembly.
 ```typescript
-export const errors =
+const errors =
   (errorsBlockName: string = 'Unnamed Errors Block') => 
     (...actions: BotAction<PipeValue|void>[]): BotAction<any> => 
       async(page, ...injects) => {
@@ -21,15 +21,14 @@ export const errors =
           if (injectsHavePipe(injects)) {
             return await pipe()(...actions)(page, ...injects)
           }
-  
-          await chain(...(actions as BotAction[]))(page, ...injects)
+          return await chain(...(actions as BotAction[]))(page, ...injects)
         } catch(error) {
           logError('caught in ' + errorsBlockName)
           console.error(error)
-          console.log('\n') // append artificial "margin-bottom"
+          console.log('\n')
         }
       }
 ```
-`errors()()()` detects for a Pipe object in the injects before choosing the assembly method, to maintain consistency with its own assembly.
+`errors()()()` detects for a Pipe object in the injects before choosing the assembly method, to maintain consistency with its own assembly. In that, it maintains the assembly aborting behavior of either Chain or Pipe, depending on which assembly style is used.
 
 For an usage example, see [Errors BotAction](/advanced/error-handling#errors-botaction)

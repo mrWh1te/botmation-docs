@@ -9,26 +9,42 @@ Imagine a bunch of circular links in a line forming a chain. Each link is a sepa
 
 ```typescript
 const chain =
-  (...actions: BotAction[]): BotAction =>
+  (...actions: BotAction<void|AbortLineSignal>[]): BotAction<void|AbortLineSignal> =>
     async(page, ...injects) => {
       if (injectsHavePipe(injects)) {
-        if (actions.length === 0) {}
-        else if(actions.length === 1) {
-          await actions[0](page, ...injects.splice(0, injects.length - 1))
+        if(actions.length === 1) {
+          const returnValue = await actions[0](page, ...injects.splice(0, injects.length - 1))
+
+          if (isAbortLineSignal(returnValue) && returnValue.assembledLines !== 1) {
+            return processAbortLineSignal(returnValue) as AbortLineSignal
+          }
         } else {
-          await chainRunner(...actions)(page, ...injects.splice(0, injects.length - 1))
+          const returnValue = await chainRunner(...actions)(page, ...injects.splice(0, injects.length - 1))
+
+          if (isAbortLineSignal(returnValue)) {
+            return returnValue
+          } 
         }
       } else {
-        if (actions.length === 0) {}
-        else if(actions.length === 1) {
-          await actions[0](page, ...injects)
+        if(actions.length === 1) {
+          const returnValue = await actions[0](page, ...injects)
+
+          if (isAbortLineSignal(returnValue) && returnValue.assembledLines !== 1) {
+            return processAbortLineSignal(returnValue) as AbortLineSignal
+          }
         } else {
-          await chainRunner(...actions)(page, ...injects)
+          const returnValue = await chainRunner(...actions)(page, ...injects)
+
+          if (isAbortLineSignal(returnValue)) {
+            return returnValue
+          }
         }
       }
     }
 ```
 `chain()` assembled BotAction's in the first call then returns a BotAction to run those declared BotAction's in line. If the Chain detects a [Pipe object](/advanced/piping#pipe-object) in the [injects](/advanced/injects), the Chain removes it from the BotAction's  `injects`.
+
+Chain follows the usual aborting behavior, if an assembled BotAction returns an AbortLineSignal with one `assembledLines`, it will abort the line. However, Chain will not return an AbortLineSignal `pipeValue` on the event of it being the last line to abort.
 
 See [Building Bots](/overview#building-bots) & [Composing BotAction's](/overview#composing-botactions) for usage examples.
 
@@ -37,35 +53,50 @@ Pipes are like Chains except it injects a Pipe object at the end, for all assemb
 
 ```typescript
 const pipe =
-  (valueToPipe?: any) => 
-    (...actions: BotAction<PipeValue|void>[]): BotAction<any> => 
+  (valueToPipe?: PipeValue) => 
+    (...actions: BotAction<PipeValue|AbortLineSignal|void>[]): BotAction<any> => 
       async(page, ...injects) => {
         if (injectsHavePipe(injects)) {
           if (actions.length === 0) {return undefined}
           if (actions.length === 1) {
+            let returnValue: PipeValue|AbortLineSignal|void
             if (valueToPipe) {
-              return await actions[0](page, ...injects.splice(0, injects.length - 1), wrapValueInPipe(valueToPipe))
+              returnValue = await actions[0](page, ...injects.splice(0, injects.length - 1), wrapValueInPipe(valueToPipe))
             } else {
-              return await actions[0](page, ...injects)
+              returnValue = await actions[0](page, ...injects)
+            }
+
+            if (isAbortLineSignal(returnValue)) {
+              return processAbortLineSignal(returnValue)
+            } else {
+              return returnValue
             }
           } else {
             if (valueToPipe) {
-              return (await pipeRunner(...actions)(page, ...injects.splice(0, injects.length - 1), wrapValueInPipe(valueToPipe)))
+              return await pipeRunner(...actions)(page, ...injects.splice(0, injects.length - 1), wrapValueInPipe(valueToPipe))
             } else {
-              return (await pipeRunner(...actions)(page, ...injects))
+              return await pipeRunner(...actions)(page, ...injects)
             }
           }
         } else {
           if (actions.length === 0) {return undefined}
-          else if (actions.length === 1) {
-            return await actions[0](page, ...injects, wrapValueInPipe(valueToPipe))
+          if (actions.length === 1) {
+            const returnValue = await actions[0](page, ...injects, wrapValueInPipe(valueToPipe))
+
+            if (isAbortLineSignal(returnValue)) {
+              return processAbortLineSignal(returnValue)
+            } else {
+              return returnValue
+            }
           } else {
-            return (await pipeRunner(...actions)(page, ...injects, wrapValueInPipe(valueToPipe)))
+            return await pipeRunner(...actions)(page, ...injects, wrapValueInPipe(valueToPipe))
           }
         }
       }
 ```
 The first call `pipe()` is for setting or overriding a Pipe object's value (for the first BotAction). The second call `pipe()()` assembles declared BotAction's. The third call `pipe()()()` is the actual BotAction to run the assembled BotAction's with piping.
+
+Pipe follows the usual behavior for aborting. An AbortLineSignal with `assembledLines` of one will abort the assembled Pipe line. When it's the last assembled line to abort, it will return the AbortLineSignal `pipeValue`.
 
 See [Piping](/advanced/piping) for an usage examples.
 
@@ -79,42 +110,142 @@ const assemblyLine =
     (...actions: BotAction<any>[]): BotAction<any> =>
       async(page, ...injects) => {
         if (injectsHavePipe(injects) || forceInPipe) {
-          // running a pipe
           if (actions.length === 0) {return undefined}
           else if (actions.length === 1) {
-            return await actions[0](page, ...pipeInjects(injects))
+            const pipeActionResult = await actions[0](page, ...pipeInjects(injects))
+
+            if (isAbortLineSignal(pipeActionResult)) {
+              return processAbortLineSignal(pipeActionResult)
+            } else {
+              return pipeActionResult
+            }
           } else {
             return await pipeRunner(...actions)(page, ...pipeInjects(injects))
           }
         } else {
-          // running a chain
-          if (actions.length === 0) {}
-          else if (actions.length === 1) {
-            await actions[0](page, ...injects)
-          } else {
-            await chainRunner(...actions)(page, ...injects)
+          if (actions.length === 1) {
+            const chainActionResult = await actions[0](page, ...injects)
+
+            if (isAbortLineSignal(chainActionResult)) {
+              return processAbortLineSignal(chainActionResult)
+            }
+          } else if (actions.length > 1) {
+            return await chainRunner(...actions)(page, ...injects)
           }
         }
       }
 ```
 The second call `assemblyLine()()` assembles declared BotAction's. The third call `assemblyLine()()()` is the actual BotAction to run the async functionality.
 
+Assembly Line follows the usual aborting behavior for Pipe and Chain, except when it's running as a Chain, it will return an AbortLineSignal `pipeValue`, if it's the last assembled line being aborted. Normal Chain's do not return that value.
+
 For an usage example, see [inject()()](/api/inject#inject).
+
+## Switch Pipe
+Switch Pipes provide a way to assemble BotAction's with the same Pipe object. Each BotAction assembled in the second call of `switchPipe()()` will receive the *same* Pipe value wrapped in the *same* Pipe object, no matter what these BotAction's return.
+
+> Switch Pipe "switches" each Pipe object injected, back to the original one received.
+
+Switch Pipe was built to provide a functional switch statement. Similar to an if statement, a switch statement tests a *case* condition to determine if its code blocks should run, except switch supports multiple cases. Switch Pipe makes this possible by providing the same Pipe object to each BotAction assembled, to test or operate on for any case(s).
+
+BotAction's like [pipeCase()()](/api/pipe#pipe-case) or [pipeCases()()](/api/pipe#pipe-cases) fit perfectly here. They test the received Pipe object value against its own provided values, to determine if their assembled BotAction's should run. 
+
+Both `pipeCase()()` and `pipeCases()()` functions return a `CasesSignal` that can catalyze Switch Pipe into aborting with one less `assembledLines` count. This supports Switch Pipe's unique aborting functionality that mirrors `break;` inside a traditional switch code block. 
+
+By default, an AbortLineSignal with `assembledLines` of `1`, is absorbed by Switch Pipe, as if ignored, until Switch Pipe receives a CasesSignal with `conditionPass` as true, then `abort(1)` will break the assembled line.
+
+When an assembled `pipeCase()()` runs its assembled BotAction's, it informs its Switch Pipe into lowering the required `assembledLines` count by 1 for its aborting logic. This enables a conditional breaking of the assembled Switch Pipe line, similar to how switch, case(s) and break(s) work together.
+
+```typescript
+const switchPipe = 
+  (toPipe?: PipeValue) => 
+    (...actions: BotAction<PipeValue|AbortLineSignal|CasesSignal|void>[]): BotAction<any[]|AbortLineSignal|PipeValue> =>
+      async(page, ...injects) => {
+        if (!toPipe) {
+          toPipe = getInjectsPipeValue(injects)
+        }
+
+        if (injectsHavePipe(injects)) {
+          injects = injects.slice(0, injects.length - 1)
+        }
+        injects.push(wrapValueInPipe(toPipe))
+
+        let hasAtLeastOneCaseMatch = false
+        const actionsResults = []
+
+        for(const action of actions) {
+          let resolvedActionResult = await action(page, ...injects)
+
+          if (isCasesSignal(resolvedActionResult) && resolvedActionResult.conditionPass) {
+            hasAtLeastOneCaseMatch = true
+            actionsResults.push(resolvedActionResult)
+          } else if (isAbortLineSignal(resolvedActionResult)) {
+            if (resolvedActionResult.assembledLines === 0) {
+              return resolvedActionResult
+            }
+
+            if (!hasAtLeastOneCaseMatch) {
+              resolvedActionResult = processAbortLineSignal(resolvedActionResult)
+            }
+
+            if (!isAbortLineSignal(resolvedActionResult)) {
+              actionsResults.push(resolvedActionResult)
+            } else if (resolvedActionResult.assembledLines === 1) {
+              actionsResults.push(resolvedActionResult.pipeValue)
+              return actionsResults
+            } else {
+              return processAbortLineSignal(resolvedActionResult)
+            }
+          } else {
+            actionsResults.push(resolvedActionResult)
+          }
+        }
+
+        return actionsResults
+      }
+```
+
+Except for `abort(0)`, which aborts the entire bot, Switch Pipe absorbs `abort(1)` when no cases have matched. 
+
+When Switch Pipe receives a CasesSignal with `conditionPass = true` from an assembled BotAction, it lowers its aborting `assembledLines` count by 1.
+
+It does this by reducing received AbortLineSignal's `assembledLines` count by 1, when the Switch Pipe has *yet* to receive a CasesSignal with `conditionPass = true`, from an assembled BotAction.
+
+Once Switch Pipe receives a CasesSignal with a true `conditionPass`, it stops pre-processing received AbortLineSignal's, enabling `abort(1)` to break a Switch Pipe line and return the actions' results.
+
+Here's a table to understand it's unique aborting logic. This logic is applied after Switch Pipe subtracts `1` from an AbortLineSignal's `assembledLines` count, if it has yet to have a case match:
+
+| assembledLines | effect                                                         |
+|       -        |         -                                                     |
+| 0              | don't break Switch Pipe line, append the AbortLineSignal.pipeValue to the returned array                     |
+| 1              | break Switch Pipe line, append the AbortLineSignal.pipeValue to the returned array then return that array       |
+| 2+              | break Switch Pipe line, return AbortLineSignal with assembledLines reduced by 1         |
+
+For a complete example with pipe casing and aborts, see LinkedIn's Feed BotAction [likeUserPostsFrom()](/sites/linkedin#like-user-posts-from).
+
 
 ## Pipe Action Or Actions
 This BotAction fits a niche purpose, of running BotAction's in a Pipe that are returned from a callback function.
 ```typescript
 const pipeActionOrActions = 
-  (actionOrActions: BotAction<PipeValue> | BotAction<PipeValue>[]): BotAction<PipeValue|undefined> =>
+  (actionOrActions: BotAction<PipeValue> | BotAction<PipeValue>[]): BotAction<PipeValue|undefined|AbortLineSignal> =>
     async(page, ...injects) => {
       if (Array.isArray(actionOrActions)) {
         return await pipe()(...actionOrActions)(page, ...injects)
       } else {
-        return await actionOrActions(page, ...pipeInjects(injects)) // simulate pipe
+        const singleActionResult = await actionOrActions(page, ...pipeInjects(injects))
+
+        if (isAbortLineSignal(singleActionResult)) {
+          return processAbortLineSignal(singleActionResult)
+        } else {
+          return singleActionResult
+        }
       }
     }
 ```
 This is a unique kind of Pipe to help when you don't know if you're given an array of BotAction's or just one BotAction. This is different from the common approach of spreading an array of BotAction's.
+
+This BotAction has the same aborting behavior as Pipes, for either case: one BotAction or an array of BotAction's. It takes one `assembledLines` to break and return an AbortLineSignal `pipeValue`. Any more `assembledLines` and you'll break further lines of BotAction's while carrying the `pipeValue` up.
 
 For an usage example, see [forAll()()](/api/utilities#for-all).
 
@@ -124,32 +255,45 @@ These are less optimized, less configurable versions of `chain()` and `pipe()()`
 ### chainRunner
 ```typescript
 const chainRunner =
-  (...actions: BotAction[]): BotAction =>
+  (...actions: BotAction<void|AbortLineSignal>[]): BotAction<void|AbortLineSignal|PipeValue> =>
     async(page, ...injects) => {
+      let returnValue: any
       for(const action of actions) {
-        await action(page, ...injects)
+        returnValue = await action(page, ...injects)
+
+        if (isAbortLineSignal(returnValue)) {
+          return processAbortLineSignal(returnValue)
+        }
       }
     }
 ```
 
+This BotAction is similar to Chain in handling AbortLineSignal's, except it will return an AbortLineSignal `pipeValue` on being the last aborted line.
+
 ### pipeRunner
 ```typescript
 const pipeRunner = 
-  <R extends PipeValue = PipeValue, P extends PipeValue = PipeValue>
-  (...actions: BotAction<PipeValue|void>[]): BotAction<PipeValue<R>> =>
+  (...actions: BotAction<PipeValue|void|AbortLineSignal>[]): BotAction<PipeValue|AbortLineSignal|undefined> =>
     async(page, ...injects) => {
-      let pipe: Pipe = createEmptyPipe()
+      let pipeObject: Pipe = createEmptyPipe()
 
       if (injectsHavePipe(injects)) {
-        pipe = getInjectsPipeOrEmptyPipe<P>(injects)
+        pipeObject = getInjectsPipeOrEmptyPipe(injects)
         injects = injects.slice(0, injects.length - 1)
       }
 
       for(const action of actions) {
-        const nextPipeValueOrUndefined: PipeValue|void = await action(page, ...injects, pipe)
-        pipe = wrapValueInPipe(nextPipeValueOrUndefined as PipeValue|undefined)
+        const nextPipeValueOrUndefined: AbortLineSignal|PipeValue|void = await action(page, ...injects, pipeObject)
+
+        if (isAbortLineSignal(nextPipeValueOrUndefined)) {
+          return processAbortLineSignal(nextPipeValueOrUndefined)
+        }
+
+        pipeObject = wrapValueInPipe(nextPipeValueOrUndefined as PipeValue|undefined)
       }
 
-      return pipe.value as any as PipeValue<R>
-    }    
+      return pipeObject.value
+    } 
 ```
+
+This BotAction handles AbortLineSignal's the same way as Pipe's do. It takes one `assembledLines` to abort out of a `pipeRunner()()`.

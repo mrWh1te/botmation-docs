@@ -21,7 +21,9 @@ await chain(
 ```
 Here we pass in a collection of site domain's in the first call of `forAll()` then in the second call pass in a callback function, to run BotAction(s) on each iteration of the collection. Therefore, the BotAction's returned by the callback function, in the second call, are ran in a loop for each item of the iteration, in this case, each domain name.
 
-When the [forAll()()()](/api/utilities#for-all) BotAction completes, it will have visited and taken screenshots of each site in the array.
+When the [forAll()()()](/api/utilities#for-all) BotAction completes, it will have visited and taken screenshots of each site in the array. 
+
+Learn more about `forAll()()` by reading its [documentation](/api/utilities#for-all).
 
 ## For As Long
 

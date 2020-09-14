@@ -12,7 +12,11 @@ The current set of BotAction's are for the initial login flow into Instagram's w
 
 They can all be imported from the npm `botmation` module, like every other function in the API.
 
-## login() BotAction
+## Auth
+
+These BotAction's facilitate the login process of Instagram's web app.
+
+### login()
 ```typescript
 const login = ({username, password}: {username: string, password: string}): BotAction =>
   chain(
@@ -33,7 +37,7 @@ This BotAction is a composition that uses [errors()()](/api/errors#errors) to wr
 
 The composition is declarative, therefore needs little explaining. `login()` is a higher-order function that takes a typed object for the `username` and `password`.
 
-## isGuest ConditionalBotAction
+### isGuest
 ```typescript
 const isGuest: ConditionalBotAction = 
   indexedDBStore('redux', 'paths')(
@@ -43,7 +47,7 @@ const isGuest: ConditionalBotAction =
 ```
 This BotAction is a composition that uses [indexedDBStore()()](/api/indexed-db#indexeddbstore) to assemble BotAction's with the IndexedDB Database name and Store name [injected](/advanced/injects). This simply grabs the value for the `users.viewerId` key then [maps](/api/pipe#map) it to the corresponding boolean value.
 
-## isLoggedIn ConditionalBotAction
+### isLoggedIn
 ```typescript
 const isLoggedIn: ConditionalBotAction =
   indexedDBStore('redux', 'paths')(
@@ -53,7 +57,7 @@ const isLoggedIn: ConditionalBotAction =
 ```
 This BotAction is a composition that uses [indexedDBStore()()](/api/indexed-db#indexeddbstore) to assemble BotAction's with the IndexedDB Database name and Store name [injected](/advanced/injects). This simply grabs the value for the `users.viewerId` key then [maps](/api/pipe#map) it to the corresponding boolean value.
 
-## isTurnOnNotificationsModalActive ConditionalBotAction
+### isTurnOnNotificationsModalActive
 ```typescript
 const isTurnOnNotificationsModalActive: ConditionalBotAction = async(page) => {
   const modalHeader = await page.$(MAIN_MODAL_HEADER_SELECTOR)
@@ -64,7 +68,7 @@ const isTurnOnNotificationsModalActive: ConditionalBotAction = async(page) => {
 ```
 Sometimes after login, Instagram prompts the User with a modal about turning on notifications. This ConditionalBotAction returns `true` if that modal is open.
 
-## closeTurnOnNotificationsModal BotAction
+### closeTurnOnNotificationsModal
 ```typescript
 const closeTurnOnNotificationsModal: BotAction = async (page) => {
   // click button with text "Not Now" inside the dialog
@@ -75,6 +79,22 @@ const closeTurnOnNotificationsModal: BotAction = async (page) => {
 }
 ```
 This BotAction will close the "Turn on Notifications" modal. Please use [givenThat()()](/api/utilities#given-that) with [isTurnOnNotificationsModalActive](/sites/instagram#isturnonnotificationsmodalactive-conditionalbotaction) to run this BotAction only if that modal is open.
+
+## Selectors
+
+Helpful HTML element selectors in the Instagram web app, can be imported directly from the main `botmation` package.
+
+These are the following:
+```typescript
+// Auth - Login Page
+const FORM_AUTH_USERNAME_INPUT_SELECTOR = 'html body section main form input[name="username"]'
+const FORM_AUTH_PASSWORD_INPUT_SELECTOR = 'html body section main form input[name="password"]'
+const FORM_AUTH_SUBMIT_BUTTON_SELECTOR = 'html body section main form button[type="submit"]'
+
+// Modals - Home Page
+const MAIN_MODAL_SELECTOR = 'html body div[role="dialog"]'
+const MAIN_MODAL_HEADER_SELECTOR = 'html body div[role="dialog"] h2'
+```
 
 ## Helpers
 

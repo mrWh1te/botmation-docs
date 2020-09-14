@@ -2,22 +2,28 @@
 title: Roadmap
 ---
 
-## Botmation NPM Module
+## Botmation NPM package
 ### v2.x
- - Site specific BotAction's (everything in the bots directory) is deprecated, to be published in separate npm modules.
+ - Site specific BotAction's are deprecated from `botmation` package and to be published in separate npm packages `botmation-*`.
  - New minor releases for proposed BotAction's [here](https://github.com/mrWh1te/Botmation/issues).
  - New patch releases for bug & security fixes
 
 ### v3.x
- - Site specific BotAction's are deleted. See site specific npm modules for their replacements.
+ - Site specific BotAction's removed from botmation npm package
  - Fully working (including tests) with latest Puppeteer major versions 4 & 5
+ - Site specific BotAction's are published in site specific npm packages
+
+### v4.x (subject to change)
+ - De-compose `page` from `BotAction` [proposal](https://github.com/mrWh1te/Botmation/issues/54#issuecomment-689843796)
+     - Create more than web bots with this composable framework like an API
 
 ## Working on now
- - Separate NPM modules, rename bots/ -> sites/, v3 prep
+ - Separate site specific npm packages
  - New BotAction's proposed (see issues labeled "proposal" [here](https://github.com/mrWh1te/Botmation/issues))
 
-## Future
- - Stabilizing e2e testing with latest Puppeteer version
- - Major v3 release 
+### Future
+ - More site specific npm packages
 
-*Last updated Aug 23, 2020*
+<br /><br /><br />
+
+*Last updated Sep 14, 2020*

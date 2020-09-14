@@ -1,0 +1,264 @@
+---
+title: LinkedIn
+---
+
+These BotAction's focus on logging into LinkedIn with an account then processing the account's Feed. From logging in, to liking feed posts, it's a small collection to help get started. 
+
+> These functions are yet to be published in their own npm package, but for now, you're welcome to copy and paste them into your own code from this page.
+
+## Overview
+
+The current set of BotAction's are for logging in and liking posts in the feed. Here is a working [example](https://github.com/mrWh1te/Botmation/blob/master/src/examples/linkedin.ts) of them in use.
+
+## Navigation 
+Simple functions for navigating to various parts of the LinkedIn web app.
+
+### goHome
+```typescript
+const goHome: BotAction = 
+  goTo('https://www.linkedin.com/', {waitUntil: 'domcontentloaded'})
+```
+
+### goToFeed
+```typescript
+const goToFeed: BotAction = 
+  goTo('https://www.linkedin.com/feed/', {waitUntil: 'domcontentloaded'})
+```
+
+### goToMessaging
+```typescript
+const goToMessaging: BotAction = 
+  goTo('https://www.linkedin.com/messaging/', {waitUntil: 'domcontentloaded'})
+```
+
+### goToNotifications
+```typescript
+const goToNotifications: BotAction = 
+  goTo('https://www.linkedin.com/notifications/', {waitUntil: 'domcontentloaded'})
+```
+
+## Auth
+
+These BotAction's focus on logging into the LinkedIn web app.
+
+### login()
+```typescript
+const login = (emailOrPhone: string, password: string): BotAction =>
+  chain(
+    errors('LinkedIn login()')(
+      goTo('https://www.linkedin.com/login'),
+      click('form input[id="username"]'),
+      type(emailOrPhone),
+      click('form input[id="password"]'),
+      type(password),
+      click('form button[type="submit"]'),
+      waitForNavigation,
+      log('LinkedIn Login Complete')
+    )
+  )
+```
+This BotAction is a composition that uses [errors()()](/api/errors#errors) to wrap the main assembled BotAction's, in case something goes wrong here (ie a selector is updated so `click()` fails), dev's will have an easier time debugging when errors are thrown here.
+
+The composition is declarative, therefore needs little explaining. `login()` is a higher-order function that takes a `emailOrPhone` and `password` strings to automatically perform the login flow in the web app.
+
+### isGuest
+```typescript
+const isGuest: ConditionalBotAction = pipe()(
+  // data feature for user notifications
+  getLocalStorageItem('voyager-web:badges'),
+  map(value => value === null) // Local Storage returns null if not found
+)
+```
+After some investigating, it appears that Local Storage is used to maintain the state of the application's features, where each key is a major app feature. The particular key here references, what appears to be, a "Notifications" feature which is global to the app (in the Layout) and belongs only to Users.
+
+### isLoggedIn
+```typescript
+const isLoggedIn: ConditionalBotAction = pipe()(
+  // data feature for user notifications
+  getLocalStorageItem('voyager-web:badges'),
+  map(value => typeof value === 'string') // Local Storage returns string value if found
+)
+```
+After some investigating, it appears that Local Storage is used to maintain the state of the application's features, where each key is a major app feature. The particular key here references, what appears to be, a "Notifications" feature which is global to the app (in the Layout) and belongs only to Users.
+
+## Feed
+These BotAction's focus on operating in the main Feed of LinkedIn's web app.
+
+### Scrape Feed Post
+This BotAction takes a specific post html attribute `data-id` value to scrape it with the provided HTML parser.
+
+```typescript
+const scrapeFeedPost = (postDataId: string): BotAction<CheerioStatic> =>
+  $('.application-outlet .feed-outlet [role="main"] [data-id="'+ postDataId + '"]')
+```
+
+### If Post Not Loaded Cause Loading Then Scrape
+Linkedin's feed lazily loads the content of its offscreen posts. It uses div containers, each with their own `data-id` attribute, as placeholders for the content to be loaded in. This BotAction tests to see if a particular scraped post was fully loaded and if not, it causes the app to load it by scrolling to it. Then it scrapes the fully loaded container.
+
+```typescript
+const ifPostNotLoadedCauseLoadingThenScrape = (post: CheerioStatic): BotAction<CheerioStatic> =>
+  pipe(post)(
+    errors('LinkedIn causeLazyLoadingThenScrapePost()')(
+      pipeCase(postHasntFullyLoadedYet)(
+        scrollTo('.application-outlet .feed-outlet [role="main"] [data-id="'+ post('[data-id]').attr('data-id') + '"]'),
+        scrapeFeedPost(post('[data-id]').attr('data-id') + '')
+      ),
+      map(casesSignalToPipeValue)
+    )
+  )
+```
+
+### Like User Post
+It takes a scraped feed post, to grab identifying information for the "Like" button. It will throw and catch an error if the "Like" button was already liked, given how Puppeteer's `page.click()` handles elements not found. A "liked" button has a slightly different selector.
+
+```typescript
+const likeUserPost = (post: CheerioStatic): BotAction =>
+  errors('LinkedIn like() - Could not Like Post: Either already Liked or button not found')(
+    click( 'div[data-id="' + post('div[data-id]').attr('data-id') + '"] button[aria-label="Like ' + post(feedPostAuthorSelector).text() + '’s post"]')
+  )
+```
+
+### Like User Posts From
+It takes a spread array of strings of the exact names of people, to like their posts in the feed. The function itself goes beyond the required scope, but to serve as a decent starting point for more complex feed interactions.
+
+```typescript
+const likeUserPostsFrom = (...peopleNames: string[]): BotAction => 
+  pipe()(
+    scrapeFeedPosts,
+    forAll()(
+      post => pipe(post)(
+        ifPostNotLoadedCauseLoadingThenScrape(post),
+        switchPipe()(
+          pipeCase(postIsPromotion)(
+            map((promotionPost: CheerioStatic) => promotionPost('[data-id]').attr('data-id')),
+            log('Promoted Content')
+          ),
+          abort(),
+          pipeCase(postIsJobPostings)(
+            map((jobPostingsPost: CheerioStatic) => jobPostingsPost('[data-id]').attr('data-id')),
+            log('Job Postings')
+          ),
+          abort(),
+          pipeCase(postIsUserInteraction)(
+            map((userInteractionPost: CheerioStatic) => userInteractionPost('[data-id]').attr('data-id')),
+            log(`Followed User's Interaction (ie like, comment, etc)`)
+          ),
+          abort(),
+          pipeCase(postIsUserPost)(
+            pipeCase(postIsAuthoredByAPerson(...peopleNames))(
+              likeUserPost(post),
+              log('User Article "liked"')
+            ),
+            emptyPipe,
+            log('User Article')
+          ),
+          abort(),
+          // default case
+          pipe()(
+            map((unhandledPost: CheerioStatic) => unhandledPost('[data-id]').text()),
+            log('Unhandled Post Case')
+          )
+        )
+      )
+    )
+  )
+```
+
+## Messaging
+These BotAction's focus on operating in the main Messaging area of LinkedIn's web app.
+
+### toggleMessagingOverlay
+```typescript
+const toggleMessagingOverlay: BotAction =
+  click(messagingOverlayHeaderSelector)
+```
+
+By default, when someone logs into the LinkedIn web app, the "Messaging" center in the bottom-right is open, covering part of the web app. This BotAction will toggle that "Messaging" overlay open and close.
+
+## Selectors
+
+Helpful HTML element selectors in the LinkedIn web app:
+```typescript
+// Selectors for Messaging Overlay
+export const messagingOverlayHeaderSelector = 'header.msg-overlay-bubble-header'
+
+// Selectors for the main News Feeds
+export const feedPostsSelector = '.application-outlet .feed-outlet [role="main"] div[data-id]'
+export const feedPostAuthorSelector = '.feed-shared-actor__title'
+```
+
+## Helpers
+
+These functions are not BotAction's, but useful in creating a web bot for Linkedin.
+
+### postIsUserPost()
+This function is a `ConditionalCallback` that fits with `pipeCase()` and `pipeCases()`. It tests the provided `CheerioStatic` function, a "post" from the feed, on whether or not it fits the criteria for a User post, the common published posts.
+
+```typescript
+const postIsUserPost: ConditionalCallback<CheerioStatic> = (post: CheerioStatic) => {
+  const sharedActorFeedSupplementaryInfo = post('.feed-shared-actor__supplementary-actor-info').text().trim().toLowerCase()
+
+  return sharedActorFeedSupplementaryInfo.includes('1st') || sharedActorFeedSupplementaryInfo.includes('following')
+}
+```
+It checks for a particular part of the HTML where the connection meta information is displayed, ie to what degree of connection are you, or if not connected, are you following this User.
+
+### postIsAuthoredByAPerson()
+This higher-order function returns a `ConditionalCallback` that fits with `pipeCase()` and `pipeCases()`. It tests the provided `CheerioStatic` function, a "post" from the feed, on whether or not it was authored by a particular person.
+
+```typescript
+const postIsAuthoredByAPerson = (...peopleNames: string[]): ConditionalCallback<CheerioStatic> => (post: CheerioStatic) =>
+  peopleNames.some(name => name.toLowerCase() === post(feedPostAuthorSelector).text().toLowerCase())
+```
+
+### postIsPromotion()
+This function is a `ConditionalCallback` that fits with `pipeCase()` and `pipeCases()`. It tests the provided `CheerioStatic` function, a "post" from the feed, on whether or not it fits the criteria for a Promoted post, aka an advertisement.
+
+```typescript
+const postIsPromotion: ConditionalCallback<CheerioStatic> = (post: CheerioStatic) =>
+  post('.feed-shared-actor__sub-description').text().trim().toLowerCase().includes('promoted')
+```
+
+### postIsJobPostings()
+This function is a `ConditionalCallback` that fits with `pipeCase()` and `pipeCases()`. It tests the provided `CheerioStatic` function, a "post" from the feed, on whether or not it fits the criteria for a Job Postings post.
+
+```typescript
+const postIsJobPostings: ConditionalCallback<CheerioStatic> = (post: CheerioStatic) => {
+  const dataId = post('[data-id]').attr('data-id')
+
+  if(!dataId) return false
+
+  const dataIdParts = dataId.split(':')
+
+  return dataIdParts.length >= 5 &&
+         dataIdParts[2] === 'aggregate' &&
+         dataIdParts.slice(3).some(part => part === 'jobPosting')
+}
+```
+
+### postIsUserInteraction()
+This function is a `ConditionalCallback` that fits with `pipeCase()` and `pipeCases()`. It tests the provided `CheerioStatic` function, a "post" from the feed, on whether or not it fits the criteria for an User Interaction post.
+
+The LinkedIn web app sometimes presents posts to highlight an User you're connected with, or following, has recently "reacted" to a post in the feed. This includes "liking", "loving", "celebrating", "commenting on" posts.
+
+```typescript
+const postIsUserInteraction: ConditionalCallback<CheerioStatic> = (post: CheerioStatic) => {
+  const feedPostSiblingText = post('h2.visually-hidden:contains("Feed post") + div span').text().trim().toLowerCase()
+
+  return feedPostSiblingText.includes('likes this') || 
+         feedPostSiblingText.includes('loves this') ||
+         feedPostSiblingText.includes('celebrates this') ||
+         feedPostSiblingText.includes('commented on this')
+}
+```
+
+### postHasntFullyLoadedYet()
+This function is a `ConditionalCallback` that fits with `pipeCase()` and `pipeCases()`. It tests the provided `CheerioStatic` function, a "post" from the feed, on whether or not it fits the criteria for being a fully loaded post. 
+
+The LinkedIn web app lazily loads offscreen content to expediate rendering performance of the feed. In doing such, it leaves container div's that represent posts, that may get scraped, but lack all the important information to make the informed decision. Therefore, this ConditionalCallback can be used to run code for loading a post fully, in case it has not.
+
+```typescript
+const postHasntFullyLoadedYet: ConditionalCallback<CheerioStatic> = (post: CheerioStatic) => {
+  return post('[data-id]').text().trim() === ''
+}
+```
