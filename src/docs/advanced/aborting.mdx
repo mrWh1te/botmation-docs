@@ -4,7 +4,7 @@ title: Aborting
 
 ## AbortLine Signal
 
-It may become necessary to abort an assembly line of BotAction's. Maybe something is noticed, or something is no longer possible, and therefore it's not helpful to run the remaining que'ed BotAction's assembled. In order to do this, a BotAction simply must return an `AbortLineSignal`. All BotAction's that assemble other BotAction's recognize this signal. Most of them process it the same way, but a few like the Utilities have unique cause and effect relationships with the signal to provide granular control.
+Sometimes it's necessary to abort an assembly line of BotAction's. Perhaps something is removed from a web page that subsequent BotAction's rely on. When this happens, all a BotAction must do is return an `AbortLineSignal`.
 
 ```typescript
 type AbortLineSignal = {
@@ -14,20 +14,37 @@ type AbortLineSignal = {
 }
 ```
 
+AbortLine Signals are safely created with the [createAbortLineSignal()](/api/abort#createabortlinesignal) helper.
+
 ## Assembled Lines Count
 
-The AbortLine Signal has an important property called `assembledLines` which informs the Assembler how many lines of assembly to break. `assembledLines` of `1` is intended to only break the line it was assembled in. The safe defaults for no params in the [abort()](/api/abort#abort) BotAction set `assembledLines` to `1`.
+An AbortLine Signal has an important property called `assembledLines` which informs the assembler how many lines of assembly to break. One is one line, two is two, three is three and so forth.
+
+The default count of `assembledLines` is one for both the [abort()](/api/abort#abort) BotAction and the [createAbortLineSignal()](/api/abort#createabortlinesignal) helper.
 
 ## Infinity AbortLine Signal
-It's possible to abort further lines of assembly, and even abort the entire bot.
+It's possible to abort all lines of assembly without knowing how many there are by returning an Infinity AbortLine Signal.
 
-Finally, AbortLine Signal supports a special case to fully abort out of all lines of assembly (terminate the bot early) by returning an `AbortLineSignal` with `assembledLines` set to `0`. It's considered an *infinite* signal, to prevent all remaining BotAction's from running.
+Infinity AbortLine Signals have `assembledLines` set to `0`. When an assembler processes an Infinity AbortLine Signal, it abort what it's doing and returns the same signal without modification.
 
 ## Process AbortLine Signal
  
-By default, every time an assembler receives an AbortLine Signal, it processes it by reducing the `assembledLines` count by `1`. Each count represents a line of assembly to abort.
+Almost every assembler processes an AbortLine Signal with the [processAbortLineSignal()](/api/abort#processabortlinesignal) helper. It supports all main use-cases of `assembledLines` 0, 1, and 2+.
 
-It depends on the number of `assembledLines` of the AbortLine Signal. `2` should break the current line and the one above. `3` should break the current line, the one above, & the one above that; and so forth. There are exceptions such as `switchPipe()()`, which ignores the default AbortLine Signal (`assembledLines` of `1`), when it hasn't yet received a `CasesSignal` with its condition passed. That's because `abort()` works like `break;` in the traditional `switch(){}` block, when assembled in a [Switch Pipe](/api/assembly-lines#switch-pipe).
+This is the default aborting behavior for assemblers:
+
+| assembledLines | effect   |
+|    -   |         -       |
+| 0 | Infinity AbortLine Signal aborts every BotAction and returns itself without change on each abort |
+| 1 | Default AbortLine Signal aborts only one line of assembled BotActions and returns the abortLineSignal.pipeValue |
+| 2+ | Level specific AbortLine Signal aborts one line of assembled BotActions at a time while reducing its assembledLines count to 1 for final abort  |
+
+Each assembler will detect the value returned by the resolved BotAction for an AbortLine Signal. If it is one, it processes it which follows the table above.
+
+This is the default aborting behavior, and there are exceptions for some BotAction's such as the Utilities, Switch Pipe, and Pipe Case(s).
+
+## Unique Aborting behavior
+`switchPipe()()` ignores the default AbortLine Signal (`assembledLines` of `1`), when it hasn't yet received a `CasesSignal` with its condition passed. That's because `abort()` works like `break;` in the traditional `switch(){}` block, when assembled in a [Switch Pipe](/api/assembly-lines#switch-pipe).
 
 > Any BotAction can return an AbortLine Signal, to inform its assembler BotAction to break its line. 
 
