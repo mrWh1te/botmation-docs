@@ -95,7 +95,7 @@ const scrapeFeedPost = (postDataId: string): BotAction<CheerioStatic> =>
 ```
 
 ### Scrape Feed Posts
-This BotAction is composed with the [$$]() Scrapers BotAction. It will grab each post from the DOM. LinkedIn's web app lazily loads offscreen posts, so some of these may be empty div containers.
+This BotAction is composed with the [$$](/api/scrapers#scrape-multiple) Scrapers BotAction. It will grab each post from the DOM. LinkedIn's web app lazily loads offscreen posts, so some of these may be empty div containers.
 
 ```typescript
 const scrapeFeedPosts: BotAction<CheerioStatic[]> = 
