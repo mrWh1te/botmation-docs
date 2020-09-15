@@ -94,6 +94,14 @@ const scrapeFeedPost = (postDataId: string): BotAction<CheerioStatic> =>
   $('.application-outlet .feed-outlet [role="main"] [data-id="'+ postDataId + '"]')
 ```
 
+### Scrape Feed Posts
+This BotAction is composed with the [$$]() Scrapers BotAction. It will grab each post from the DOM. LinkedIn's web app lazily loads offscreen posts, so some of these may be empty div containers.
+
+```typescript
+const scrapeFeedPosts: BotAction<CheerioStatic[]> = 
+  $$(feedPostsSelector)
+```
+
 ### If Post Not Loaded Cause Loading Then Scrape
 Linkedin's feed lazily loads the content of its offscreen posts. It uses div containers, each with their own `data-id` attribute, as placeholders for the content to be loaded in. This BotAction tests to see if a particular scraped post was fully loaded and if not, it causes the app to load it by scrolling to it. Then it scrapes the fully loaded container.
 
