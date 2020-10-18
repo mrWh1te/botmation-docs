@@ -3,7 +3,7 @@ module.exports = {
     siteTitle: `Botmation Documentation`,
     defaultTitle: `Botmation Documentation`,
     siteTitleShort: `Botmation Docs v3`,
-    siteDescription: `Build Puppeteer web bots declaratively with this simple TypeScript framework called Botmation`,
+    siteDescription: `Declaratively code web bots in Puppeteer with the simple TypeScript framework called Botmation`,
     siteUrl: `https://botmation.dev`,
     siteAuthor: `Michael Lage`,
     siteImage: `/new-major-release.png`,
