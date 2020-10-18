@@ -144,7 +144,7 @@ const login = (username: string, password: string): BotAction =>
   )
 ```
 
-It looks magical, but the strong typing keeps it all in check.
+It might look magical, but the TypeScript typing keeps it in check for us.
 
 `login()` is a higher-order sync function that declares a chain of BotAction's to run in a line. This works because the first call of `chain()` is a regular sync function that returns a BotAction. The second call of chain `login()`'s BotAction.
 
