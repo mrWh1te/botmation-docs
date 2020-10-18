@@ -18,7 +18,7 @@ export default () => {
   return (
     <h1>
       Botmation
-      <VersionWrapper>v2.1</VersionWrapper>
+      <VersionWrapper>v3</VersionWrapper>
     </h1>
   );
 }
