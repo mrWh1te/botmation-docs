@@ -22,7 +22,7 @@ An AbortLine signal's important property is called `assembledLines`. It informs 
 
 The default count of `assembledLines` is one for both the [abort()](/api/abort#abort) BotAction and the [createAbortLineSignal()](/api/abort#createabortlinesignal) helper. It can be any positive number, including zero.
 
-## Infinity AbortLine Signal
+### Infinity AbortLine Signal
 It's possible to abort all lines of assembly without knowing how many there are by returning an Infinity AbortLine signal.
 
 Infinity AbortLine signals have `assembledLines` set to `0`. When an assembler processes an Infinity AbortLine signal, it aborts what it's doing and returns the same signal without change.

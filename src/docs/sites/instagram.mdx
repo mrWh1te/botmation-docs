@@ -2,15 +2,13 @@
 title: Instagram
 ---
 
-Botmation v2.x has a few special BotAction's included (can be imported) to help create web bots that crawl Instagram's web app.
-
-> These Instagram functions are `deprecated` in Botmation v2.x. They will be deleted in Botmation v3.x. Before that, those functions will be published in a separate npm module, with the same license as before. This way, Botmation can focus on the building blocks of web bots and other npm modules can exist to add on to that for specific domains.
+These BotAction's are for Instagram's web app.
 
 ## Overview
 
-The current set of BotAction's are for the initial login flow into Instagram's web app. Here is a working [example](https://github.com/mrWh1te/Botmation/blob/master/src/examples/instagram.ts) of them in use.
+The current set of BotAction's are for the initial login flow into Instagram's web app. Here is a working [example](https://github.com/mrWh1te/Botmation/blob/master/src/examples/instagram.ts) of these in use.
 
-They can all be imported from the npm `botmation` module, like every other function in the API.
+> These BotAction's are not included in the Botmation npm package.
 
 ## Auth
 
@@ -56,6 +54,10 @@ const isLoggedIn: ConditionalBotAction =
   )
 ```
 This BotAction is a composition that uses [indexedDBStore()()](/api/indexed-db#indexeddbstore) to assemble BotAction's with the IndexedDB Database name and Store name [injected](/advanced/injects). This simply grabs the value for the `users.viewerId` key then [maps](/api/pipe#map) it to the corresponding boolean value.
+
+## Modals
+
+These BotAction's help handle Instagram's Modals.
 
 ### isTurnOnNotificationsModalActive
 ```typescript
@@ -105,7 +107,7 @@ const getInstagramBaseUrl = () =>
 ```
 Returns Instagram's web app's base URL without a trailing slash, ie: `https://www.instagram.com`
 
-### getInstagramBaseUrl()
+### getInstagramLoginUrl()
 ```typescript
 const getInstagramLoginUrl = () => 
   getInstagramBaseUrl() + INSTAGRAM_URL_EXT_LOGIN + '/'

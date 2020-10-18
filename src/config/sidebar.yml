@@ -6,12 +6,10 @@
     link: '/'
   - label: 'Overview'
     link: '/overview'
-  - label: 'Playground'
-    link: '/playground'
-  - label: 'Examples'
-    link: '/examples'
   - label: 'Install'
     link: '/install'
+  - label: 'Examples'
+    link: '/examples'
 
 - label: 'Sites'
   items:
