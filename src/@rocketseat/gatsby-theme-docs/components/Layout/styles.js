@@ -36,7 +36,7 @@ const ExtraLogosContainer = styled.div`
 `;
 
 // shadowing:
-export const Container = ({children}) => {
+export const Container = (props) => {
   return (
     <>
       <Container_Inner>
@@ -49,7 +49,7 @@ export const Container = ({children}) => {
           </a>
         </ExtraLogosContainer>
 
-        { children }
+        { props.children }
 
         <BabyBotContainer>
           <Baby_Bot />
