@@ -48,7 +48,7 @@ export const Container = ({children}) => {
           </a>
         </ExtraLogosContainer>
 
-        {children}
+        { children }
 
         <BabyBotContainer>
           <Baby_Bot />
