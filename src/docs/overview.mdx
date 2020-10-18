@@ -8,13 +8,13 @@ Botmation is a simple declarative framework for building web bots with composabl
 
 <img src="/orange_bot.png" alt="Orange Bot" align="right" width="150px" />
 
-BotAction's are async functions that handle various tasks in the web, from specific things like "click this button" to broad flows like "scrape this feed and like my friends' posts". They are *composable*. They can be assembled and created from higher order functions. They are like bricks, you can lay them down to build walls, then use the walls to build buildings, then use the buildings to build cities and so forth.
+BotAction's are async functions that handle various tasks in the web, from specific things like "click this button" to broad flows like "scrape this feed and like my friends' posts". They are *composable*. They can be assembled together to create complex functions that are highly readable. They are like bricks, you can lay them down to build walls, then use the walls to build buildings, then use the buildings to build cities and so forth. Except, each one of these things, even at different levels of composition, are still considered the same *type* of thing. They can be reused anywhere, regardless of how complex their composition is. It's like they are made of the same stuff, and are the same stuff, at the same-time.
 
-Imagine a door into a coffee shop ☕. As 🧍 🧍 🧍 customers enter, a 🧍🧍🧍 line forms. The first customer in is served first then the next and the next.
+Imagine a door into a coffee shop ☕. As customers 🧍 🧍 🧍 enter, a line 🧍🧍🧍 forms. The first customer served, is the first customer in, then the next, and the next..
 
-BotAction's are declared in lines like that. They run from first to last.
+BotAction's can be declared in lines. They run in the order declared, from first to last.
 
-But wait, there's more. Any 🧍 person in 🧍🧍🧍 line, can actually be a whole other 🧍🧍🧍 line of people. And any one of those people in this "child" line, can be a whole other 🧍🧍🧍 line of people, and so on & so forth ♾️🐇. It's all composable, in any order. A BotAction can be a specific async operation or it can be a whole other line of BotAction's.
+But wait, there's more. In a line 🧍🧍🧍, a person 🧍 can actually be a whole other line of people 🧍🧍🧍. And any one of those people in this other line, can be a whole other line of people 🧍🧍🧍, and so on & so forth ♾️🐇. It's all composable, in any order. A BotAction can be a specific async operation or it can be a whole other line of BotAction's.
 
 The possibilities are endless.
 
