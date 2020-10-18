@@ -55,6 +55,10 @@ const isLoggedIn: ConditionalBotAction =
 ```
 This BotAction is a composition that uses [indexedDBStore()()](/api/indexed-db#indexeddbstore) to assemble BotAction's with the IndexedDB Database name and Store name [injected](/advanced/injects). This simply grabs the value for the `users.viewerId` key then [maps](/api/pipe#map) it to the corresponding boolean value.
 
+## Modals
+
+These BotAction's help handle Instagram's Modals.
+
 ### isTurnOnNotificationsModalActive
 ```typescript
 const isTurnOnNotificationsModalActive: ConditionalBotAction = async(page) => {
@@ -103,7 +107,7 @@ const getInstagramBaseUrl = () =>
 ```
 Returns Instagram's web app's base URL without a trailing slash, ie: `https://www.instagram.com`
 
-### getInstagramBaseUrl()
+### getInstagramLoginUrl()
 ```typescript
 const getInstagramLoginUrl = () => 
   getInstagramBaseUrl() + INSTAGRAM_URL_EXT_LOGIN + '/'
