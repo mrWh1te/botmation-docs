@@ -2,11 +2,21 @@
 title: 'Install'
 ---
 
-Botmation uses [NodeJS](http://nodejs.org/) and [TypeScript](https://www.typescriptlang.org/). You'll need [NodeJS](http://nodejs.org/) LTS and [TypeScript](https://www.npmjs.com/package/typescript) installed to build the JavaScript code.
+Botmation uses [NodeJS](http://nodejs.org/) and [TypeScript](https://www.typescriptlang.org/). You'll need [TypeScript](https://www.npmjs.com/package/typescript) & [NodeJS](http://nodejs.org/) LTS installed to compile and run the code, respectively.
+
+## New project setup
+
+If you're just getting started, but have `npm` (installed NodeJS) and `tsc` (installed TypeScript), here is a bare minimum setup to get going fast. From a terminal, create a folder for the source code and `cd` into it, then use the CLI tools above to initialize the environment:
+```
+$ npm init -y
+$ tsc --init
+$ touch index.ts
+```
+Then you're ready to code! Get started faster with [example code](/examples).
 
 ## Install Botmation
 
-Install Botmation with `npm` and save it as a dependency:
+Install Botmation with `npm`:
 
 ```bash
 npm install --save botmation
@@ -14,25 +24,29 @@ npm install --save botmation
 
 ## Install Puppeteer with types
 
-If you're just getting started, install `puppeteer` latest v2 & `@types/puppeteer` v3.0.0:
+If you haven't already, install `puppeteer` with its TypeScript types `@types/puppeteer`:
 
 ```bash
-npm install --save puppeteer@">=2.0.0 <3.0.0" @types/puppeteer@3.0.0
+npm install --save puppeteer 
+npm install --save-dev @types/puppeteer
 ```
-
-The `@types/puppeteer` package provides typing in TypeScript for Puppeteer.
-
-Botmation source code works with Puppeteer version 3, 4, and 5, but the E2E testing has a bug that is limiting the packaging, as of this moment.
-
-> If you want to use Botmation with the latest Puppeteer version, for now, clone the repo locally and work from the [Playground](playground). From there you can install the latest `@types/puppeteer` and `puppeteer` packages then build Botmation source code with them. But, be wary, the E2E tests are unstable at scale.
 
 ## Import BotAction's & more
 
-Then import any function, BotAction, Helper, and Instagram specific from the `botmation` module:
+Then in code, import any Botmation function from the `botmation` module:
 ```typescript
 import { chain, goTo, screenshot } from 'botmation';
 ```
 
-Each one is documented with code and examples in the sidebar under API.
+Each one is documented with their actual code and usage examples in this site's main navigation under API.
 
-After that, you are ready 🚀
+## Compile and run
+
+If you're following the [New project setup](#new-project-setup), compile and run the code:
+```
+$ tsc && node index.js
+```
+
+Remember to configure Puppeteer with `headless: false` if you want to watch the bot in action! Otherwise, the browser won't show-up in screen.
+
+Have fun 🚀

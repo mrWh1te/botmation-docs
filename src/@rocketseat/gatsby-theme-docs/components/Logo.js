@@ -1,8 +1,6 @@
 import React from 'react';
 import styled from '@emotion/styled';
 
-// import gear from '../assets/settings-24px.svg';
-
 /**
  * @description   Has Background Image
  */
@@ -18,7 +16,7 @@ export default () => {
   return (
     <h1>
       Botmation
-      <VersionWrapper>v2.1</VersionWrapper>
+      <VersionWrapper>v3</VersionWrapper>
     </h1>
   );
 }
