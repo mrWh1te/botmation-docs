@@ -14,11 +14,11 @@ Imagine a door into a coffee shop ☕. As 🧍 🧍 🧍 customers enter, a 🧍
 
 BotAction's are declared in lines like that. They run from first to last.
 
-But wait, there's more. Any 🧍 person in 🧍🧍🧍 line, can actually be a whole other 🧍🧍🧍 line of people. And any one of those people in this "child" line, can be a whole other 🧍🧍🧍 line of people, and so and so forth ♾️🐇. It's all composable, partly because all these async functions follow the BotAction interface. A BotAction can be a specific async operation or it can be a whole other line of BotAction's.
+But wait, there's more. Any 🧍 person in 🧍🧍🧍 line, can actually be a whole other 🧍🧍🧍 line of people. And any one of those people in this "child" line, can be a whole other 🧍🧍🧍 line of people, and so on & so forth ♾️🐇. It's all composable, in any order. A BotAction can be a specific async operation or it can be a whole other line of BotAction's.
 
 The possibilities are endless.
 
-Imagine a gold chain of separate links. Each link in the chain represents a BotAction. And any link in the chain, can be another chain of links, infinitely deep. Each link is self-reliant, they don't need other links to operate. Each link in the chain is ran, one at a time, in-order, until each async function resolves. So happenly, a single link, can be a whole tree of chains and links representing a complex flow of async functionality. It can all be put together in any way you like, there are no limits.
+Imagine a gold chain of separate individual links. Each link in the chain represents a BotAction. And any link in the chain, can be a whole other chain of links, infinitely deep. Each link is self-reliant, they don't need other links to operate. They are ran one at a time, in-order, until their async functionality resolves. So happenly, a single link, can be a whole tree of chains and links, a composition of complex async functionality. It can all be put together in any way you like, there are no limits.
 
 > If you are new to Functional programming, but are familiar with Object-Oriented, consider this. Functional programming replaces OO classes with a composable function system for building bigger functions, like building blocks, provide the utility of OO class instances, while using only the functionality required. The pattern removes classes as a code sharing barrier and minimizes runtime overhead.
 
