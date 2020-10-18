@@ -120,7 +120,8 @@ The higher order parameters can be whatever you need them to be. They're typed a
 
 BotAction's that are returned by regular sync higher-order functions can be used to create new BotAction's, that are less dynamic, but more readable:
 ```typescript
-const goToGoogle: BotAction = goTo('https://google.com')
+const goToGoogle: BotAction = 
+  goTo('https://google.com')
 ```
 
 Now what if you want to create a BotAction that handles a broad task of multiple steps. A BotAction that is like a bot, it will run other BotAction's, in order to complete its task, to promote code reusabilty.
