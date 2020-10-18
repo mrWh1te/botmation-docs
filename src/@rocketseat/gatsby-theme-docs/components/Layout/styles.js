@@ -1,8 +1,9 @@
 import styled from '@emotion/styled';
 import React from 'react';
-import { Baby_Bot } from './../botmation/baby-bot';
-import { Github_Logo } from './../botmation/github-logo';
-import { NPM_Logo } from './../botmation/npm-logo';
+
+import Baby_Bot from './../botmation/baby-bot';
+import Github_Logo from './../botmation/github-logo';
+import NPM_Logo from './../botmation/npm-logo';
 
 // custom (botmation docs specific):
 const BabyBotContainer = styled.div`
