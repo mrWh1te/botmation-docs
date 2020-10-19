@@ -7,10 +7,10 @@ Botmation uses [NodeJS](http://nodejs.org/) and [TypeScript](https://www.typescr
 ## New project setup
 
 If you're just getting started, but have `npm` (installed NodeJS) and `tsc` (installed TypeScript), here is a bare minimum setup to get going fast. From a terminal, create a folder for the source code and `cd` into it, then use the CLI tools above to initialize the environment:
-```
-$ npm init -y
-$ tsc --init
-$ touch index.ts
+```bash
+npm init -y
+tsc --init
+touch index.ts
 ```
 Then you're ready to code! Get started faster with [example code](/examples).
 
@@ -43,8 +43,8 @@ Each one is documented with their actual code and usage examples in this site's 
 ## Compile and run
 
 If you're following the [New project setup](#new-project-setup), compile and run the code:
-```
-$ tsc && node index.js
+```bash
+tsc && node index.js
 ```
 
 Remember to configure Puppeteer with `headless: false` if you want to watch the bot in action! Otherwise, the browser won't show-up in screen.
