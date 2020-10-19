@@ -59,7 +59,7 @@ await chain(
 
 ## Instagram Bot
 
-The [Instagram example](https://github.com/mrWh1te/Botmation/tree/master/src/examples/instagram.ts) is built with BotAction's made for Instagram's web app. They are included in Botmation v2.x. 
+The [Instagram example](https://github.com/mrWh1te/Botmation/tree/master/src/examples/instagram.ts) is built with BotAction's made for Instagram's web app.
 
 Let's look at a simplified version:
 
@@ -89,9 +89,7 @@ await chain(
 )(page);
 ```
 
-[isGuest](/sites/instagram#isguest-conditionalbotaction) and [isLoggedIn](/sites/instagram#isloggedin-conditionalbotaction) are a special kind of BotAction called ConditionalBotAction. These two, and [login()](/sites/instagram#login-botaction) are part of the `Botmation` npm package that can be imported for you to use and are specific for Instagram's web app.
-
-> It's currently planned to support Instagram's auth BotAction's inside the Botmation npm package until major v3.0.0. Soon, to be released as a separate new npm package ie `botmation-instagram` will provide the same BotAction's with the same license. There will be separate npm packages for each collection of BotAction's focused on each website like Twitter, Instagram, LinkedIn, Reddit, etc.
+[isGuest](/sites/instagram#isguest-conditionalbotaction) and [isLoggedIn](/sites/instagram#isloggedin-conditionalbotaction) are a special kind of BotAction called ConditionalBotAction.
 
 ConditionalBotAction's return a Promise that resolves a boolean value. `givenThat()()()` runs the ConditionalBotAction and waits for the value to resolve. If the value resolves `true`, then it runs the assembled BotAction's.
 
