@@ -99,9 +99,9 @@ This is as simple as it gets. There are no additional layers of functions to cus
 Now what if you want to create a BotAction that is dynamic, say customizable? You wrap the async function with a higher-order sync function, to provide dynamically params that can customize the async functionality. Let's take a closer look at `goTo()`, from "Navigation", that navigates the page to the URL param:
 
 ```typescript
-const goTo = (url: string, goToOptions?: Partial<DirectNavigationOptions>): BotAction => 
+const goTo = (url: string, goToOptions?: Partial<DirectNavigationOptions>): BotAction =>
   async(page) => {
-    goToOptions = enrichGoToPageOptions(goToOptions)  
+    goToOptions = enrichGoToPageOptions(goToOptions)
 
     // same url check
     if (page.url() === url) {
@@ -120,7 +120,7 @@ The higher order parameters can be whatever you need them to be. They're typed a
 
 BotAction's that are returned by regular sync higher-order functions can be used to create new BotAction's, that are less dynamic, but more readable:
 ```typescript
-const goToGoogle: BotAction = 
+const goToGoogle: BotAction =
   goTo('https://google.com')
 ```
 
