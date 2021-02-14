@@ -4,16 +4,16 @@ title: 'Install'
 
 Botmation is written in [TypeScript](https://www.typescriptlang.org/) and runs on [NodeJS v10+](http://nodejs.org/). You'll need both installed to compile and run the code.
 
-## New project setup
+## Bare bones setup
 
-From a terminal, in your project's code directory, use `npm` from NodeJS and `tsc` from TypeScript, to initialize the environment:
+If you're starting a new project, in your project's code directory, use `npm` from NodeJS and `tsc` from TypeScript, to initialize the environment:
 ```bash
 npm init -y
 tsc --init
 touch index.ts
 ```
 
-Now you can get started with writing your bot code in the `index.ts` file.
+Now you can begin writing bot code in `index.ts` file and more.
 
 ## Install Botmation
 
@@ -25,7 +25,7 @@ npm install --save @botmation/core
 
 ## Install Puppeteer
 
-If you haven't already, install `puppeteer`:
+If you haven't already, install puppeteer:
 
 ```bash
 npm install --save puppeteer
@@ -38,7 +38,7 @@ Then in your code, import the Botmations, helpers, etc from the `@botmation/core
 import { chain, goTo, screenshot } from '@botmation/core';
 ```
 
-All BotActions are documented, with their code and usage examples, under API in the sidebar on the left.
+All of Core's functions are documented, with their code and usage examples, under API in the sidebar on the left. All site specific functions that are available in separate site specific packages are listed under Sites, in the sidebar on the left.
 
 ## Compile and run
 

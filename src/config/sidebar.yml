@@ -37,7 +37,7 @@
     - label: 'Tutorial'
       link: '/advanced/tutorial'
 
-- label: 'API'
+- label: 'Core'
   items:
     - label: 'Abort'
       link: '/api/abort'
@@ -67,7 +67,7 @@
       link: '/api/scrapers'
     - label: 'Utilities'
       link: '/api/utilities'
-    
+
 - label: 'Dev'
   items:
     - label: 'Roadmap'
