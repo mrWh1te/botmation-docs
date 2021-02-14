@@ -2,13 +2,22 @@
 title: Instagram
 ---
 
-These BotAction's are for Instagram's web app.
+These functions focus on Instagram's web app.
 
 ## Overview
 
-The current set of BotAction's are for the initial login flow into Instagram's web app. Here is a working [example](https://github.com/mrWh1te/Botmation/blob/master/src/examples/instagram.ts) of these in use.
+The current set of BotActions facilitate the login flow. Here is a working [example](https://github.com/mrWh1te/Botmation/blob/master/apps/bot-instagram).
 
-> These BotAction's are not included in the Botmation npm package.
+> These are all included in the [@botmation/instagram](https://www.npmjs.com/package/@botmation/instagram) package.
+
+## Install
+
+In addition to installing [@botmation/core](/install), install [@botmation/instagram](https://www.npmjs.com/package/@botmation/instagram):
+```bash
+npm i -s @botmation/instagram
+```
+
+Now you can import any of these BotActions or selectors listed on this page, along with any other BotActions listed.
 
 ## Auth
 
@@ -37,7 +46,7 @@ The composition is declarative, therefore needs little explaining. `login()` is 
 
 ### isGuest
 ```typescript
-const isGuest: ConditionalBotAction = 
+const isGuest: ConditionalBotAction =
   indexedDBStore('redux', 'paths')(
     getIndexedDBValue('users.viewerId'),
     map(viewerId => viewerId ? false : true),
@@ -109,7 +118,7 @@ Returns Instagram's web app's base URL without a trailing slash, ie: `https://ww
 
 ### getInstagramLoginUrl()
 ```typescript
-const getInstagramLoginUrl = () => 
+const getInstagramLoginUrl = () =>
   getInstagramBaseUrl() + INSTAGRAM_URL_EXT_LOGIN + '/'
 ```
 Returns Instagram's web app's URL for its login page

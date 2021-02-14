@@ -8,34 +8,43 @@ These BotAction's are for LinkedIn's web app.
 
 ## Overview
 
-The current set of BotAction's are for logging in and liking posts in the feed. Here is a working [example](https://github.com/mrWh1te/Botmation/blob/master/src/examples/linkedin.ts) of them in use.
+The current set of BotActions facilitate the login flow and basic feed management such as liking posts. Here is a working [example](https://github.com/mrWh1te/Botmation/blob/master/apps/bot-linkedin).
 
-> These BotAction's are not included in the Botmation npm package.
+> These are all included in the [@botmation/linkedin](https://www.npmjs.com/package/@botmation/linkedin) package.
 
-## Navigation 
+## Install
+
+In addition to installing [@botmation/core](/install), install `@botmation/linkedin` with this command:
+```bash
+npm i -s @botmation/linkedin
+```
+
+Now you can import any of these functions or selectors from that package.
+
+## Navigation
 Simple functions for navigating to various parts of the LinkedIn web app.
 
 ### goHome
 ```typescript
-const goHome: BotAction = 
+const goHome: BotAction =
   goTo('https://www.linkedin.com/', {waitUntil: 'domcontentloaded'})
 ```
 
 ### goToFeed
 ```typescript
-const goToFeed: BotAction = 
+const goToFeed: BotAction =
   goTo('https://www.linkedin.com/feed/', {waitUntil: 'domcontentloaded'})
 ```
 
 ### goToMessaging
 ```typescript
-const goToMessaging: BotAction = 
+const goToMessaging: BotAction =
   goTo('https://www.linkedin.com/messaging/', {waitUntil: 'domcontentloaded'})
 ```
 
 ### goToNotifications
 ```typescript
-const goToNotifications: BotAction = 
+const goToNotifications: BotAction =
   goTo('https://www.linkedin.com/notifications/', {waitUntil: 'domcontentloaded'})
 ```
 
@@ -98,7 +107,7 @@ const scrapeFeedPost = (postDataId: string): BotAction<CheerioStatic> =>
 This BotAction is composed with the [$$](/api/scrapers#scrape-multiple) Scrapers BotAction. It will grab each post from the DOM. LinkedIn's web app lazily loads offscreen posts, so some of these may be empty div containers.
 
 ```typescript
-const scrapeFeedPosts: BotAction<CheerioStatic[]> = 
+const scrapeFeedPosts: BotAction<CheerioStatic[]> =
   $$(feedPostsSelector)
 ```
 
@@ -132,7 +141,7 @@ const likeUserPost = (post: CheerioStatic): BotAction =>
 It takes a spread array of strings of the exact names of people, to like their posts in the feed. The function itself goes beyond the required scope, but to serve as a decent starting point for more complex feed interactions.
 
 ```typescript
-const likeUserPostsFrom = (...peopleNames: string[]): BotAction => 
+const likeUserPostsFrom = (...peopleNames: string[]): BotAction =>
   pipe()(
     scrapeFeedPosts,
     forAll()(
@@ -255,7 +264,7 @@ The LinkedIn web app sometimes presents posts to highlight an User you're connec
 const postIsUserInteraction: ConditionalCallback<CheerioStatic> = (post: CheerioStatic) => {
   const feedPostSiblingText = post('h2.visually-hidden:contains("Feed post") + div span').text().trim().toLowerCase()
 
-  return feedPostSiblingText.includes('likes this') || 
+  return feedPostSiblingText.includes('likes this') ||
          feedPostSiblingText.includes('loves this') ||
          feedPostSiblingText.includes('celebrates this') ||
          feedPostSiblingText.includes('commented on this')
@@ -263,7 +272,7 @@ const postIsUserInteraction: ConditionalCallback<CheerioStatic> = (post: Cheerio
 ```
 
 ### postHasntFullyLoadedYet()
-This function is a `ConditionalCallback` that fits with `pipeCase()` and `pipeCases()`. It tests the provided `CheerioStatic` function, a "post" from the feed, on whether or not it fits the criteria for being a fully loaded post. 
+This function is a `ConditionalCallback` that fits with `pipeCase()` and `pipeCases()`. It tests the provided `CheerioStatic` function, a "post" from the feed, on whether or not it fits the criteria for being a fully loaded post.
 
 The LinkedIn web app lazily loads offscreen content to expediate rendering performance of the feed. In doing such, it leaves container div's that represent posts, that may get scraped, but lack all the important information to make the informed decision. Therefore, this ConditionalCallback can be used to run code for loading a post fully, in case it has not.
 

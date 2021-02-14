@@ -1,9 +1,9 @@
 import styled from '@emotion/styled';
 import React from 'react';
 
-import Baby_Bot from './../botmation/baby-bot';
-import Github_Logo from './../botmation/github-logo';
-import NPM_Logo from './../botmation/npm-logo';
+import BabyBot from './../botmation/baby-bot';
+import GithubLogo from './../botmation/github-logo';
+import NPMLogo from './../botmation/npm-logo';
 
 // custom (botmation docs specific):
 const BabyBotContainer = styled.div`
@@ -12,7 +12,7 @@ const BabyBotContainer = styled.div`
   right: 0;
   bottom: 0;
 `;
-const Container_Inner = styled.div`
+const ContainerInner = styled.div`
   width: 100%;
   max-width: 1400px;
   margin: 0 auto;
@@ -39,22 +39,22 @@ const ExtraLogosContainer = styled.div`
 export const Container = (props) => {
   return (
     <>
-      <Container_Inner>
+      <ContainerInner>
         <ExtraLogosContainer>
-          <a href="https://www.npmjs.com/package/botmation" target="_blank" rel="noreferrer" aria-label="View module on NPM" style={{position: 'relative', right: '120px'}} >
-            <NPM_Logo />
+          <a href="https://www.npmjs.com/org/botmation" target="_blank" rel="noreferrer" aria-label="View @botmation packages on NPM" style={{position: 'relative', right: '120px'}} >
+            <NPMLogo />
           </a>
           <a href="https://github.com/mrWh1te/Botmation" class="github-corner" aria-label="View source on GitHub" target="_blank" rel="noreferrer">
-            <Github_Logo />
+            <GithubLogo />
           </a>
         </ExtraLogosContainer>
 
         { props.children }
 
         <BabyBotContainer>
-          <Baby_Bot />
+          <BabyBot />
         </BabyBotContainer>
-      </Container_Inner>
+      </ContainerInner>
     </>
   )
 }
