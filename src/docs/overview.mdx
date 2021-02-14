@@ -38,6 +38,8 @@ await goTo('https://example.com')(page)
 await waitForNavigation(page)
 ```
 
+> Higher-order functions are functions that return a function. Botmation uses higher-order functions to customize BotActions during runtime. This is similar to [Currying](https://en.wikipedia.org/wiki/Currying) in Functional Programming.
+
 ## Building Bots
 
 Bots are built by assembling BotActions in a line. Let's complete the code above, by assembling it into a bot with a special kind of BotAction, an [Assembly Line](/api/assembly-lines). The simplest is called [chain()()](/api/assembly-lines#chain):
