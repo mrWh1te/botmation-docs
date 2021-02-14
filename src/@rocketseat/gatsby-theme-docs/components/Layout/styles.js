@@ -41,7 +41,7 @@ export const Container = (props) => {
     <>
       <ContainerInner>
         <ExtraLogosContainer>
-          <a href="https://www.npmjs.com/package/botmation" target="_blank" rel="noreferrer" aria-label="View module on NPM" style={{position: 'relative', right: '120px'}} >
+          <a href="https://www.npmjs.com/org/botmation" target="_blank" rel="noreferrer" aria-label="View module on NPM" style={{position: 'relative', right: '120px'}} >
             <NPMLogo />
           </a>
           <a href="https://github.com/mrWh1te/Botmation" class="github-corner" aria-label="View source on GitHub" target="_blank" rel="noreferrer">
