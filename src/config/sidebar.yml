@@ -10,11 +10,11 @@
     link: '/install'
   - label: 'Examples'
     link: '/examples'
+  - label: 'Tutorial'
+    link: '/tutorial'
 
 - label: 'Topics'
   items:
-    - label: 'Tutorial'
-      link: '/topic/tutorial'
     - label: 'Aborting'
       link: '/topic/aborting'
     - label: 'Piping'
