@@ -4,11 +4,13 @@ title: Tutorial
 
 ## Introduction
 
-Automating tasks in the web through Puppeteer is about programatically controlling the browser as if you were a real User. Automating tasks is done by capturing what Users do in web apps, step by step, but in code.
+Automating tasks in the web through Puppeteer is about programatically controlling the browser as if you were a real User. It's done by capturing what the User does in steps, then writing each in code.
 
 The Chrome [Puppeteer Recorder](https://chrome.google.com/webstore/detail/puppeteer-recorder/djeegiggegleadkkbgopoonhjimgehda?hl=en) extension is a great example to see what we'll be doing in this tutorial, except the final code will be declaratively composed with BotAction's.
 
-In this tutorial, we're going to make a web bot that logs into LinkedIn.
+In this tutorial, we're going to make a bot that logs into LinkedIn.
+
+> tldr: The `login()` method and more are included in the [@botmation/linkedin](https://www.npmjs.com/package/@botmation/linkedin) package. It's documented [here](/sites/linkedin).
 
 <img src="/yellow_bot.PNG" alt="Yellow Bot" align="right" width="150px" />
 
@@ -24,7 +26,7 @@ Next, we need to do build a `login()` BotAction for LinkedIn. In order for the b
 
 Most of these steps requires the bot to interact with specific HTML elements such as `input` and `button`. Therefore, we need to figure out how to refer to them, by writing HTML selectors that identify them.
 
-Let's look at the rendered HTML source code for the Login Form. 
+Let's look at the rendered HTML source code for the Login Form.
 > Right-click around the center of the form, then click "Inspect Element"
 
 Here's a cleaned up version of the page's login form:
@@ -35,12 +37,12 @@ Here's a cleaned up version of the page's login form:
     <label class="form__label--floating" for="username" aria-hidden="true">
       Email or Phone
     </label>
-    
+
     <input id="password" type="password" aria-describedby="error-for-password" name="session_password" required="" validation="password" aria-label="Password">
     <label for="password" class="form__label--floating" aria-hidden="true">
       Password
     </label>
-    
+
     <button class="btn__primary--large from__button--floating" data-litms-control-urn="login-submit" type="submit" aria-label="Sign in">
       Sign in
     </button>
@@ -57,7 +59,7 @@ We care about three things from this form:
 2. Password input field
 3. Submit form button
 
-For each one of these, we're going to write a HTML selector to grab it. 
+For each one of these, we're going to write a HTML selector to grab it.
 
 When it comes to writing HTML selectors, it's best to avoid uniquely generated identifiers, and mostly rely on HTML structure, CSS classes/id's and HTML attributes. For this example, the following selectors are generic enough to survive possible page changes, but possibly not specific enough to avoid future form collisions:
 1. Username input field
@@ -110,10 +112,10 @@ const generateTimeStamp = (): string => {
 
   // Title the screenshot file with a timestamp
   // "year-month-date-hours-minutes" ie "2020-8-21-13-20"
-  return x.getFullYear() + '-' + 
-       ( x.getMonth() + 1 ) + '-' + 
-         x.getDate() + '-' + 
-         x.getHours() + '-' + 
+  return x.getFullYear() + '-' +
+       ( x.getMonth() + 1 ) + '-' +
+         x.getDate() + '-' +
+         x.getHours() + '-' +
          x.getMinutes();
 }
 
@@ -127,7 +129,7 @@ const generateTimeStamp = (): string => {
   const linkedin_bot = chain(
     login('linkedin-account@email.com', 'linkedin-account-password'),
     goTo('https://www.linkedin.com/feed/'),
-    screenshot(generateTimeStamp()) // filename ie "2020-8-21-13-20.png" 
+    screenshot(generateTimeStamp()) // filename ie "2020-8-21-13-20.png"
   );
 
   await linkedin_bot(page);

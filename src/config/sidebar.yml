@@ -13,6 +13,8 @@
 
 - label: 'Topics'
   items:
+    - label: 'Tutorial'
+      link: '/topic/tutorial'
     - label: 'Aborting'
       link: '/topic/aborting'
     - label: 'Piping'
@@ -27,8 +29,6 @@
       link: '/topic/error-handling'
     - label: 'Concurrency'
       link: '/topic/concurrency'
-    - label: 'Tutorial'
-      link: '/topic/tutorial'
 
 - label: 'Auxiliary'
   items:
