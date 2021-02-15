@@ -38,7 +38,7 @@ await goTo('https://example.com')(page)
 await waitForNavigation(page)
 ```
 
-> Higher-order functions are functions that return a function. Botmation uses higher-order functions to customize BotActions during runtime. This is similar to [Currying](https://en.wikipedia.org/wiki/Currying) in Functional Programming.
+> Higher-order functions are functions that return a function. Botmation uses higher-order functions to customize BotActions during runtime.
 
 ## Building Bots
 
@@ -51,7 +51,11 @@ const bot = chain(
 )
 ```
 
-This bot is assembled by [chaining](/api/assembly-lines#chain) BotActions together. Now let's run the bot:
+This bot is assembled by [chaining](/api/assembly-lines#chain) BotActions together.
+
+> This is similar to [Currying](https://en.wikipedia.org/wiki/Currying) in Functional Programming.
+
+Now let's run the bot:
 ```typescript
 const bot = chain(
   goTo('https://example.com'),
