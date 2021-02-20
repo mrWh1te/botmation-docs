@@ -46,7 +46,7 @@ Here is a table for the default assemblers' aborting behavior:
 
 Each assembler will detect the value returned by the resolved BotAction for an AbortLine signal. If it is one, it processes it to the effect listed above.
 
-This is the default aborting behavior. There are exceptions for some BotAction's such as the [Loops](/api/loops), [Conditionals](/api/conditionals), [Switch Pipe](/api/assembly-lines#switch-pipe), and [Pipe Case(s)](/api/pipe#pipe-case), which implement their own unique aborting behavior.
+This is the default aborting behavior. There are exceptions for some BotAction's such as the [Loops](/api/loops), [Branching](/api/branching), [Switch Pipe](/api/assembly-lines#switch-pipe), and [Pipe Case(s)](/api/pipe#pipe-case), which implement their own unique aborting behavior.
 
 ## Unique Aborting behavior
 [Switch Pipe](/api/assembly-lines#switch-pipe) implements its own AbortLine signal behavior in order to support its own unique functionality. When it hasn't received a [CasesSignal](/topic/conditionals/#cases-signal) with its condition passed, it ignores default AbortLine signals. That's because [abort()](/api/abort#abort) is treated like `break;` from the traditional `switch(){}` code block, inside a [Switch Pipe](/api/assembly-lines#switch-pipe).
