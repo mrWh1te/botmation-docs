@@ -61,7 +61,7 @@ The callback function is provided three params that are the collection's iterate
 
 With each loop iteration, the pipe value injected into the initial assembled BotAction changes. It's created before each loop iteration line, with the same params as the callback, except wrapped in an array. The three values will be the collection's iterated value, the index the loop is iterating on, and the collection itself.
 
-This function assembles a line of BotAction's with each loop iteration, it runs many BotAction lines. Therefore, it has advanced [aborting](/advanced/aborting) behavior to give granular control. Here's a table to understand the effects AbortLineSignal's have with varying `assembledLines` counts:
+This function assembles a line of BotAction's with each loop iteration, it runs many BotAction lines. Therefore, it has advanced [aborting](/topic/aborting) behavior to give granular control. Here's a table to understand the effects AbortLineSignal's have with varying `assembledLines` counts:
 
 | assembledLines | effect                                                         |
 |       -        |         -                                                     |
@@ -101,11 +101,11 @@ const forAsLong =
         }
       }
 ```
-It resolves the [ConditionalBotAction](/advanced/conditionals#conditional-botaction) before running the actions each time. It stops looping if the condition resolves False or rejects.
+It resolves the [ConditionalBotAction](/topic/conditionals#conditional-botaction) before running the actions each time. It stops looping if the condition resolves False or rejects.
 
 To support granular aborting, it takes two `assembledLines` in an AbortLineSignal to fully abort out of `forAsLong()()`. An AbortLineSignal with 1 `assembledLines` will abort a loop iteration line of BotAction's, but not the loop itself. It's similar to [forAll()()](/api/utilities#for-all), except the ConditionalBotAction of the first `forAsLong()` call can return an AbortLineSignal, which is handled normally. Therefore, if a ConditionalBotAction returns an AbortLineSignal with one `assembledLines`, it aborts fully out of this BotAction.
 
-For a concept example, see [Loops: For As Long](/advanced/loops#for-as-long).
+For a concept example, see [Loops: For As Long](/topic/loops#for-as-long).
 
 ## Do While
 It's a functional "doWhile loop".
@@ -133,8 +133,8 @@ const const doWhile =
         }
       }
 ```
-It runs the BotAction's first, then resolves the [ConditionalBotAction](/advanced/conditionals#conditional-botaction) as to whether or not it should run the actions again. It will keep running the pipe of Botaction's in a loop until the condition resolves `false` or rejects.
+It runs the BotAction's first, then resolves the [ConditionalBotAction](/topic/conditionals#conditional-botaction) as to whether or not it should run the actions again. It will keep running the pipe of Botaction's in a loop until the condition resolves `false` or rejects.
 
 This BotAction follows the same aborting behavior as [forAsLong()()](/api/utilities#for-as-long). The ConditionalBotAction can abort the function normally, while assembled BotAction's can abort a loop iteration line only, or that and abort the `doWhile()()` BotAction.
 
-For a concept example, see [Loops: Do While](/advanced/loops#do-while).
+For a concept example, see [Loops: Do While](/topic/loops#do-while).

@@ -4,7 +4,7 @@ title: Abort
 
 These BotAction's focus on returning an `AbortLineSignal`. The signal's purpose is to inform the assembling BotAction to break the assembled line, to return early. However, the signal itself can be processed in any way needed. Therefore, to understand how the `AbortLineSignal` works in a bot, it has to be seen in the context of each Assembler as some have unique behavior.
 
-To learn more about aborting, read the [Advanced Aborting](/advanced/aborting) documentation.
+To learn more about aborting, read the [Advanced Aborting](/topic/aborting) documentation.
 
 ## Abort
 
@@ -17,7 +17,7 @@ const abort = (assembledLines = 1, pipeValue?: PipeValue): BotAction<AbortLineSi
   async() => createAbortLineSignal(assembledLines, pipeValue)
 ```
 
-For a pratical example, see [abortPipe()](/api/abort#abort-pipe). 
+For a pratical example, see [abortPipe()](/api/abort#abort-pipe).
 
 ## Abort Pipe
 
@@ -28,7 +28,7 @@ By default, the AbortLineSignal returned has an `assembledLines` count of `1`, b
 If the value doesn't match the pipe object's value (including function), then a `CasesSignal` is returned.
 
 ```typescript
-const abortPipe = (value: CaseValue, abortPipeValue: PipeValue = undefined, assembledLines: number = 1): BotAction<AbortLineSignal|PipeValue|CasesSignal> => 
+const abortPipe = (value: CaseValue, abortPipeValue: PipeValue = undefined, assembledLines: number = 1): BotAction<AbortLineSignal|PipeValue|CasesSignal> =>
   pipeCase(value)(
     abort(assembledLines + 2, abortPipeValue)
   )

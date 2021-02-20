@@ -23,7 +23,7 @@ const chain =
 
           if (isAbortLineSignal(returnValue)) {
             return returnValue
-          } 
+          }
         }
       } else {
         if(actions.length === 1) {
@@ -42,7 +42,7 @@ const chain =
       }
     }
 ```
-`chain()` assembled BotAction's in the first call then returns a BotAction to run those declared BotAction's in line. If the Chain detects a [Pipe object](/advanced/piping#pipe-object) in the [injects](/advanced/injects), the Chain removes it from the BotAction's  `injects`.
+`chain()` assembled BotAction's in the first call then returns a BotAction to run those declared BotAction's in line. If the Chain detects a [Pipe object](/topic/piping#pipe-object) in the [injects](/topic/injects), the Chain removes it from the BotAction's  `injects`.
 
 Chain follows the usual aborting behavior, if an assembled BotAction returns an AbortLineSignal with one `assembledLines`, it will abort the line. However, Chain will not return an AbortLineSignal `pipeValue` on the event of it being the last line to abort.
 
@@ -53,8 +53,8 @@ Pipes are like Chains except it injects a Pipe object at the end, for all assemb
 
 ```typescript
 const pipe =
-  (valueToPipe?: PipeValue) => 
-    (...actions: BotAction<PipeValue|AbortLineSignal|void>[]): BotAction<any> => 
+  (valueToPipe?: PipeValue) =>
+    (...actions: BotAction<PipeValue|AbortLineSignal|void>[]): BotAction<any> =>
       async(page, ...injects) => {
         if (injectsHavePipe(injects)) {
           if (actions.length === 0) {return undefined}
@@ -98,14 +98,14 @@ The first call `pipe()` is for setting or overriding a Pipe object's value (for 
 
 Pipe follows the usual behavior for aborting. An AbortLineSignal with `assembledLines` of one will abort the assembled Pipe line. When it's the last assembled line to abort, it will return the AbortLineSignal `pipeValue`.
 
-See [Piping](/advanced/piping) for an usage examples.
+See [Piping](/topic/piping) for an usage examples.
 
 ## Assembly Line
-Assembly Lines are another way to assemble BotAction's for running. They detect the context (the higher line) for [piping](/advanced/piping), and copy what is found. If an Assembly Line is ran inside a Pipe, it will run assembled BotAction's inside a Pipe, otherwise inside a Chain.
+Assembly Lines are another way to assemble BotAction's for running. They detect the context (the higher line) for [piping](/topic/piping), and copy what is found. If an Assembly Line is ran inside a Pipe, it will run assembled BotAction's inside a Pipe, otherwise inside a Chain.
 
 The exception to this, is using the first call `assemblyLine(true)` to override that behavior and force the assembled BotAction's to run in a Pipe.
 ```typescript
-const assemblyLine = 
+const assemblyLine =
   (forceInPipe: boolean = false) =>
     (...actions: BotAction<any>[]): BotAction<any> =>
       async(page, ...injects) => {
@@ -148,17 +148,17 @@ Switch Pipes provide a way to assemble BotAction's with the same Pipe object. Ea
 
 Switch Pipe was built to provide a functional switch statement. Similar to an if statement, a switch statement tests a *case* condition to determine if its code blocks should run, except switch supports multiple cases. Switch Pipe makes this possible by providing the same Pipe object to each BotAction assembled, to test or operate on for any case(s).
 
-BotAction's like [pipeCase()()](/api/pipe#pipe-case) or [pipeCases()()](/api/pipe#pipe-cases) fit perfectly here. They test the received Pipe object value against its own provided values, to determine if their assembled BotAction's should run. 
+BotAction's like [pipeCase()()](/api/pipe#pipe-case) or [pipeCases()()](/api/pipe#pipe-cases) fit perfectly here. They test the received Pipe object value against its own provided values, to determine if their assembled BotAction's should run.
 
-Both `pipeCase()()` and `pipeCases()()` functions return a `CasesSignal` that can catalyze Switch Pipe into aborting with one less `assembledLines` count. This supports Switch Pipe's unique aborting functionality that mirrors `break;` inside a traditional switch code block. 
+Both `pipeCase()()` and `pipeCases()()` functions return a `CasesSignal` that can catalyze Switch Pipe into aborting with one less `assembledLines` count. This supports Switch Pipe's unique aborting functionality that mirrors `break;` inside a traditional switch code block.
 
 By default, an AbortLineSignal with `assembledLines` of `1`, is absorbed by Switch Pipe, as if ignored, until Switch Pipe receives a CasesSignal with `conditionPass` as true, then `abort(1)` will break the assembled line.
 
 When an assembled `pipeCase()()` runs its assembled BotAction's, it informs its Switch Pipe into lowering the required `assembledLines` count by 1 for its aborting logic. This enables a conditional breaking of the assembled Switch Pipe line, similar to how switch, case(s) and break(s) work together.
 
 ```typescript
-const switchPipe = 
-  (toPipe?: PipeValue) => 
+const switchPipe =
+  (toPipe?: PipeValue) =>
     (...actions: BotAction<PipeValue|AbortLineSignal|CasesSignal|void>[]): BotAction<any[]|AbortLineSignal|PipeValue> =>
       async(page, ...injects) => {
         if (!toPipe) {
@@ -205,7 +205,7 @@ const switchPipe =
       }
 ```
 
-Except for `abort(0)`, which aborts the entire bot, Switch Pipe absorbs `abort(1)` when no cases have matched. 
+Except for `abort(0)`, which aborts the entire bot, Switch Pipe absorbs `abort(1)` when no cases have matched.
 
 When Switch Pipe receives a CasesSignal with `conditionPass = true` from an assembled BotAction, it lowers its aborting `assembledLines` count by 1.
 
@@ -227,7 +227,7 @@ For a complete example with pipe casing and aborts, see LinkedIn's Feed BotActio
 ## Pipe Action Or Actions
 This BotAction fits a niche purpose, of running BotAction's in a Pipe that are returned from a callback function.
 ```typescript
-const pipeActionOrActions = 
+const pipeActionOrActions =
   (actionOrActions: BotAction<PipeValue> | BotAction<PipeValue>[]): BotAction<PipeValue|undefined|AbortLineSignal> =>
     async(page, ...injects) => {
       if (Array.isArray(actionOrActions)) {
@@ -272,7 +272,7 @@ This BotAction is similar to Chain in handling AbortLineSignal's, except it will
 
 ### pipeRunner
 ```typescript
-const pipeRunner = 
+const pipeRunner =
   (...actions: BotAction<PipeValue|void|AbortLineSignal>[]): BotAction<PipeValue|AbortLineSignal|undefined> =>
     async(page, ...injects) => {
       let pipeObject: Pipe = createEmptyPipe()
@@ -293,7 +293,7 @@ const pipeRunner =
       }
 
       return pipeObject.value
-    } 
+    }
 ```
 
 This BotAction handles AbortLineSignal's the same way as Pipe's do. It takes one `assembledLines` to abort out of a `pipeRunner()()`.

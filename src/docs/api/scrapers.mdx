@@ -2,16 +2,16 @@
 title: 'Scrapers'
 ---
 
-These BotAction's scrape the Page's `document` by doing something within the Page's context. 
+These BotAction's scrape the Page's `document` by doing something within the Page's context.
 
 Scrapers use a HTML parser to convert the `outerHTML` property of an HTML Element(s) into an interactive object.
 
 The default HTML parser is [cheerio's](https://github.com/cheeriojs/cheerio) [load() function](https://github.com/cheeriojs/cheerio#loading).
 
-You can override the HTML parser by providing a function to operate on the `outerHTML` via the optional higher-order param `higherOrderHTMLParser`, or the optional first [inject](/advanced/injects). If both are provided, the higher-order param will override the injected one, so if you want to use multiple, feel free too.
+You can override the HTML parser by providing a function to operate on the `outerHTML` via the optional higher-order param `higherOrderHTMLParser`, or the optional first [inject](/topic/injects). If both are provided, the higher-order param will override the injected one, so if you want to use multiple, feel free too.
 
 ## HTML Parser
-This higher-order BotAction will [inject](/advanced/injects) the provided HTML parser function of the first `htmlParser()` call, into the assembled BotAction's of the second call `htmlParser()()`.
+This higher-order BotAction will [inject](/topic/injects) the provided HTML parser function of the first `htmlParser()` call, into the assembled BotAction's of the second call `htmlParser()()`.
 
 A method for BotAction's implementing the `ScraperBotAction` interface to override the default HTML parser.
 
@@ -19,7 +19,7 @@ Assembled BotAction's can override the injected HTML parser by providing their o
 
 ```typescript
 const htmlParser = (htmlParser: Function) =>
-  (...actions: BotAction[]): BotAction => 
+  (...actions: BotAction[]): BotAction =>
     pipe()(
       inject(htmlParser)(
         errors('htmlParser()()')(...actions)
@@ -30,10 +30,10 @@ const htmlParser = (htmlParser: Function) =>
 For an usage example, see the [LinkedIn example](https://github.com/mrWh1te/Botmation/blob/master/src/examples/linkedin.ts).
 
 ## Scrape Single
-This ScraperBotAction will parse the HTML of the first Element in the document that matches the provided selector. 
+This ScraperBotAction will parse the HTML of the first Element in the document that matches the provided selector.
 
 ```typescript
-const $ = <R = CheerioStatic>(htmlSelector: string, higherOrderHTMLParser?: Function): ScraperBotAction<R> => 
+const $ = <R = CheerioStatic>(htmlSelector: string, higherOrderHTMLParser?: Function): ScraperBotAction<R> =>
   async(page, injectedHTMLParser) => {
     let parser: Function
 
@@ -68,7 +68,7 @@ await pipe()(
 This ScraperBotAction will parse the HTML of all Elements in the document that match the provided selector.
 
 ```typescript
-const $$ = <R = CheerioStatic[]>(htmlSelector: string, higherOrderHTMLParser?: Function): ScraperBotAction<R> => 
+const $$ = <R = CheerioStatic[]>(htmlSelector: string, higherOrderHTMLParser?: Function): ScraperBotAction<R> =>
   async(page, ...injects) => {
     let parser: Function
 
@@ -86,7 +86,7 @@ const $$ = <R = CheerioStatic[]>(htmlSelector: string, higherOrderHTMLParser?: F
     }
 
     const scrapedHTMLs = await page.evaluate(getElementsOuterHTML, htmlSelector)
-    const cheerioEls: CheerioStatic[] = scrapedHTMLs.map(scrapedHTML => parser(scrapedHTML)) 
+    const cheerioEls: CheerioStatic[] = scrapedHTMLs.map(scrapedHTML => parser(scrapedHTML))
     return cheerioEls as any as R
   }
 ```
@@ -97,7 +97,7 @@ await pipe()(
   goToNewsFeed, // fake -> load site with "news feed"
   // selector to grab each "element" from the Feed container
   // Each element represents a Post in the Feed with children
-  //    elements representing data like Author, Date, Actual Text, etc 
+  //    elements representing data like Author, Date, Actual Text, etc
   $$('section.app .feed [data-id]'),
   // by default, it returns a CheerioStatic[]
   forAll()( // loop the CheerioStatic[]
@@ -118,7 +118,7 @@ await pipe()(
 This BotAction isn't a Scraper but an important building block for scraping. It's a simple BotAction that wraps Puppeteer Page's [evaluate()](https://devdocs.io/puppeteer/index#pageevaluatepagefunction-args) method to execute JavaScript in the Page. It takes a function, and parameters and returns what the function returns.
 
 ```typescript
-const evaluate = (functionToEvaluate: EvaluateFn<any>, ...functionParams: any[]): BotAction<any> => 
+const evaluate = (functionToEvaluate: EvaluateFn<any>, ...functionParams: any[]): BotAction<any> =>
   async(page) => await page.evaluate(functionToEvaluate, ...functionParams)
 ```
 
@@ -131,13 +131,13 @@ In order to "scrape" the page's document's HTML, these Helper functions are eval
 ### getElementOuterHTML()
 
 ```typescript
-const getElementOuterHTML = (htmlSelector: string): string|undefined => 
+const getElementOuterHTML = (htmlSelector: string): string|undefined =>
   document.querySelector(htmlSelector)?.outerHTML
 ```
 
 ### getElementsOuterHTML()
 
 ```typescript
-const getElementsOuterHTML = (htmlSelector: string): string[] => 
+const getElementsOuterHTML = (htmlSelector: string): string[] =>
   Array.from(document.querySelectorAll(htmlSelector)).map(el => el.outerHTML)
 ```

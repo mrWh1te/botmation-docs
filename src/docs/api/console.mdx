@@ -4,7 +4,7 @@ title: 'Console'
 
 These higher order functions provide a simple way to log messages, warnings, and errors, with a clear colorful syntax in the NodeJS terminal.
 
-They will log a [Pipe object](/advanced/piping#pipe-object)'s value, if detected in the [injects](/advanced/injects).
+They will log a [Pipe object](/topic/piping#pipe-object)'s value, if detected in the [injects](/topic/injects).
 
 ## Log
 Logs a clear green message to the Console. If a Pipe object is detected, it will log that too and return it, to pass it on.
@@ -19,7 +19,7 @@ const log = <R = void>(message?: string): BotAction<R> => async (page, ...inject
     let pipedValue = getInjectsPipeValue(injects)
     logPipeValue(pipedValue)
     console.log('\n')
-    
+
     return pipedValue
   } else {
     console.log('\n')
@@ -96,7 +96,7 @@ All of these functions can be imported from the `botmation` module.
 
 ### logMessage()
 ```typescript
-const logMessage = (message: string, successTheme: Chalk = chalk.bgGreen) => 
+const logMessage = (message: string, successTheme: Chalk = chalk.bgGreen) =>
   console.log(
     successTheme(appendSpacing(' Log:', 5)) + prependSpacing(message, 1)
   )
@@ -104,7 +104,7 @@ const logMessage = (message: string, successTheme: Chalk = chalk.bgGreen) =>
 
 ### logWarning()
 ```typescript
-const logWarning = (warning: string, warningTheme: Chalk = chalk.bgYellow) => 
+const logWarning = (warning: string, warningTheme: Chalk = chalk.bgYellow) =>
   console.log(
     warningTheme(' Warning: ') + prependSpacing(warning, 1)
   )
@@ -163,7 +163,7 @@ const prependSpacing = (copy: string, size: number = 0): string => {
   let gutter = ''
   for(let i = 0; i < size; i++) {
     gutter += ' '
-  } 
+  }
 
   return gutter + copy
 }
@@ -180,7 +180,7 @@ const appendSpacing = (copy: string, size: number = 0): string => {
   let gutter = ''
   for(let i = 0; i < size; i++) {
     gutter += ' '
-  } 
+  }
 
   return copy + gutter
 }

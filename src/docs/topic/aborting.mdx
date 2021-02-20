@@ -28,12 +28,12 @@ It's possible to abort all lines of assembly without knowing how many there are 
 Infinity AbortLine signals have `assembledLines` set to `0`. When an assembler processes an Infinity AbortLine signal, it aborts what it's doing and returns the same signal without change.
 
 ### Optional Pipe Value
-`AbortLineSignal` has an optional param called `pipeValue` that carries a `PipeValue` back to the final aborted assembler for return. 
+`AbortLineSignal` has an optional param called `pipeValue` that carries a `PipeValue` back to the final aborted assembler for return.
 
 > The optional `pipeValue` param does not get returned by a [Chain](/api/assembly-lines#chain), when it's the final assembler to process an AbortLine signal.
 
 ## Process AbortLine Signal
- 
+
 Almost every assembler processes an AbortLine signal with the [processAbortLineSignal()](/api/abort#processabortlinesignal) helper. It supports all main use-cases of `assembledLines`: 0, 1, and 2+.
 
 Here is a table for the default assemblers' aborting behavior:
@@ -49,7 +49,7 @@ Each assembler will detect the value returned by the resolved BotAction for an A
 This is the default aborting behavior. There are exceptions for some BotAction's such as the Utilities, Switch Pipe, and Pipe Case(s), which implement their own unique aborting behavior.
 
 ## Unique Aborting behavior
-[Switch Pipe](/api/assembly-lines#switch-pipe) implements its own AbortLine signal behavior in order to support its own unique functionality. When it hasn't received a [CasesSignal](/advanced/conditionals/#cases-signal) with its condition passed, it ignores default AbortLine signals. That's because [abort()](/api/abort#abort) is treated like `break;` from the traditional `switch(){}` code block, inside a [Switch Pipe](/api/assembly-lines#switch-pipe).
+[Switch Pipe](/api/assembly-lines#switch-pipe) implements its own AbortLine signal behavior in order to support its own unique functionality. When it hasn't received a [CasesSignal](/topic/conditionals/#cases-signal) with its condition passed, it ignores default AbortLine signals. That's because [abort()](/api/abort#abort) is treated like `break;` from the traditional `switch(){}` code block, inside a [Switch Pipe](/api/assembly-lines#switch-pipe).
 
 Some BotAction's, like Utilities, have unique AbortLine signal behavior for aborting parts of the unique assemblers. For example, a [For All](/api/utilities#for-all) BotAction's loop iteration (runs an assembled line of BotActions) can abort out of its loop iteration with a default AbortLine signal or abort the entire loop with two or more `assembledLines`.
 

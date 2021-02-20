@@ -4,12 +4,12 @@ title: 'IndexedDB'
 
 These BotAction's interact with the Page's [IndexedDB](https://www.w3.org/TR/2013/CR-IndexedDB-20130704/).
 
-Except for the assembling [indexedDBStore()()](#indexeddbstore), these BotAction's are BotIndexedDBAction's. They are designed to accept customization through their higher-order params, [injects](/advanced/injects), and even [piping](/advanced/piping).
+Except for the assembling [indexedDBStore()()](#indexeddbstore), these BotAction's are BotIndexedDBAction's. They are designed to accept customization through their higher-order params, [injects](/topic/injects), and even [piping](/topic/piping).
 
 > Higher-order params override all. Piping params override injects. Therefore, injects is a nice way to set the defaults for the majority, then on a case by case basis, can be overrideen by either other way.
 
 ## IndexedDBStore
-This sets the first few [injects](/advanced/injects) for BotIndexedDBAction's.
+This sets the first few [injects](/topic/injects) for BotIndexedDBAction's.
 ```typescript
 const indexedDBStore = (databaseName: string, storeName: string, databaseVersion?: number) =>
   (...actions: BotAction<PipeValue|void>[]): BotAction<any> =>
@@ -28,13 +28,13 @@ For an usage example, see the [Instagram isGuest](/sites/instagram#isguest-condi
 ## Set IndexedDB Value
 This sets a value by key in a Store for a particular Database name and optionally version.
 
-The `storeName`, `databaseName`, `databaseVersion` can be passed through their higher-order params or by [injecting](/advanced/injects). Higher-order params override injected ones.
+The `storeName`, `databaseName`, `databaseVersion` can be passed through their higher-order params or by [injecting](/topic/injects). Higher-order params override injected ones.
 
-The `key` and `value` can be passed through their higher-order params or by [piping](/advanced/piping). Higher-order params override piped values.
+The `key` and `value` can be passed through their higher-order params or by [piping](/topic/piping). Higher-order params override piped values.
 
 ```typescript
-const setIndexedDBValue = 
-  (key?: string, value?: any, storeName?: string, databaseName?: string, databaseVersion?: number): BotIndexedDBAction<void> => 
+const setIndexedDBValue =
+  (key?: string, value?: any, storeName?: string, databaseName?: string, databaseVersion?: number): BotIndexedDBAction<void> =>
     async(page, ...injects) => {
       const [pipedValue, injectDatabaseVersion, injectDatabaseName, injectStoreName] = unpipeInjects<getQueryKeyValue>(injects, 3)
 
@@ -57,7 +57,7 @@ const setIndexedDBValue =
         setIndexedDBStoreValue,
         databaseName ? databaseName : injectDatabaseName ? injectDatabaseName : 'missing-db-name',
         databaseVersion ? databaseVersion : injectDatabaseVersion ? injectDatabaseVersion : undefined,
-        storeName ? storeName : injectStoreName ? injectStoreName : 'missing-store', 
+        storeName ? storeName : injectStoreName ? injectStoreName : 'missing-store',
         key ? key : 'missing-key',
         value ? value : 'missing-value'
       )
@@ -65,19 +65,19 @@ const setIndexedDBValue =
 ```
 > If a value is missing to complete the operation, a safe `missing-*` default is used.
 
-For an usage example, see [Pipe BotAction](/advanced/piping#pipe-botaction).
+For an usage example, see [Pipe BotAction](/topic/piping#pipe-botaction).
 
 ## Get IndexedDB Value
 
 This gets a value by key in a Store for a particular Database name and optionally version.
 
-The `storeName`, `databaseName`, `databaseVersion` can be passed through their higher-order params or by [injecting](/advanced/injects). Higher-order params override injected ones.
+The `storeName`, `databaseName`, `databaseVersion` can be passed through their higher-order params or by [injecting](/topic/injects). Higher-order params override injected ones.
 
-The `key` and `value` can be passed through their higher-order params or by [piping](/advanced/piping). Higher-order params override piped values.
+The `key` and `value` can be passed through their higher-order params or by [piping](/topic/piping). Higher-order params override piped values.
 
 ```typescript
-const getIndexedDBValue = 
-  (key?: string, storeName?: string, databaseName?: string, databaseVersion?: number): BotIndexedDBAction<PipeValue> => 
+const getIndexedDBValue =
+  (key?: string, storeName?: string, databaseName?: string, databaseVersion?: number): BotIndexedDBAction<PipeValue> =>
     async(page, ...injects) => {
       const [pipeValue, injectDatabaseVersion, injectDatabaseName, injectStoreName] = unpipeInjects<getQueryKey>(injects, 3)
 
@@ -106,7 +106,7 @@ For an usage example, see the [Instagram isGuest](/sites/instagram#isguest-condi
 
 ## Helpers
 
-In order to interact with IndexedDB in the Puppeteer Page, separate functions need to be "evaluated" in the Page. Therefore, the following Helper functions are setup as if running inside a Browser Page, instead of NodeJS. 
+In order to interact with IndexedDB in the Puppeteer Page, separate functions need to be "evaluated" in the Page. Therefore, the following Helper functions are setup as if running inside a Browser Page, instead of NodeJS.
 
 > If you `console.log()` in an evaluated Page function, don't look for it in NodeJS's console, but the Puppeteer Page's console.
 
@@ -120,10 +120,10 @@ function setIndexedDBStoreValue(databaseName: string, databaseVersion: number, s
 
     openRequest.onerror = function(this: IDBRequest<IDBDatabase>, ev: Event) {
       ev.stopPropagation()
-      return reject(this.error) 
+      return reject(this.error)
     }
 
-    openRequest.onupgradeneeded = function(this: IDBOpenDBRequest, ev: IDBVersionChangeEvent): any { 
+    openRequest.onupgradeneeded = function(this: IDBOpenDBRequest, ev: IDBVersionChangeEvent): any {
       if (!this.result.objectStoreNames.contains(storeName)) {
         this.result.createObjectStore(storeName)
       }
@@ -143,7 +143,7 @@ function setIndexedDBStoreValue(databaseName: string, databaseVersion: number, s
       } catch (error) {
         db.close()
         return reject(error)
-      } 
+      }
     }
   })
 }
@@ -157,7 +157,7 @@ function getIndexedDBStoreValue(databaseName: string, databaseVersion: number, s
     const openRequest = indexedDB.open(databaseName, databaseVersion)
 
     openRequest.onerror = function(this: IDBRequest<IDBDatabase>, ev: Event) {
-      return reject(this.error) 
+      return reject(this.error)
     }
 
     openRequest.onsuccess = function(this: IDBRequest<IDBDatabase>, ev: Event) {
@@ -167,13 +167,13 @@ function getIndexedDBStoreValue(databaseName: string, databaseVersion: number, s
         const tx = db.transaction(storeName, 'readonly')
           .objectStore(storeName)
           .get(key)
-  
+
           tx.onsuccess = function(this: IDBRequest<any>, ev: Event) {
             const result = this.result
             db.close()
             return resolve(result)
           }
-  
+
       } catch (error) {
         db.close()
         return reject(error)

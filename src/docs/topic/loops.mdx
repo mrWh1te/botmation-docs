@@ -21,15 +21,15 @@ await chain(
 ```
 Here we pass in a collection of site domain's in the first call of `forAll()` then in the second call pass in a callback function, to run BotAction(s) on each iteration of the collection. Therefore, the BotAction's returned by the callback function, in the second call, are ran in a loop for each item of the iteration, in this case, each domain name.
 
-When the [forAll()()()](/api/utilities#for-all) BotAction completes, it will have visited and taken screenshots of each site in the array. 
+When the [forAll()()()](/api/utilities#for-all) BotAction completes, it will have visited and taken screenshots of each site in the array.
 
 Learn more about `forAll()()` by reading its [documentation](/api/utilities#for-all).
 
 ## For As Long
 
-[forAsLong()()()](/api/utilities#for-as-long) is a BotAction that works like a functional while loop. It resolves the [ConditionalBotAction](/advanced/conditionals#conditional-botaction) before running each loop iteration. If it does *not* resolve `true`, then it stops.
+[forAsLong()()()](/api/utilities#for-as-long) is a BotAction that works like a functional while loop. It resolves the [ConditionalBotAction](/topic/conditionals#conditional-botaction) before running each loop iteration. If it does *not* resolve `true`, then it stops.
 
-With this you could write a dynamic BotAction that handles multiple items on a page, when you're not sure how many there are. For example, in looping through the content posted in a social media feed, news feed, etc. 
+With this you could write a dynamic BotAction that handles multiple items on a page, when you're not sure how many there are. For example, in looping through the content posted in a social media feed, news feed, etc.
 
 Here is a concept:
 ```typescript
@@ -44,9 +44,9 @@ await chain(
 
 ## Do While
 
-[doWhile()()()](/api/utilities#do-while) is a BotAction that works like a functional do while loop. It first runs the assembled BotAction's of the second call. Then begins a loop of running the assembled BotAction's if the [ConditionalBotAction](/advanced/conditionals#conditional-botaction) passed in the first call resolves `true` before each loop iteration.
+[doWhile()()()](/api/utilities#do-while) is a BotAction that works like a functional do while loop. It first runs the assembled BotAction's of the second call. Then begins a loop of running the assembled BotAction's if the [ConditionalBotAction](/topic/conditionals#conditional-botaction) passed in the first call resolves `true` before each loop iteration.
 
-One use-case for this BotAction is "liking" posts in a social media feed. The BotAction first likes the post in the window, then scrolls down a bit. Then in a loop, likes each post while it scrolls down to the bottom of the feed, exiting the loop once the end of the page is found. So with `doWhile()()` you would write a [ConditionalBotAction](/advanced/conditionals#conditional-botaction) that checks for the end of the feed, to exit your looped BotAction's. This can be done with `forAsLong()()` too.
+One use-case for this BotAction is "liking" posts in a social media feed. The BotAction first likes the post in the window, then scrolls down a bit. Then in a loop, likes each post while it scrolls down to the bottom of the feed, exiting the loop once the end of the page is found. So with `doWhile()()` you would write a [ConditionalBotAction](/topic/conditionals#conditional-botaction) that checks for the end of the feed, to exit your looped BotAction's. This can be done with `forAsLong()()` too.
 
 Here is a concept:
 ```typescript

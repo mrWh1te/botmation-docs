@@ -9,7 +9,7 @@ These BotAction's interact with the Page's Local Storage.
 Clears all key/value pairs in the Page's Local Storage.
 
 ```typescript
-const clearAllLocalStorage: BotAction = 
+const clearAllLocalStorage: BotAction =
   async (page) => {
     await page.evaluate(
       clearLocalStorage
@@ -29,7 +29,7 @@ await chain(
 Removes one key/value pair from Local Storage based on the key provided through the higher-order params or Pipe.
 
 ```typescript
-const removeLocalStorageItem = 
+const removeLocalStorageItem =
   (key?: string): BotAction =>
     async(page, ...injects) => {
       const pipeValue = getInjectsPipeValue(injects)
@@ -64,8 +64,8 @@ await chain(
 Sets one key/value pair in Local Storage by the key provided.
 
 ```typescript
-const setLocalStorageItem = 
-  (key?: string, value?: string): BotAction => 
+const setLocalStorageItem =
+  (key?: string, value?: string): BotAction =>
     async(page, ...injects) => {
       const pipeValue = getInjectsPipeValue(injects)
 
@@ -106,8 +106,8 @@ await chain(
 Gets the value of one item from Local Storage by key.
 
 ```typescript
-const getLocalStorageItem = 
-  (key?: string): BotAction<string|null> => 
+const getLocalStorageItem =
+  (key?: string): BotAction<string|null> =>
     async(page, ...injects) => {
       const pipeValue = getInjectsPipeValue(injects)
 
@@ -129,11 +129,11 @@ const getLocalStorageItem =
 ```
 If the key does not exist, it returns `null`, just like Local Storage. The key can be Piped in as the Pipe's value or an object wrapped key ie `{key: 'some-key'}`.
 
-For an usage example, see [Pipe BotAction](/advanced/piping#pipe-botaction).
+For an usage example, see [Pipe BotAction](/topic/piping#pipe-botaction).
 
 ## Helpers
 
-In order to interact with Local Storage in the Puppeteer Page, separate functions need to be "evaluated" in the Page. Therefore, the following Helper functions are setup as if running inside a Browser Page, instead of NodeJS. 
+In order to interact with Local Storage in the Puppeteer Page, separate functions need to be "evaluated" in the Page. Therefore, the following Helper functions are setup as if running inside a Browser Page, instead of NodeJS.
 
 > If you `console.log()` in an evaluated Page function, don't look for it in NodeJS's console, but the Puppeteer Page's console.
 
@@ -146,7 +146,7 @@ const setLocalStorageKeyValue = (key: string, value: string) => {
 
 ### getLocalStorageKeyValue()
 ```typescript
-const getLocalStorageKeyValue = (key: string): string|null => 
+const getLocalStorageKeyValue = (key: string): string|null =>
   localStorage.getItem(key)
 ```
 
