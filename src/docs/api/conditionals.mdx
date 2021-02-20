@@ -1,0 +1,37 @@
+---
+title: 'Utilities'
+---
+
+These BotActions provide functional logical branching.
+
+These functions are both fun to play with and can reduce your overall code, while keeping it declarative and functional.
+
+> The assembled BotActions are ran in a Pipe.
+
+## Given That
+A functional "if statement".
+```typescript
+const givenThat =
+  (condition: ConditionalBotAction) =>
+    (...actions: BotAction<PipeValue|void|AbortLineSignal>[]): BotAction<any> =>
+      async(page, ...injects) => {
+        const resolvedConditionValue: AbortLineSignal|boolean = await condition(page, ...pipeInjects(injects))
+
+        if (isAbortLineSignal(resolvedConditionValue)) {
+          return processAbortLineSignal(resolvedConditionValue)
+        }
+
+        if (resolvedConditionValue) {
+          const returnValue: PipeValue|AbortLineSignal = await pipe()(...actions)(page, ...injects)
+
+          if (isAbortLineSignal(returnValue)) {
+            return returnValue
+          }
+        }
+      }
+```
+Takes an async function, similar to a `BotAction` (same parameters but called a [ConditionalBotAction](/advanced/conditionals#conditional-botaction)) that is expected to return a promise that resolves to a Boolean value. If that promise resolves to `true`, only then, will it run the assembled actions.
+
+This Utility BotAction has unique aborting behavior. First, the ConditionalBotAction can return an AbortLineSignal which is processed normally and returned, aborting the BotAction. Secondly, if an assembled BotAction returns an AbortLineSignal, it aborts the line, except it won't return an AbortLineSignal `pipeValue`. In order to do that, it takes at least `assembledLines` of 2. That's in order to keep this function type-safe with Chain's.
+
+The [example Instagram bot](/sites/instagram), uses `givenThat()()`, to attempt login, only if the bot is a Guest on the page then only operates as a logged in User, after checking if the bot is logged in on the page.

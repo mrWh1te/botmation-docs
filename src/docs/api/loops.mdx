@@ -1,0 +1,140 @@
+---
+title: 'Loops'
+---
+
+These BotActions provide functional loops.
+
+These functions are both fun to play with and can reduce your overall code, while keeping it declarative and functional.
+
+> The assembled BotActions are ran in a Pipe
+
+## For All
+It's a functional "forEach loop".
+```typescript
+const forAll =
+  (collection?: Collection) =>
+    (botActionOrActionsFactory: (...args: [any, string, Collection]) => BotAction<any>[] | BotAction<any>): BotAction<any> =>
+      async(page, ...injects) => {
+        if (!collection) {
+          collection = getInjectsPipeValue(injects)
+        }
+
+        if (!collection) {
+          logWarning('Utilities forAll() missing collection')
+          return
+        }
+
+        let returnValue: AbortLineSignal|PipeValue
+
+        if (Array.isArray(collection)) {
+          for(let index = 0; index < collection.length; index++) {
+            injects = removePipe(injects)
+            injects.push(wrapValueInPipe([collection[index], index+'', collection]))
+
+            returnValue = await pipeActionOrActions(botActionOrActionsFactory(collection[index], index+'', collection))(page, ...injects)
+
+            if (isAbortLineSignal(returnValue)) {
+              return processAbortLineSignal(returnValue)
+            }
+          }
+        } else {
+          if (isDictionary(collection)) {
+            for (const [key, value] of Object.entries(collection)) {
+              injects = removePipe(injects)
+              injects.push(wrapValueInPipe([value, collection, key]))
+
+              returnValue = await pipeActionOrActions(botActionOrActionsFactory(value, key, collection))(page, ...injects)
+
+              if (isAbortLineSignal(returnValue)) {
+                return processAbortLineSignal(returnValue)
+              }
+            }
+          }
+        }
+      }
+```
+This `BotAction` takes a collection, either an array of any type or a simple json object with key/value pairs, to iterate with a callback function that returns a Bot Action or an array of Bot Action's to run in.
+
+It's possible to pipe in the `collection` as the first `forAll()` call's parameter is optional.
+
+The callback function is provided three params that are the collection's iterated value, the index casted as a string, and the collection itself. The index is normalized as a string to support the case of iterating an object's key->value pairs.
+
+With each loop iteration, the pipe value injected into the initial assembled BotAction changes. It's created before each loop iteration line, with the same params as the callback, except wrapped in an array. The three values will be the collection's iterated value, the index the loop is iterating on, and the collection itself.
+
+This function assembles a line of BotAction's with each loop iteration, it runs many BotAction lines. Therefore, it has advanced [aborting](/advanced/aborting) behavior to give granular control. Here's a table to understand the effects AbortLineSignal's have with varying `assembledLines` counts:
+
+| assembledLines | effect                                                         |
+|       -        |         -                                                     |
+| 1              | break the loop iteration line, but do not abort the loop       |
+| 2+             | break the loop iteration line, break the loop and return the AbortLineSignal with 2 assembledLines processed        |
+
+The [screenshotAll()](https://github.com/mrWh1te/Botmation/blob/master/src/botmation/actions/files.ts) Bot Action wraps the `forAll()()` Bot Action, to run `goTo()` and `screenshot()` actions, on a collection of urls provided.
+
+## For As Long
+It's a functional "while loop".
+
+```typescript
+const forAsLong =
+  (condition: ConditionalBotAction) =>
+    (...actions: BotAction[]): BotAction<any> =>
+      async(page, ...injects) => {
+        let returnValue: PipeValue|AbortLineSignal
+        let resolvedCondition = await condition(page, ...pipeInjects(injects))
+
+        if (isAbortLineSignal(resolvedCondition)) {
+          return processAbortLineSignal(resolvedCondition)
+        }
+
+        while (resolvedCondition) {
+          returnValue = await pipe()(...actions)(page, ...pipeInjects(injects))
+
+          if (isAbortLineSignal(returnValue)) {
+            return processAbortLineSignal(returnValue)
+          }
+
+          resolvedCondition = false
+          resolvedCondition = await condition(page, ...pipeInjects(injects))
+
+          if (isAbortLineSignal(resolvedCondition)) {
+            return processAbortLineSignal(resolvedCondition)
+          }
+        }
+      }
+```
+It resolves the [ConditionalBotAction](/advanced/conditionals#conditional-botaction) before running the actions each time. It stops looping if the condition resolves False or rejects.
+
+To support granular aborting, it takes two `assembledLines` in an AbortLineSignal to fully abort out of `forAsLong()()`. An AbortLineSignal with 1 `assembledLines` will abort a loop iteration line of BotAction's, but not the loop itself. It's similar to [forAll()()](/api/utilities#for-all), except the ConditionalBotAction of the first `forAsLong()` call can return an AbortLineSignal, which is handled normally. Therefore, if a ConditionalBotAction returns an AbortLineSignal with one `assembledLines`, it aborts fully out of this BotAction.
+
+For a concept example, see [Loops: For As Long](/advanced/loops#for-as-long).
+
+## Do While
+It's a functional "doWhile loop".
+
+```typescript
+const const doWhile =
+  (condition: ConditionalBotAction) =>
+    (...actions: BotAction<any>[]): BotAction<any> =>
+      async(page, ...injects) => {
+        let returnValue: PipeValue|AbortLineSignal
+        let resolvedCondition: boolean|AbortLineSignal = true
+        while (resolvedCondition) {
+          returnValue = await pipe()(...actions)(page, ...injects)
+
+          if (isAbortLineSignal(returnValue)) {
+            return processAbortLineSignal(returnValue)
+          }
+
+          resolvedCondition = false
+          resolvedCondition = await condition(page, ...pipeInjects(injects))
+
+          if (isAbortLineSignal(resolvedCondition)) {
+            return processAbortLineSignal(resolvedCondition)
+          }
+        }
+      }
+```
+It runs the BotAction's first, then resolves the [ConditionalBotAction](/advanced/conditionals#conditional-botaction) as to whether or not it should run the actions again. It will keep running the pipe of Botaction's in a loop until the condition resolves `false` or rejects.
+
+This BotAction follows the same aborting behavior as [forAsLong()()](/api/utilities#for-as-long). The ConditionalBotAction can abort the function normally, while assembled BotAction's can abort a loop iteration line only, or that and abort the `doWhile()()` BotAction.
+
+For a concept example, see [Loops: Do While](/advanced/loops#do-while).

@@ -1,0 +1,59 @@
+---
+title: 'Time'
+---
+
+> The assembled BotActions are ran in a Pipe
+
+## Wait
+This BotAction pauses for the time provided before the next BotAction assembled runs.
+
+```typescript
+const wait = (milliseconds: number): BotAction => async() => {
+  await sleep(milliseconds)
+}
+```
+This Bot Action is not like the others in this group, but a utility never the less.
+
+Example:
+```typescript
+await chain(
+  goTo('https://google.com'),
+  wait(5000), // wait 5 seconds before going to duckduckgo.com
+  goTo('https://duckduckgo.com')
+)(page)
+```
+
+## Schedule
+Schedule assembled BotActions for a single event in the future or a re-occuring one.
+```typescript
+export const schedule =
+  (schedule: string|Date) =>
+    (...actions: BotAction<any>[]): BotAction<any> =>
+      async(page, ...injects) => {
+        let timeUntilScheduleInMilliSeconds
+        if (isDate(schedule)) {
+          timeUntilScheduleInMilliSeconds = schedule.getTime() - Date.now()
+          if (timeUntilScheduleInMilliSeconds > 0) {
+            await sleep(timeUntilScheduleInMilliSeconds)
+
+            return pipe()(...actions)(page, ...injects)
+          }
+        } else {
+          const cron = parseCronExpression(schedule)
+
+          while(true) {
+            timeUntilScheduleInMilliSeconds = cron.getNextDate(new Date(Date.now())).getTime() - Date.now()
+            await sleep(timeUntilScheduleInMilliSeconds)
+
+            const returnValue = await pipe()(...actions)(page, ...injects)
+
+            if (isAbortLineSignal(returnValue)) {
+              return processAbortLineSignal(returnValue)
+            }
+          }
+        }
+      }
+```
+Takes either a string cronjob expression like `* * * * *` to schedule a re-occuring event based on the cronjob or a future `Date` instance for a single event.
+
+> Recommend including [aborting](/topic/aborting) logic in the assembled BotActions, to exit the cronjob schedule when ready, otherwise it will loop indefinitely. Does not apply to single event schedules with a `Date`.

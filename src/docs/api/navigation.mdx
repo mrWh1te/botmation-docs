@@ -7,9 +7,9 @@ These BotAction's provide simple ways to change the Page's URL.
 ## Go To
 Navigates the page to the url provided, unless the active url is the url provided, then it emits a warning in the console.
 ```typescript
-const goTo = (url: string, goToOptions?: Partial<DirectNavigationOptions>): BotAction => 
+const goTo = (url: string, goToOptions?: Partial<DirectNavigationOptions>): BotAction =>
   async(page) => {
-    goToOptions = enrichGoToPageOptions(goToOptions)  
+    goToOptions = enrichGoToPageOptions(goToOptions)
 
     // same url check
     if (page.url() === url) {
@@ -27,9 +27,9 @@ For an usage example, see [Functional Bot](/examples#functional-bot).
 Similar to hitting the browser's "Back" button, to load the previous URL.
 
 ```typescript
-const goBack = (options?: NavigationOptions): BotAction => 
+const goBack = (options?: NavigationOptions): BotAction =>
   async(page) => {
-    await page.goBack(options)  
+    await page.goBack(options)
   }
 ```
 
@@ -46,9 +46,9 @@ await chain(
 Similar to hitting the brower's "Forward" button, to go forward after going back.
 
 ```typescript
-const goForward = (options?: NavigationOptions): BotAction => 
+const goForward = (options?: NavigationOptions): BotAction =>
   async(page) => {
-    await page.goForward(options)  
+    await page.goForward(options)
   }
 ```
 
@@ -90,30 +90,11 @@ const waitForNavigation: BotAction = async(page) => {
 
 For an usage example, see the [Instagram login() BotAction](/sites/instagram#login-botaction).
 
-## Wait
-This BotAction pauses for the time provided before the next BotAction assembled runs.
-
-```typescript
-const wait = (milliseconds: number): BotAction => async() => {
-  await sleep(milliseconds)
-} 
-```
-This Bot Action is not like the others in this group, but a utility never the less. 
-
-Example:
-```typescript
-await chain(
-  goTo('https://google.com'),
-  wait(5000), // wait 5 seconds before going to duckduckgo.com
-  goTo('https://duckduckgo.com')
-)(page)
-```
-
 ## Scroll To
 This BotAction evaluates a `scrollToElement()` helper function in the context of the Puppeteer page based on the HTML selector provided. It calls the HTML node element's `scrollIntoView()` method. Once that method is called, it artificially waits for it to complete scrolling with a timespan set in milliseconds, default of 2500.
 
 ```typescript
-const scrollTo = (htmlSelector: string, waitTimeForScroll: number = 2500): BotAction => 
+const scrollTo = (htmlSelector: string, waitTimeForScroll: number = 2500): BotAction =>
   chain(
     evaluate(scrollToElement, htmlSelector),
     wait(waitTimeForScroll)
@@ -146,6 +127,6 @@ const sleep = async(milliseconds: number): Promise<NodeJS.Timeout> =>
 
 This helper function is ran inside the Page's context to scroll to a particular HTML node element.
 ```typescript
-const scrollToElement = (htmlSelector: string) => 
+const scrollToElement = (htmlSelector: string) =>
   document.querySelector(htmlSelector)?.scrollIntoView({behavior: 'smooth'})
 ```
