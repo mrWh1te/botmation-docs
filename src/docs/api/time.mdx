@@ -59,6 +59,14 @@ Takes either a cron schedule expression like `* * * * *` to schedule a re-occuri
 
 When using a cron expression, it's recommended to include [aborting](/topic/aborting) logic in the assembled BotActions, to exit the schedule, otherwise it will schedule indefinitely. This does not apply to 1-time events scheduled with a `Date`.
 
+This function either assembles a line of BotAction's with each schedule iteration, or it assembles a line of BotActions for a 1-time event. Therefore, it has advanced [aborting](/topic/aborting) behavior to give granular control. Here's a table to understand the effects AbortLineSignal's have with varying `assembledLines` counts:
+
+| assembledLines | input           | effect                                       |
+|       -        |         -             | -                                        |
+| 1+              | Date | breaks assembled BotActions and returns       |
+| 1             | cron | breaks assembled BotActions of current schedule, but not the subsequent scheduled BotAction lines        |
+| 2+             | cron | breaks assembled BotActions of current schedule, then stops the cron job, exiting the scheduling loop        |
+
 Example:
 ```typescript
 // Like posts every sunday at 7am
