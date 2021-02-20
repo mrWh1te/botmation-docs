@@ -247,7 +247,7 @@ This is a unique kind of Pipe to help when you don't know if you're given an arr
 
 This BotAction has the same aborting behavior as Pipes, for either case: one BotAction or an array of BotAction's. It takes one `assembledLines` to break and return an AbortLineSignal `pipeValue`. Any more `assembledLines` and you'll break further lines of BotAction's while carrying the `pipeValue` up.
 
-For an usage example, see [forAll()()](/api/utilities#for-all).
+For an usage example, see [forAll()()](/api/loops#for-all).
 
 ## Runners
 These are less optimized, less configurable versions of `chain()` and `pipe()()`. It's recommended to avoid using these directly, but both `chain()()` and `pipe()()()` use them respectively.

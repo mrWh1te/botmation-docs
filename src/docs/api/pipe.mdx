@@ -46,7 +46,7 @@ await pipe('Hello World')(
 ```
 
 ## Pipe Case
-This BotAction is similar to [givenThat()()](/api/utilities#given-that) in that it evaluates a condition, or in this case conditions, and if at least one condition passes (is true), then the assembled BotAction's are ran. Instead of providing ConditionalBotAction's, the first call `pipeCase()` accepts a spread array of PipeValue's, including Functions. The values provided are tested against the pipe object's value. If the value is a function, it's called as a callback with the pipe object's value (as the first param) to test the return value as true.
+This BotAction is similar to [givenThat()()](/api/conditionals#given-that) in that it evaluates a condition, or in this case conditions, and if at least one condition passes (is true), then the assembled BotAction's are ran. Instead of providing ConditionalBotAction's, the first call `pipeCase()` accepts a spread array of PipeValue's, including Functions. The values provided are tested against the pipe object's value. If the value is a function, it's called as a callback with the pipe object's value (as the first param) to test the return value as true.
 
 > Pipe Case is similar to an if statement where the conditions of the expression are combined with `||` or. At least one case must evaluate as `true` in order for the if statement to be considered true.
 
@@ -103,7 +103,7 @@ It takes `assembledLines` of at least 2 to [abort](/topic/aborting) a `pipeCase(
 For an example, see LinkedIn's [likeUserPostsFrom()](https://github.com/mrWh1te/Botmation/blob/e968078fc5e7767db6831c0461afce8b574ac1fe/src/botmation/sites/linkedin/actions/feed.ts#L79) BotAction.
 
 ## Pipe Cases
-This BotAction is similar to [givenThat()()](/api/utilities#given-that) in that it evaluates a condition, or in this case conditions, and if all conditions pass (are true), then the assembled BotAction's are ran. Instead of providing ConditionalBotAction's, the first call `pipeCases()` accepts a spread array of PipeValue's, including functions. The values provided are tested against the pipe object's value. If the value is a function, it's called as a callback with the pipe object's value (as the first param) to test the return value as true.
+This BotAction is similar to [givenThat()()](/api/conditionals#given-that) in that it evaluates a condition, or in this case conditions, and if all conditions pass (are true), then the assembled BotAction's are ran. Instead of providing ConditionalBotAction's, the first call `pipeCases()` accepts a spread array of PipeValue's, including functions. The values provided are tested against the pipe object's value. If the value is a function, it's called as a callback with the pipe object's value (as the first param) to test the return value as true.
 
 > Pipe Cases is similar to an if statement where the conditions of the expression are combined with `&&` and. All of the cases must evaluate to `true`, in order for the if statement to be considered true.
 

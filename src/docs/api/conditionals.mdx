@@ -1,5 +1,5 @@
 ---
-title: 'Utilities'
+title: 'Conditionals'
 ---
 
 These BotActions provide functional logical branching.
@@ -30,8 +30,8 @@ const givenThat =
         }
       }
 ```
-Takes an async function, similar to a `BotAction` (same parameters but called a [ConditionalBotAction](/topic/conditionals#conditional-botaction)) that is expected to return a promise that resolves to a Boolean value. If that promise resolves to `true`, only then, will it run the assembled actions.
+Takes an async function, a more specific `BotAction` called a [ConditionalBotAction](/topic/conditionals#conditional-botaction)) that is returns a promise that resolves to a Boolean value. If that promise resolves to `true`, only then, will it run the assembled actions.
 
-This Utility BotAction has unique aborting behavior. First, the ConditionalBotAction can return an AbortLineSignal which is processed normally and returned, aborting the BotAction. Secondly, if an assembled BotAction returns an AbortLineSignal, it aborts the line, except it won't return an AbortLineSignal `pipeValue`. In order to do that, it takes at least `assembledLines` of 2. That's in order to keep this function type-safe with Chain's.
+This BotAction has unique aborting behavior. First, the ConditionalBotAction can return an AbortLineSignal which is processed normally and returned, aborting the BotAction. Secondly, if an assembled BotAction returns an AbortLineSignal, it aborts the line, except it won't return an AbortLineSignal `pipeValue`. In order to do that, it takes at least `assembledLines` of 2. That's in order to keep this function type-safe with Chain's.
 
 The [example Instagram bot](/sites/instagram), uses `givenThat()()`, to attempt login, only if the bot is a Guest on the page then only operates as a logged in User, after checking if the bot is logged in on the page.
