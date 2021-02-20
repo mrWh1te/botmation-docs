@@ -57,11 +57,11 @@ Takes either a cron schedule expression like `* * * * *` to schedule a re-occuri
 
 > Quick & simple editor for cron schedule expressions [crontab guru](https://crontab.guru/)
 
-When using a cron expression, it's recommended to include [aborting](/topic/aborting) logic in the assembled BotActions, to exit the schedule, otherwise it will loop indefinitely. This does not apply to 1-time event schedules with a `Date`.
+When using a cron expression, it's recommended to include [aborting](/topic/aborting) logic in the assembled BotActions, to exit the schedule, otherwise it will schedule indefinitely. This does not apply to 1-time events scheduled with a `Date`.
 
 Example:
 ```typescript
-// Runs BotActions every sunday at 7am
+// Like posts every sunday at 7am
 await schedule('0 7 * * sun')(
   goTo('http://example.com'),
   givenThat(isGuest)(
