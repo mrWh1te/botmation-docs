@@ -54,6 +54,20 @@ export const schedule =
         }
       }
 ```
-Takes either a string cronjob expression like `* * * * *` to schedule a re-occuring event based on the cronjob or a future `Date` instance for a single event.
+Takes either a string cronjob expression like `* * * * *` to schedule a re-occuring event based or a future `Date` instance to schedule a 1-time event.
 
-> Recommend including [aborting](/topic/aborting) logic in the assembled BotActions, to exit the cronjob schedule when ready, otherwise it will loop indefinitely. Does not apply to single event schedules with a `Date`.
+> Quick & simple editor for cron schedule expressions [crontab guru](https://crontab.guru/)
+
+When using a cron expression, it's recommended to include [aborting](/topic/aborting) logic in the assembled BotActions, to exit the schedule, otherwise it will loop indefinitely. This does not apply to 1-time event schedules with a `Date`.
+
+Example:
+```typescript
+// Runs BotActions every sunday at 7am
+await schedule('0 7 * * sun')(
+  goTo('http://example.com'),
+  givenThat(isGuest)(
+    login('username', 'password'),
+  ),
+  likePosts
+)(page)
+```
