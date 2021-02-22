@@ -78,3 +78,13 @@ await schedule('0 7 * * sun')(
   likePosts
 )(page)
 ```
+
+## Helpers
+
+### sleep()
+
+This async function returns a Promise that does not resolve until the time provided lapses.
+```typescript
+const sleep = async(milliseconds: number): Promise<NodeJS.Timeout> =>
+  new Promise(resolve => setTimeout(resolve, milliseconds))
+```

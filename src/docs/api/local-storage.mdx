@@ -121,7 +121,7 @@ const getLocalStorageItem =
         }
       }
 
-      return await page.evaluate(
+      return page.evaluate(
         getLocalStorageKeyValue,
         key ? key : 'missing-key'
       )

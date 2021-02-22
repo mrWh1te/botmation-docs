@@ -91,7 +91,7 @@ const getIndexedDBValue =
         }
       }
 
-      return await page.evaluate(
+      return page.evaluate(
         getIndexedDBStoreValue,
         databaseName ? databaseName : injectDatabaseName ? injectDatabaseName : 'missing-db-name',
         databaseVersion ? databaseVersion : injectDatabaseVersion ? injectDatabaseVersion : undefined,

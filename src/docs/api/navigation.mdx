@@ -115,14 +115,6 @@ const enrichGoToPageOptions = (overloadDefaultOptions: Partial<DirectNavigationO
 })
 ```
 
-### sleep()
-
-This async function returns a Promise that does not resolve until the time provided lapses.
-```typescript
-const sleep = async(milliseconds: number): Promise<NodeJS.Timeout> =>
-  new Promise(resolve => setTimeout(resolve, milliseconds))
-```
-
 ### scrollToElement()
 
 This helper function is ran inside the Page's context to scroll to a particular HTML node element.

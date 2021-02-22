@@ -73,9 +73,9 @@ const pipe =
             }
           } else {
             if (valueToPipe) {
-              return await pipeRunner(...actions)(page, ...injects.splice(0, injects.length - 1), wrapValueInPipe(valueToPipe))
+              return pipeRunner(...actions)(page, ...injects.splice(0, injects.length - 1), wrapValueInPipe(valueToPipe))
             } else {
-              return await pipeRunner(...actions)(page, ...injects)
+              return pipeRunner(...actions)(page, ...injects)
             }
           }
         } else {
@@ -89,7 +89,7 @@ const pipe =
               return returnValue
             }
           } else {
-            return await pipeRunner(...actions)(page, ...injects, wrapValueInPipe(valueToPipe))
+            return pipeRunner(...actions)(page, ...injects, wrapValueInPipe(valueToPipe))
           }
         }
       }
@@ -120,7 +120,7 @@ const assemblyLine =
               return pipeActionResult
             }
           } else {
-            return await pipeRunner(...actions)(page, ...pipeInjects(injects))
+            return pipeRunner(...actions)(page, ...pipeInjects(injects))
           }
         } else {
           if (actions.length === 1) {
@@ -130,7 +130,7 @@ const assemblyLine =
               return processAbortLineSignal(chainActionResult)
             }
           } else if (actions.length > 1) {
-            return await chainRunner(...actions)(page, ...injects)
+            return chainRunner(...actions)(page, ...injects)
           }
         }
       }
@@ -231,7 +231,7 @@ const pipeActionOrActions =
   (actionOrActions: BotAction<PipeValue> | BotAction<PipeValue>[]): BotAction<PipeValue|undefined|AbortLineSignal> =>
     async(page, ...injects) => {
       if (Array.isArray(actionOrActions)) {
-        return await pipe()(...actionOrActions)(page, ...injects)
+        return pipe()(...actionOrActions)(page, ...injects)
       } else {
         const singleActionResult = await actionOrActions(page, ...pipeInjects(injects))
 
