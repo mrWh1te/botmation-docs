@@ -30,12 +30,12 @@ BotActions run on a [Puppeteer page instance](https://pptr.dev/#?product=Puppete
 
 > If you're unfamiliar with async functions in JavaScript, they are simply functions that return Promises. Promises are a way to handle async functionality like reacting to events, when you don't know when they'll take place. This is important since a lot of Puppeteer's API is asynchronous.
 
-Some BotActions are have higher-order functions to customize their functionality. For example, the BotAction `goTo()` uses a higher-order function to set the URL for the bot to navigate too, while `waitForNavigation` does not:
+Some BotActions are have higher-order functions to customize their functionality. For example, the BotAction [goTo()](/api/navigation/#go-to) uses a higher-order function to set the URL for the bot to navigate too, while [waitForNavigation](/api/navigation/#wait-for-navigation) does not:
 ```typescript
 const page = await browser.newPage() // Puppeteer Browser
 
-await goTo('https://example.com')(page)
-await waitForNavigation(page)
+await goTo('https://example.com')(page) // call higher-order than BotAction
+await waitForNavigation(page) // no higher-order, just call BotAction
 ```
 
 > Higher-order functions are functions that return a function. Botmation uses higher-order functions to customize BotActions during runtime.
@@ -74,7 +74,7 @@ We can run this bot code on multiple Puppeteer pages. We can even run bots [conc
 
 There's three main styles of BotAction code, from simplest to most complex.
 
-The simplest kind have no higher order functions. They are simply async functions. Let's take a look at a familiar example, from "Navigation", called `waitForNavigation`:
+The simplest kind have no higher order functions. They are simply async functions. Let's take a look at a familiar example, from [Navigation](/api/navigation), called [waitForNavigation](/api/navigation/#wait-for-navigation):
 
 ```typescript
 const waitForNavigation: BotAction = async(page) => {
@@ -86,7 +86,7 @@ There are no higher-order functions wrapping this BotAction. It is a single asyn
 
 ## Making Dynamic BotAction's
 
-BotActions can be customizable by wrapping them in a higher-order function, to provide customizing values for the async functionality. Let's take a closer look at `goTo()`, from "Navigation" that navigates the page to the URL param:
+BotActions can be customizable by wrapping them in a higher-order function, to provide customizing values for the async functionality. Let's take a closer look at [goTo()](/api/navigation/#go-to), from "Navigation" that navigates the page to the URL param:
 
 ```typescript
 const goTo = (url: string, goToOptions?: Partial<DirectNavigationOptions>): BotAction =>
@@ -102,7 +102,7 @@ const goTo = (url: string, goToOptions?: Partial<DirectNavigationOptions>): BotA
   }
 ```
 
-`goTo()` uses a higher-order sync function with two params, `url` and `goToOptions?` that customize the returned BotAction function.
+[goTo()](/api/navigation/#go-to) uses a higher-order sync function with two params, `url` and `goToOptions?` that customize the returned BotAction function.
 
 The higher order parameters can be whatever you need them to be. They're typed as a spread array of `any`, so add more if you need more. Also, you are not limited to one higher-order sync function. Stack them up, as high as need be! The possibilities are endless. If you're curious, check out the [Loops BotActions](/api/loops) for practical BotActions that wrap themselves with two higher order functions.
 
@@ -129,6 +129,6 @@ const login = (username: string, password: string): BotAction =>
   )
 ```
 
-`login()` is a higher-order sync function that assembles BotActions with the [Chain BotAction](/api/assembly-lines#chain). The first call of `chain()` is a regular synchronous function that returns a customized BotAction.
+`login()` is a higher-order sync function that assembles BotActions with the [Chain BotAction](/api/assembly-lines#chain). The first call of [chain()](/api/assembly-lines#chain) is a regular synchronous function that returns a customized BotAction.
 
 This practical BotAction completes a login flow for a common website form. It starts by going to the login page, entering the `username` and `password` into the login page's form's inputs, then submits the form, and finally waits for the Navigation of the page to complete, before logging `Login Complete` in the NodeJS console.
