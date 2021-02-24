@@ -28,7 +28,7 @@ await chain(
 
 `givenThat()()` returns a composed BotAction that runs assembled BotAction's only if the BotAction in the first call `givenThat()` resolves `true`.
 
-> All [Utility BotAction's](/api/utilities) run assembled BotAction's in a Pipe
+> All [Branching BotActions](/api/branching) run assembled BotAction's in a Pipe
 
 ### Conditional BotAction
 
@@ -58,7 +58,7 @@ These BotAction's support multiple values, and handle their overall "if conditio
 
 [pipeCases()()](/api/pipe#pipe-cases), on the otherhand, will test all of its values until one of them evaluates as `false`, breaking the condition evaluation. All of its values *must* match the Pipe value, in order for the assembled BotAction's to run. In essence, it combines each value in the conditional expression with `&&`.
 
-With this approach, you can supply simple sync functions to create conditional expressions to determine whether or not some functionality needs to run. Both BotAction's will pipe in the same Pipe object that they are testing into their first assembled BotAction's. Therefore, it's possible to nest these to create more elaborate "if conditions" that combine or/and `||`/`&&`. 
+With this approach, you can supply simple sync functions to create conditional expressions to determine whether or not some functionality needs to run. Both BotAction's will pipe in the same Pipe object that they are testing into their first assembled BotAction's. Therefore, it's possible to nest these to create more elaborate "if conditions" that combine or/and `||`/`&&`.
 
 Finally, you can compose these BotAction's with a [Switch Pipe](/api/assembly-lines#switch-pipe), to create a switch, case(s), and break(s) (with the [Abort](/api/abort#abort) BotAction) flow to handle more use-cases. For an example of all three combined, see [LinkedIn's likeUserPostsFrom()](/sites/linkedin#like-user-posts-from) BotAction.
 

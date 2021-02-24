@@ -1,0 +1,90 @@
+---
+title: 'Time'
+---
+
+> The assembled BotActions are ran in a Pipe
+
+## Wait
+This BotAction pauses for the time provided before the next BotAction assembled runs.
+
+```typescript
+const wait = (milliseconds: number): BotAction => async() => {
+  await sleep(milliseconds)
+}
+```
+
+Example:
+```typescript
+await chain(
+  goTo('https://google.com'),
+  wait(5000), // wait 5 seconds before going to duckduckgo.com
+  goTo('https://duckduckgo.com')
+)(page)
+```
+
+## Schedule
+Schedule assembled BotActions for a single event in the future or a re-occuring one.
+```typescript
+export const schedule =
+  (schedule: string|Date) =>
+    (...actions: BotAction<any>[]): BotAction<any> =>
+      async(page, ...injects) => {
+        let timeUntilScheduleInMilliSeconds
+        if (isDate(schedule)) {
+          timeUntilScheduleInMilliSeconds = schedule.getTime() - Date.now()
+          if (timeUntilScheduleInMilliSeconds > 0) {
+            await sleep(timeUntilScheduleInMilliSeconds)
+
+            return pipe()(...actions)(page, ...injects)
+          }
+        } else {
+          const cron = parseCronExpression(schedule)
+
+          while(true) {
+            timeUntilScheduleInMilliSeconds = cron.getNextDate(new Date(Date.now())).getTime() - Date.now()
+            await sleep(timeUntilScheduleInMilliSeconds)
+
+            const returnValue = await pipe()(...actions)(page, ...injects)
+
+            if (isAbortLineSignal(returnValue)) {
+              return processAbortLineSignal(returnValue)
+            }
+          }
+        }
+      }
+```
+Takes either a cron schedule expression like `* * * * *` to schedule a re-occuring event or a future `Date` instance to schedule a 1-time event.
+
+> Quick & simple editor for cron schedule expressions [crontab guru](https://crontab.guru/)
+
+When using a cron expression, it's recommended to include [aborting](/topic/aborting) logic in the assembled BotActions, to exit the schedule, otherwise it will schedule indefinitely. This does not apply to 1-time events scheduled with a `Date`.
+
+This function either assembles a line of BotAction's with each schedule iteration, or it assembles a line of BotActions for a 1-time event. Therefore, it has advanced [aborting](/topic/aborting) behavior to give granular control. Here's a table to understand the effects AbortLineSignal's have with varying `assembledLines` counts:
+
+| assembledLines | input           | effect                                       |
+|       -        |         -             | -                                        |
+| 1+              | Date | breaks assembled BotActions and returns       |
+| 1             | cron | breaks assembled BotActions of current schedule, but not the subsequent scheduled BotAction lines        |
+| 2+             | cron | breaks assembled BotActions of current schedule, then stops the cron job, exiting the scheduling loop        |
+
+Example:
+```typescript
+// Like posts every sunday at 7am
+await schedule('0 7 * * sun')(
+  goTo('http://example.com'),
+  givenThat(isGuest)(
+    login('username', 'password'),
+  ),
+  likePosts
+)(page)
+```
+
+## Helpers
+
+### sleep()
+
+This async function returns a Promise that does not resolve until the time provided lapses.
+```typescript
+const sleep = async(milliseconds: number): Promise<NodeJS.Timeout> =>
+  new Promise(resolve => setTimeout(resolve, milliseconds))
+```

@@ -35,7 +35,7 @@ When running a `pipe()()` in a context without Piping, `pipe()()()` will inject 
 
 There are a collection of BotAction's specific to Piping: [map()](/api/pipe#map), [pipeValue()](/api/pipe#pipe-value), and [emptyPipe](/api/pipe#empty-pipe). [map()](/api/pipe#map) accepts a pure function to operate on the Pipe value, so if you want to cast the Pipe value from one type to another, use the [map()](/api/pipe#map) BotAction. Let's see an example, `isGuest` from Instagram auth, uses [map()](/api/pipe#map) to convert the Pipe value to the correct boolean value:
 ```typescript
-const isGuest: ConditionalBotAction = 
+const isGuest: ConditionalBotAction =
   indexedDBStore('redux', 'paths')(
     getIndexedDBValue('users.viewerId'),
     map(viewerId => viewerId ? false : true),
@@ -61,6 +61,6 @@ To name a few, there are [unpipeInjects()](/api/pipe#unpipeinjects), [removePipe
 
 If you're not interested in whats injected, but need the Pipe value, use [getInjectsPipeValue()](/api/pipe#getinjectspipevalue) as it has safe fallbacks for when there is no Pipe, in case the BotAction is assembled in a Chain. See the Local Storage BotAction's for examples, in how it's used.
 
-If you're interested in the injects and the Pipe value, use [unpipeInjects()](/api/pipe#unpipeinjects), which allows you to specify the number of [injects](/advanced/injects) you're expecting, to safely retrieve them with the Pipe value, even if there was no Pipe, or some [injects](/advanced/injects) didn't get injected. See the IndexedDB BotAction's for examples.
+If you're interested in the injects and the Pipe value, use [unpipeInjects()](/api/pipe#unpipeinjects), which allows you to specify the number of [injects](/topic/injects) you're expecting, to safely retrieve them with the Pipe value, even if there was no Pipe, or some [injects](/topic/injects) didn't get injected. See the IndexedDB BotAction's for examples.
 
-If you just want the [injects](/advanced/injects) without any Pipe, use [removePipe()](/api/pipe#removepipe).
+If you just want the [injects](/topic/injects) without any Pipe, use [removePipe()](/api/pipe#removepipe).
