@@ -22,6 +22,9 @@ await chain(
 
 ## Schedule
 Schedule assembled BotActions for a single event in the future or a re-occuring one.
+
+> Similar to the BotActions from [Loops](/api/loops) and [Branching](/api/branching), the Schedule BotAction will run assembled BotActions in a [pipe](/api/assembly-lines#pipe).
+
 ```typescript
 export const schedule =
   (schedule: string|Date) =>
