@@ -21,9 +21,9 @@ For a practical example, see [abortPipe()](/api/abort#abort-pipe).
 
 ## Restart
 
-This BotAction is similar to a [pipe()()](/api/assembly-lines#pipe), except it will restart when an assembled BotAction returns an `AbortLineSignal` with `assembledLines = 1` (default). In this event, it takes the pipe value from the `AbortLineSignal` then injects it into the first assembled BotAction, as it restarts the pipe.
+This BotAction is similar to [pipe()()](/api/assembly-lines#pipe), except it will restart when an assembled BotAction returns an `AbortLineSignal` with `assembledLines = 1` (default count). In this event, it takes the pipe value from the `AbortLineSignal` then injects it into the first assembled BotAction, before running the assembled BotActions in a pipe again.
 
-> You can use Restart to rerun assembled BotActions with a different initial pipe value by setting it in the `AbortLineSignal` with `assembledLines` equal to one.
+> You can use Restart to rerun assembled BotActions with a different initial pipe value, by aborting with an `assembledLines` count of one, as many times as you need.
 
 ```typescript
 const restart = (...actions: BotAction<any>[]): BotAction<any> =>
@@ -68,7 +68,7 @@ Both the Infinite AbortLineSignal and `assembledLines` count of two or more will
 | 1              | breaks the pipe, then restarts the BotActions with the AbortLineSignal's pipe value injected       |
 | 2+             |  breaks the pipe and breaks the restart |
 
-Here is an example with a made-up BotAction called `goToPipeValue()` that would use the pipe value as the URL, to navigate too before running subsequent chained BotActions:
+Here is an example with a made-up BotAction called `goToPipeValue()` that would use the pipe value as the URL, to navigate too before running the subsequent BotActions:
 ```typescript
 await pipe('http://initial-url.com')(
     restart(
@@ -78,7 +78,7 @@ await pipe('http://initial-url.com')(
     )
 )(page)
 ```
-In this case, all the BotActions after `goToPipeValue` could do a common routine of scraping web-content, followed by a dynamic abort, to adjust the URL, through `restart()`, for which the initial BotAction uses.
+In this case, all the BotActions after `goToPipeValue` could do a common routine of scraping web-content, followed by a dynamic abort, which causes the restart with a different URL, each time.
 
 ## Abort Pipe
 
