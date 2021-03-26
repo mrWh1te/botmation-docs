@@ -1,0 +1,89 @@
+---
+title: 'Random'
+---
+
+These BotActions focus on randomness.
+
+## Random Decimal
+A higher-order BotAction that will [inject](/api/inject) a provided input random decimal generating function. The function returns a random value between 0 and 1.
+
+```typescript
+export const randomDecimal = (injectGenerateRandomDecimalFunction: NumberReturningFunc) =>
+  (...actions: BotAction[]): BotAction =>
+    inject(injectGenerateRandomDecimalFunction)(
+      errors('randomDecimal()()')(...actions)
+    )
+```
+
+This can be used to inject one specific random generating function, of your choice, as a seed for all assembled randomizing BotActions, listed on this page.
+
+> The default random generating function uses [Math.random()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/random)
+
+```typescript
+import { cryptoBasedRandomDecimalGeneratingFunction } from './your-package'
+
+randomDecimal(cryptoBasedRandomDecimalGeneratingFunction)(
+    probably()(
+        likePost
+    )
+)(page)
+```
+
+## Roll Dice
+This BotAction runs assembled BotActions if the rolled dice lands on 1. The greater the number of dice sides, the smaller the odds.
+
+> Limits choice of randomness to less than and equal to 50%
+
+```typescript
+export const rollDice =
+  (numberOfDiceSides = 1, overloadGenerateRandomDecimal?: NumberReturningFunc) =>
+    (...actions: BotAction[]): BotAction =>
+      probably(1 / numberOfDiceSides, overloadGenerateRandomDecimal)(...actions)
+```
+If the number of dice sides is 1 (as in the default value, when no params are provided), the chance of landing on 1 is 100%. This can be used to dynamically assert randomness.
+
+```typescript
+chain(
+    rollDice(3)( // 1 in 3 odds of running
+        likePost
+    )
+)(page)
+```
+
+## Probably
+
+This BotAction runs assembled BotActions if the randomly generated decimal is less than or equal to the `probability` provided.
+
+> The default probability is 60%
+
+```typescript
+export const probably =
+  (probability = .6, overloadGenerateRandomDecimal?: NumberReturningFunc) =>
+    (...actions: BotAction[]): BotAction =>
+      async(page, ...injects) => {
+        if (!overloadGenerateRandomDecimal) {
+          const [,injectedRandomDecimalFunction] = unpipeInjects(injects, 1)
+
+          if (typeof injectedRandomDecimalFunction === 'function') {
+            overloadGenerateRandomDecimal = injectedRandomDecimalFunction // once injects becomes Map based :)
+          } else {
+            overloadGenerateRandomDecimal = generateRandomDecimal
+          }
+        }
+
+        if (overloadGenerateRandomDecimal() <= probability) {
+          return assemblyLine()(...actions)(page, ...injects)
+        }
+      }
+```
+
+This BotAction does not limit the choice in probability.
+
+```typescript
+chain(
+    // 80% chance to run assembled BotActions
+    probably(.8)(
+        likePost
+    )
+)(page)
+```
