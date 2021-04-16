@@ -124,6 +124,43 @@ const evaluate = (functionToEvaluate: EvaluateFn<any>, ...functionParams: any[])
 
 For an example, see the Navigation BotAction [scrollTo()](/api/navigation#scroll-to)
 
+## Text Exists
+
+This Conditional BotAction checks the Puppeteer page for the text provided. If found, it returns `true` otherwise `false`.
+
+> Checks the `document.documentElement` for either `textContent` and `innerText` matching text provided
+
+```typescript
+export const textExists = (text: string): ConditionalBotAction =>
+    evaluate(textExistsInDocument, text)
+```
+
+For example:
+```typescript
+givenThat(textExists('Do you want to save the password?'))(
+    clickNo
+)
+```
+
+## Element Exists
+
+This Conditional BotAction checks the Puppeteer page DOM for a HTML Node element that matches the selector provided. If found, it returns `true` otherwise `false`.
+
+```typescript
+export const elementExists = (elementSelector: string): ConditionalBotAction =>
+    evaluate(elementExistsInDocument, elementSelector)
+```
+
+For example:
+```typescript
+givenThat(elementExists('body .user .notifications'))(
+    $('body .user .notifications'),
+    log('Number of User Notifications')
+)
+```
+
+This will only attempt to scrape and log the User's notifications if that element exists in the DOM.
+
 ## Helpers
 
 In order to "scrape" the page's document's HTML, these Helper functions are evaluated in the page's context. To avoid race conditions with the document's nodes, the `outerHTML` property (string representation of the HTML element and children) is returned to the NodeJS context than parsed with a HTML parser.
@@ -140,4 +177,19 @@ const getElementOuterHTML = (htmlSelector: string): string|undefined =>
 ```typescript
 const getElementsOuterHTML = (htmlSelector: string): string[] =>
   Array.from(document.querySelectorAll(htmlSelector)).map(el => el.outerHTML)
+```
+
+### textExistsInDocument()
+
+```typescript
+const textExistsInDocument = (text: string): boolean =>
+  ( document.documentElement.textContent || document.documentElement.innerText )
+    .indexOf(text) > -1
+```
+
+### elementExistsInDocument()
+
+```typescript
+const elementExistsInDocument = (htmlSelector: string): boolean =>
+  document.querySelector(htmlSelector) !== null
 ```
