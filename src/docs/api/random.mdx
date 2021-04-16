@@ -5,7 +5,7 @@ title: 'Random'
 These BotActions focus on randomness.
 
 ## Random Decimal
-A higher-order BotAction that will [inject](/api/inject) a provided input random decimal generating function. The function returns a random value between 0 and 1.
+This higher-order BotAction [injects](/api/inject) the inputted random decimal generating function that returns a value between 0 and 1.
 
 ```typescript
 export const randomDecimal = (injectGenerateRandomDecimalFunction: NumberReturningFunc) =>
@@ -15,9 +15,9 @@ export const randomDecimal = (injectGenerateRandomDecimalFunction: NumberReturni
     )
 ```
 
-This can be used to inject one specific random generating function, of your choice, as a seed for all assembled randomizing BotActions, listed on this page.
+This function overrides the default random generating function for all Random BotActions.
 
-> The default random generating function uses [Math.random()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/random)
+> The default random generating function is [Math.random()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/random)
 
 ```typescript
 import { cryptoBasedRandomDecimalGeneratingFunction } from './your-package'
