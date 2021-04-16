@@ -104,6 +104,23 @@ const getIndexedDBValue =
 
 For an usage example, see the [Instagram isGuest](/sites/instagram#isguest-conditionalbotaction) BotAction.
 
+## Delete Indexed DB
+
+This BotAction attempts to delete an IndexedDB database, provided the database name. It's possible for this to fail, you can read more about the underlying logic [here](https://developer.mozilla.org/en-US/docs/Web/API/IDBFactory/deleteDatabase).
+
+```typescript
+export const deleteIndexedDB = (databaseName?: string): BotIndexedDBAction<void> => async(page, ...injects) => {
+  const [, , injectDatabaseName] = unpipeInjects(injects, 2)
+
+  await page.evaluate(
+    deleteIndexedDBDatabase,
+    databaseName ?? injectDatabaseName
+  )
+}
+```
+
+This BotAction is compatible with the [indexedDBStore()()](#indexeddbstore) injector for providing the name of the database for deletion.
+
 ## Helpers
 
 In order to interact with IndexedDB in the Puppeteer Page, separate functions need to be "evaluated" in the Page. Therefore, the following Helper functions are setup as if running inside a Browser Page, instead of NodeJS.
