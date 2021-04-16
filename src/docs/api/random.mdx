@@ -5,7 +5,7 @@ title: 'Random'
 These BotActions focus on randomness.
 
 ## Random Decimal
-This higher-order BotAction [injects](/api/inject) the inputted random decimal generating function that returns a value between 0 and 1.
+This higher-order BotAction [injects](/api/inject) the inputted random decimal function that returns a value between 0 and 1.
 
 ```typescript
 export const randomDecimal = (injectGenerateRandomDecimalFunction: NumberReturningFunc) =>
@@ -19,10 +19,12 @@ This function overrides the default random generating function for all Random Bo
 
 > The default random generating function is [Math.random()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/random)
 
-```typescript
-import { cryptoBasedRandomDecimalGeneratingFunction } from './your-package'
+In this example, `probably()()` will use `cryptoBasedRandomDecimal` function injected by `randomDecimal()()`:
 
-randomDecimal(cryptoBasedRandomDecimalGeneratingFunction)(
+```typescript
+import { cryptoBasedRandomDecimal } from './crypto-based-random-function'
+
+randomDecimal(cryptoBasedRandomDecimal)(
     probably()(
         likePost
     )
@@ -30,7 +32,7 @@ randomDecimal(cryptoBasedRandomDecimalGeneratingFunction)(
 ```
 
 ## Roll Dice
-This BotAction runs assembled BotActions if the rolled dice lands on 1. The greater the number of dice sides, the smaller the odds.
+This BotAction rolls a dice with X number of sides. If the rolled dice lands on 1, it runs the assembled BotActions. By default, the dice has only 1 side, therefore it has a 100% chance of running assembled BotActions, without input.
 
 > Limits choice of randomness to less than and equal to 50%
 
@@ -40,11 +42,11 @@ export const rollDice =
     (...actions: BotAction[]): BotAction =>
       probably(1 / numberOfDiceSides, overloadGenerateRandomDecimal)(...actions)
 ```
-If the number of dice sides is 1 (as in the default value, when no params are provided), the chance of landing on 1 is 100%. This can be used to dynamically assert randomness.
+In this example, we are rolling a 3 sided dice:
 
 ```typescript
 chain(
-    rollDice(3)( // 1 in 3 odds of running
+    rollDice(3)( // 1 in 3 odds of running `likePost`
         likePost
     )
 )(page)
@@ -52,7 +54,7 @@ chain(
 
 ## Probably
 
-This BotAction runs assembled BotActions if the randomly generated decimal is less than or equal to the `probability` provided.
+This BotAction runs assembled BotActions if the randomly generated decimal is less than or equal to the `probability` provided. Unlike, `rollDice()()`, `probably()()` does not limit the choice in probability, above 50%.
 
 > The default probability is 60%
 
@@ -77,7 +79,7 @@ export const probably =
       }
 ```
 
-This BotAction does not limit the choice in probability.
+Probabilities are expressed as a decimal. In this example, there is an 80% chance of running `likePost`:
 
 ```typescript
 chain(
