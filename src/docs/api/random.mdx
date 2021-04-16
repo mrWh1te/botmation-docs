@@ -5,7 +5,9 @@ title: 'Random'
 These BotActions focus on randomness.
 
 ## Random Decimal
-This higher-order BotAction [injects](/api/inject) the inputted random decimal function that returns a value between 0 and 1.
+This higher-order BotAction [injects](/api/inject) the inputted random decimal function, as the first inject, to override the default pseudo random generating decimal function for all assembled BotActions.
+
+> It's possible to override the pseudo random function on each Random BotAction through their own optional higher-order parameter `overloadGenerateRandomDecimal`. Higher-order param will override the injected function, when both are provided.
 
 ```typescript
 export const randomDecimal = (injectGenerateRandomDecimalFunction: NumberReturningFunc) =>
@@ -52,6 +54,8 @@ chain(
 )(page)
 ```
 
+It's possible to override the `generateRandomDecimal()` function with your own via the optional higher-order parameter `overloadGenerateRandomDecimal` or as the first inject, in the case that pseudo randomness doesn't suffice.
+
 ## Probably
 
 This BotAction runs assembled BotActions if the randomly generated decimal is less than or equal to the `probability` provided. Unlike, `rollDice()()`, `probably()()` does not limit the choice in probability, above 50%.
@@ -88,4 +92,17 @@ chain(
         likePost
     )
 )(page)
+```
+
+It's possible to override the `generateRandomDecimal()` function with your own via the optional higher-order parameter `overloadGenerateRandomDecimal` or as the first inject, in the case that pseudo randomness doesn't suffice.
+
+## Helpers
+
+### generateRandomDecimal()
+
+The default random decimal function returns the value generated from pseudo `Math.random()`.
+
+```typescript
+const generateRandomDecimal = (): number =>
+  Math.random()
 ```

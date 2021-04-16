@@ -11,13 +11,29 @@ Does a left-mouse click on a HTML element by the provided HTML selector.
 const click = (selector: string): BotAction => async(page) =>
   await page.click(selector)
 ```
-Example: 
+Example:
 ```typescript
 await chain(
   click('form input[type="submit"]'),
   waitForNavigation
 )(page)
 ```
+
+## Click Text
+Does a left-mouse click on the first element found that equals the text provided.
+
+```typescript
+export const clickText = (text: string): BotAction =>
+  evaluate(clickElementWithText, text)
+```
+
+Example:
+```typescript
+chain(
+    clickText('Save Info')
+)(page)
+```
+This will click the DOM element with the text "Save Info".
 
 ## Type
 Type with an imaginary "keyboard" the copy provided.
@@ -27,10 +43,25 @@ const type = (copy: string): BotAction => async(page) =>
   await page.keyboard.type(copy)
 ```
 
-Example: 
+Example:
 ```typescript
 await chain(
   click('form input[name="username"]'),
   type('my-username')
 )(page)
+```
+
+## Helpers
+
+### clickElementWithText
+
+```typescript
+const clickElementWithText = (text: string) => {
+  const xpath = `//*[text()='${text}']`
+  const matchingElement = document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+
+  if (matchingElement instanceof HTMLElement) {
+    matchingElement.click()
+  }
+}
 ```

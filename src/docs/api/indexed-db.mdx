@@ -199,3 +199,29 @@ function getIndexedDBStoreValue(databaseName: string, databaseVersion: number, s
   })
 }
 ```
+
+### deleteIndexedDBDatabase()
+
+```typescript
+function deleteIndexedDBDatabase(databaseName: string) {
+  return new Promise<void>((resolve, reject) => {
+    const DBDeleteRequest = indexedDB.deleteDatabase(databaseName);
+
+    DBDeleteRequest.onerror = function(event) {
+      logError('delete IndexedDB Database name = ' + databaseName)
+      event.stopPropagation()
+      return reject(this.error)
+    };
+
+    DBDeleteRequest.onsuccess = function() {
+      return resolve()
+    };
+
+    DBDeleteRequest.onblocked = function(event) {
+      event.stopPropagation()
+      logMessage('blocked attempt to delete IndexedDB Database name = ' + databaseName)
+      return resolve()
+    };
+  })
+}
+```
