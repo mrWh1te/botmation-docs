@@ -53,7 +53,7 @@ This BotAction returns all cookies for inputted url's.
 > By default, with no input, it returns *all* cookies for all url's in the Puppeteer page.
 
 ```typescript
-export const getCookies = (...urls: string[]): BotAction<Protocol.Network.Cookie[]> => async(page) =>
+const getCookies = (...urls: string[]): BotAction<Protocol.Network.Cookie[]> => async(page) =>
   page.cookies(...urls)
 ```
 
@@ -62,7 +62,7 @@ export const getCookies = (...urls: string[]): BotAction<Protocol.Network.Cookie
 This BotAction deletes all cookies provided.
 
 ```typescript
-export const deleteCookies = (...cookies: Protocol.Network.Cookie[]): BotAction => async(page, ...injects) => {
+const deleteCookies = (...cookies: Protocol.Network.Cookie[]): BotAction => async(page, ...injects) => {
   if (cookies.length === 0) {
     if (injectsHavePipe(injects)) {
       const pipeValue = getInjectsPipeValue(injects)

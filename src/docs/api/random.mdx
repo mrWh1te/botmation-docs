@@ -10,7 +10,7 @@ This higher-order BotAction [injects](/api/inject) the inputted random decimal f
 > It's possible to override the pseudo random function on each Random BotAction through their own optional higher-order parameter `overloadGenerateRandomDecimal`. Higher-order param will override the injected function, when both are provided.
 
 ```typescript
-export const randomDecimal = (injectGenerateRandomDecimalFunction: NumberReturningFunc) =>
+const randomDecimal = (injectGenerateRandomDecimalFunction: NumberReturningFunc) =>
   (...actions: BotAction[]): BotAction =>
     inject(injectGenerateRandomDecimalFunction)(
       errors('randomDecimal()()')(...actions)
@@ -39,7 +39,7 @@ This BotAction rolls a dice with X number of sides. If the rolled dice lands on 
 > Limits choice of randomness to less than and equal to 50%
 
 ```typescript
-export const rollDice =
+const rollDice =
   (numberOfDiceSides = 1, overloadGenerateRandomDecimal?: NumberReturningFunc) =>
     (...actions: BotAction[]): BotAction =>
       probably(1 / numberOfDiceSides, overloadGenerateRandomDecimal)(...actions)
@@ -63,7 +63,7 @@ This BotAction runs assembled BotActions if the randomly generated decimal is le
 > The default probability is 60%
 
 ```typescript
-export const probably =
+const probably =
   (probability = .6, overloadGenerateRandomDecimal?: NumberReturningFunc) =>
     (...actions: BotAction[]): BotAction =>
       async(page, ...injects) => {

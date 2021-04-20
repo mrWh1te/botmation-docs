@@ -109,7 +109,7 @@ For an usage example, see the [Instagram isGuest](/sites/instagram#isguest-condi
 This BotAction attempts to delete an IndexedDB database, provided the database name. It's possible for this to fail, you can read more about the underlying logic [here](https://developer.mozilla.org/en-US/docs/Web/API/IDBFactory/deleteDatabase).
 
 ```typescript
-export const deleteIndexedDB = (databaseName?: string): BotIndexedDBAction<void> => async(page, ...injects) => {
+const deleteIndexedDB = (databaseName?: string): BotIndexedDBAction<void> => async(page, ...injects) => {
   const [, , injectDatabaseName] = unpipeInjects(injects, 2)
 
   await page.evaluate(

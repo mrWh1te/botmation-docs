@@ -131,7 +131,7 @@ This Conditional BotAction checks the Puppeteer page for the text provided. If f
 > Checks the `document.documentElement` for either `textContent` and `innerText` matching text provided
 
 ```typescript
-export const textExists = (text: string): ConditionalBotAction =>
+const textExists = (text: string): ConditionalBotAction =>
     evaluate(textExistsInDocument, text)
 ```
 
@@ -147,7 +147,7 @@ givenThat(textExists('Do you want to save the password?'))(
 This Conditional BotAction checks the Puppeteer page DOM for a HTML Node element that matches the selector provided. If found, it returns `true` otherwise `false`.
 
 ```typescript
-export const elementExists = (elementSelector: string): ConditionalBotAction =>
+const elementExists = (elementSelector: string): ConditionalBotAction =>
     evaluate(elementExistsInDocument, elementSelector)
 ```
 

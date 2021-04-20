@@ -23,7 +23,7 @@ await chain(
 Does a left-mouse click on the first element found that equals the text provided.
 
 ```typescript
-export const clickText = (text: string): BotAction =>
+const clickText = (text: string): BotAction =>
   evaluate(clickElementWithText, text)
 ```
 
