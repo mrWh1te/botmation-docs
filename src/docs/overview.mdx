@@ -94,7 +94,7 @@ There are no higher-order functions wrapping this BotAction. It is a single asyn
 
 > You can call any Puppeteer page function inside a BotAction. But, you're not limited too just Puppeteer, as you can [inject](/topic/injects) other libraries into your bots. That said, I recommend holding off on learning that until you need it.
 
-## Making Dynamic BotAction's
+## Making Dynamic BotActions
 
 BotActions can be made customizable by wrapping them with a higher-order function. Let's take a closer look at [goTo()](/api/navigation/#go-to) that navigates the page to the URL param provided:
 
@@ -113,7 +113,7 @@ const goTo = (url: string, goToOptions?: Partial<WaitForOptions>): BotAction =>
 
 The higher order parameters can be whatever you need them to be. They're typed as a spread array of `any`, so add more if you need more. Also, you are not limited to one higher-order sync function. Stack them up, as high as need be! The possibilities are endless. If you're curious, check out the [Loops BotActions](/api/loops) for practical BotActions that wrap themselves with two higher order functions.
 
-## Composing BotAction's
+## Composing BotActions
 
 BotActions with higher-order functions can be used to create static, more readable BotActions:
 ```typescript
