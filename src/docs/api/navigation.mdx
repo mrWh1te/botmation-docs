@@ -7,16 +7,13 @@ These BotAction's provide simple ways to change the Page's URL.
 ## Go To
 Navigates the page to the url provided, unless the active url is the url provided, then it emits a warning in the console.
 ```typescript
-const goTo = (url: string, goToOptions?: Partial<DirectNavigationOptions>): BotAction =>
+const goTo = (url: string, goToOptions?: Partial<WaitForOptions>): BotAction =>
   async(page) => {
-    goToOptions = enrichGoToPageOptions(goToOptions)
-
-    // same url check
     if (page.url() === url) {
       return
     }
 
-    await page.goto(url, goToOptions)
+    await page.goto(url, enrichGoToPageOptions(goToOptions))
   }
 ```
 `goToOptions` are provided aa they are enriched with safe defaults. See Puppeteer's [Documentation on page.goto()](https://devdocs.io/puppeteer/#pagegotourl-options) for details.

@@ -2,11 +2,11 @@
 title: 'Cookies'
 ---
 
-These higher order functions provide a simple way to load and save cookies from and to a Puppeteer page to a local JSON file.
+These BotActions provide the means to manage cookies from a Puppeteer page.
 
-You can configure where the cookie JSON files are saved & loaded by using the `BotFileOptions` param as either an inject or as a higher-order param. Higher-order `BotFileOptions` values override injected `BotFileOptions` values. 
+`BotFileOptions` is used to specify the directory for saving and loading cookies, relative to the bot's executing directory.
 
-These functions are compatible with the higher-order [files()() BotAction](/api/files#files) to inject a customized `BotFileOptions` into each assembled BotAction.
+These functions are compatible with the higher-order [files()() BotAction](/api/files#files) to inject a customized `BotFileOptions` into each assembled BotAction. That allows you to standardize the directory for all assembled BotActions that are reading and writing files.
 
 ## Save Cookies
 Saves the cookies from the Puppeteer page in a JSON file with the name provided.
@@ -14,15 +14,14 @@ Saves the cookies from the Puppeteer page in a JSON file with the name provided.
 ```typescript
 const saveCookies = (fileName: string, botFileOptions?: Partial<BotFileOptions>): BotFilesAction => async(page, options: Partial<BotFileOptions>) => {
   const hydratedOptions = enrichBotFileOptionsWithDefaults({...options, ...botFileOptions})
-  
+
   const cookies = await page.cookies()
   await fs.writeFile(getFileUrl(hydratedOptions.cookies_directory, hydratedOptions, fileName) + '.json', JSON.stringify(cookies, null, 2))
 }
 ```
 `BotFileOptions` is optional, in all cases (higher-order param, as an inject). If nothing is provided, the default is the local directory.
 
-TODO: link vv
-See [enrichBotFileOptionsWithDefaults]() for details on setting the directory for files read and created.
+See [enrichBotFileOptionsWithDefaults](/api/files#enrichbotfileoptionswithdefaults) for details on setting the directory for files read and created.
 
 For an usage example, see the [Instagram example](https://github.com/mrWh1te/Botmation/blob/master/src/examples/instagram.ts), where saving and loading cookies enables the Bot to skip the login flow on subsequent runs, as long as the cookies saved, have not yet expired.
 
@@ -43,7 +42,54 @@ const loadCookies = (fileName: string, botFileOptions?: Partial<BotFileOptions>)
 ```
 `BotFileOptions` is optional, in all cases (higher-order param, as an inject). If nothing is provided, the default is the local directory.
 
-TODO: link vv
-See [enrichBotFileOptionsWithDefaults]() for details on setting the directory for files read and created.
+See [enrichBotFileOptionsWithDefaults](/api/files#enrichbotfileoptionswithdefaults) for details on setting the directory for files read and created.
 
 For an usage example, see the [Instagram example](https://github.com/mrWh1te/Botmation/blob/master/src/examples/instagram.ts), where saving and loading cookies enables the Bot to skip the login flow on subsequent runs, as long as the cookies saved, have not yet expired.
+
+## Get Cookies
+
+This BotAction returns all cookies for the inputted URL's. When no URL's are specified, it will return the cookies for the current URL only.
+
+```typescript
+const getCookies = (...urls: string[]): BotAction<Protocol.Network.Cookie[]> => async(page) =>
+  page.cookies(...urls)
+```
+
+## Delete Cookies
+
+This BotAction deletes all cookies provided.
+
+```typescript
+const deleteCookies = (...cookies: Protocol.Network.Cookie[]): BotAction => async(page, ...injects) => {
+  if (cookies.length === 0) {
+    if (injectsHavePipe(injects)) {
+      const pipeValue = getInjectsPipeValue(injects)
+      if (Array.isArray(pipeValue) && pipeValue.length > 0) {
+        cookies = pipeValue
+      }
+    }
+  }
+
+  if (cookies.length > 0) {
+    return page.deleteCookie(...cookies)
+  }
+}
+```
+
+It's intended to be paired with [getCookies](#getcookies) to designate which cookies are to be deleted. For example:
+
+```typescript
+pipe()(
+  getCookies(),
+  deleteCookies()
+)(page)
+```
+This will grab all cookies, for the current URL, then pipe those cookies into `deleteCookies` for deletion. Otherwise, specify the cookies via the higher-order parameter:
+
+```typescript
+chain(
+    deleteCookies(cookie1, cookie2, cookie3)
+)(page)
+```
+
+> If both higher-order params and pipe values are used, this will, like every other BotAction, use the higher-order param instead

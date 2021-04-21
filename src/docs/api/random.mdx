@@ -1,0 +1,105 @@
+---
+title: 'Random'
+---
+
+These BotActions focus on randomness.
+
+## Random Decimal
+This higher-order BotAction [injects](/api/inject) the inputted random decimal function, as the first inject, to override the default random generating decimal function for all assembled BotActions.
+
+> You can override the default random function for each Random BotAction through their own optional higher-order parameter `overloadGenerateRandomDecimal`. The higher-order param will override the injected function, when both are provided.
+
+```typescript
+const randomDecimal = (injectGenerateRandomDecimalFunction: NumberReturningFunc) =>
+  (...actions: BotAction[]): BotAction =>
+    inject(injectGenerateRandomDecimalFunction)(
+      errors('randomDecimal()()')(...actions)
+    )
+```
+
+> The default random generating function is the pseudo [Math.random()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/random) function
+
+In this example, `probably()()` will use `cryptoBasedRandomDecimal` function injected by `randomDecimal()()`:
+
+```typescript
+import { cryptoBasedRandomDecimal } from './crypto-based-random-function'
+
+randomDecimal(cryptoBasedRandomDecimal)(
+    probably()(
+        likePost
+    )
+)(page)
+```
+
+## Roll Dice
+This BotAction rolls a dice with X number of sides. If the rolled dice lands on 1, it runs the assembled BotActions. By default, the dice has only 1 side, therefore it has a 100% chance of running assembled BotActions, without input.
+
+> Limits choice of randomness to less than or equal to 50%
+
+```typescript
+const rollDice =
+  (numberOfDiceSides = 1, overloadGenerateRandomDecimal?: NumberReturningFunc) =>
+    (...actions: BotAction[]): BotAction =>
+      probably(1 / numberOfDiceSides, overloadGenerateRandomDecimal)(...actions)
+```
+In this example, we are rolling a 3 sided dice:
+
+```typescript
+chain(
+    rollDice(3)( // 1 in 3 odds
+        likePost
+    )
+)(page)
+```
+
+It's possible to override the `generateRandomDecimal()` function with your own via the optional higher-order parameter `overloadGenerateRandomDecimal` or as the first inject.
+
+## Probably
+
+This BotAction runs assembled BotActions if the randomly generated decimal is less than or equal to the `probability` provided. Unlike, `rollDice()()`, `probably()()` supports probabilities between 0 and 100%.
+
+> The default probability is 60%
+
+```typescript
+const probably =
+  (probability = .6, overloadGenerateRandomDecimal?: NumberReturningFunc) =>
+    (...actions: BotAction[]): BotAction =>
+      async(page, ...injects) => {
+        if (!overloadGenerateRandomDecimal) {
+          const [,injectedRandomDecimalFunction] = unpipeInjects(injects, 1)
+
+          if (typeof injectedRandomDecimalFunction === 'function') {
+            overloadGenerateRandomDecimal = injectedRandomDecimalFunction // once injects becomes Map based :)
+          } else {
+            overloadGenerateRandomDecimal = generateRandomDecimal
+          }
+        }
+
+        if (overloadGenerateRandomDecimal() <= probability) {
+          return assemblyLine()(...actions)(page, ...injects)
+        }
+      }
+```
+
+Probabilities are expressed as a decimal. In this example, there is an 80% chance of running `likePost`:
+
+```typescript
+chain(
+    probably(.8)( // 80% chance
+        likePost
+    )
+)(page)
+```
+
+It's possible to override the `generateRandomDecimal()` function with your own via the optional higher-order parameter `overloadGenerateRandomDecimal` or as the first inject.
+
+## Helpers
+
+### generateRandomDecimal()
+
+The default random decimal function returns the value generated from pseudo `Math.random()`.
+
+```typescript
+const generateRandomDecimal = (): number =>
+  Math.random()
+```

@@ -2,13 +2,11 @@
 title: Instagram
 ---
 
-These functions focus on Instagram's web app.
-
 ## Overview
 
-The current set of BotActions facilitate the login flow. Here is a working [example](https://github.com/mrWh1te/Botmation/blob/master/apps/bot-instagram).
+These functions focus on Instagram's web app, at desktop dimensions. Here is a working [example](https://github.com/mrWh1te/Botmation/blob/master/apps/bot-instagram).
 
-> These are all included in the [@botmation/instagram](https://www.npmjs.com/package/@botmation/instagram) package.
+> These BotActions are designed in Instagram's web app running at desktop widths. The accessibility of some features differ in mobile then in desktop.
 
 ## Install
 
@@ -17,7 +15,39 @@ In addition to installing [@botmation/core](/install), install [@botmation/insta
 npm i -s @botmation/instagram
 ```
 
-Now you can import any of these BotActions or selectors listed on this page, along with any other BotActions listed.
+All BotActions, helpers, and selectors listed on this page, are exported by that package.
+
+## Navigation
+
+These BotActions focus on changing the URL of the Puppeteer page to specific locations within Instagram's web app.
+
+### goToHome
+
+```typescript
+const goToHome: BotAction =
+    goTo('https://www.instagram.com/')
+```
+
+### goToMessaging
+
+```typescript
+const goToMessaging: BotAction =
+    goTo('https://www.instagram.com/direct/inbox/')
+```
+
+### goToExplore
+
+```typescript
+const goToExplore: BotAction =
+    goTo('https://www.instagram.com/explore/')
+```
+
+### goToSettings
+
+```typescript
+const goToSettings: BotAction =
+    goTo('https://www.instagram.com/accounts/edit/')
+```
 
 ## Auth
 
@@ -63,6 +93,66 @@ const isLoggedIn: ConditionalBotAction =
   )
 ```
 This BotAction is a composition that uses [indexedDBStore()()](/api/indexed-db#indexeddbstore) to assemble BotAction's with the IndexedDB Database name and Store name [injected](/topic/injects). This simply grabs the value for the `users.viewerId` key then [maps](/api/pipe#map) it to the corresponding boolean value.
+
+### logout
+
+This function deletes cookies and local storage that include the user's session information, to effect a logout, upon page reload.
+
+```typescript
+const logout: BotAction = pipe()(
+  getCookies(),
+  deleteCookies(),
+  clearAllLocalStorage,
+  reload()
+)
+```
+
+### isSaveYourLoginInfoActive
+
+This BotAction tests the page for the "Save Your Login Info" flow that sometimes appears after initial login.
+
+```typescript
+const isSaveYourLoginInfoActive: ConditionalBotAction =
+    textExists('Save Your Login Info?')
+```
+
+### clickSaveYourLoginInfoYesButton
+
+This will close out the "Save Your Login Info" flow affirmatively.
+
+```typescript
+const clickSaveYourLoginInfoYesButton: BotAction =
+    clickText('Save Info')
+```
+
+### clickSaveYourLoginInfoNoButton
+
+This will close out the "Save Your Login Info" flow negatively.
+
+```typescript
+const clickSaveYourLoginInfoNoButton: BotAction =
+    clickText('Not Now')
+```
+
+## Stories
+
+These BotActions interact with the popular Instagram feature: Stories.
+
+### viewStories
+
+This BotAction, when ran on the Home page, will view all available Stories from first to last, until complete.
+
+```typescript
+const viewStories: BotAction =
+  givenThat(elementExists(FIRST_STORY + ' button'))(
+    click(FIRST_STORY + ' button'),
+    wait(1000),
+    forAsLong(elementExists(STORIES_VIEWER_NEXT_STORY_ICON))(
+      click(STORIES_VIEWER_NEXT_STORY_ICON),
+      wait(500)
+    )
+  )
+```
 
 ## Modals
 
