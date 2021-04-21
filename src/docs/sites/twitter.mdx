@@ -145,6 +145,8 @@ These BotActions interact with the popular Twitter feature: Feed.
 
 This BotAction will tweet the message given.
 
+> Use [Template literals](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals) (Template strings) for multi-line tweets
+
 ```typescript
 const tweet = (message: string): BotAction => chain(
   goToTweet,
