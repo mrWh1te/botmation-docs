@@ -2,7 +2,7 @@
 title: 'Overview'
 ---
 
-Botmation is a simple, declarative framework to build bots with *composable* functions called **BotActions**.
+Botmation is a simple, declarative framework to build bots with *composable* functions called BotActions.
 
 <blockquote>
     <p style="text-align:center">
@@ -16,7 +16,7 @@ Botmation is a simple, declarative framework to build bots with *composable* fun
 
 BotActions are self-reliant, single-purposed, async functions that perform tasks from simple, such as "click this button", to broad complex flows, such as "scrape this feed and like all of my friends' posts". They are ran individually or assembled together in a new BotAction.
 
-> BotActions are like bricks. Bricks build walls,, walls build buildings, buildings build cities and so forth. Except, at each level of composition (brick, wall, building, etc), they are *all* the same *type* of function, a BotAction. Regardless of their compositional complexity, they are all single async functions called BotActions.
+> BotActions are like bricks. Bricks build walls, walls build buildings, buildings build cities and so forth. Except, at each level of composition (brick, wall, building, etc), they are *all* the same *type* of function, a BotAction. Regardless of their compositional complexity, they are all single async functions called BotActions.
 
 Imagine a door 🚪 into a coffee shop ☕ where customers 🧍,🧍,🧍 enter. As they step inside, a customer line forms 🧍🧍🧍. The first customer served, is the first customer in line, then the following, and so forth.
 
@@ -26,7 +26,7 @@ A single BotAction can be an assembled line of other BotActions. Therefore, a si
 
 The possibilities are endless!
 
-> If you're familiar with de-coupling functionality, this compositional pattern creates structure to keep all units of functionality separated, pluggable and 100% reusable.
+> If you're familiar with de-coupling functionality, this compositional pattern creates structure for your code to keep all units of functionality separate, pluggable and 100% reusable.
 
 ## Running BotActions
 
@@ -57,7 +57,7 @@ const bot = chain(
 )
 ```
 
-This BotAction [chains](/api/assembly-lines#chain) BotActions together, in a single line, as a new reusable BotAction.
+This BotAction [chains](/api/assembly-lines#chain) BotActions together in a new reusable BotAction.
 
 > This technique is inspired by [Currying](https://en.wikipedia.org/wiki/Currying) from Functional Programming.
 
@@ -111,7 +111,7 @@ const goTo = (url: string, goToOptions?: Partial<WaitForOptions>): BotAction =>
   }
 ```
 
-The higher-order sync function returns the customized BotAction function during runtime. Here [goTo()](/api/navigation/#go-to) uses a higher-order sync function to dynamically set the `url` and `goToOptions?` for the BotAction.
+The higher-order synchronous function returns the customized BotAction function during runtime. Here [goTo()](/api/navigation/#go-to) uses a higher-order function to dynamically set the `url` and `goToOptions?` for the BotAction.
 
 Higher order function parameters can be whatever you need them to be. They're typed as a spread array of `any`, so add more if you need more. Also, you are not limited to one higher-order sync function. Stack them up, as high as need be! The possibilities are endless.
 
