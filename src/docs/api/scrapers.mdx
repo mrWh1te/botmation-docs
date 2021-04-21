@@ -2,13 +2,13 @@
 title: 'Scrapers'
 ---
 
-These BotAction's scrape the Page's `document` by doing something within the Page's context.
+These BotActions interact with the page through evaluated serialized code. They can scrape or manually run code within the page's context.
 
-Scrapers use a HTML parser to convert the `outerHTML` property of an HTML Element(s) into an interactive object.
+The scraper BotActions use a HTML parser to convert the `outerHTML` property of an HTML Element(s) into an interactive object.
 
 The default HTML parser is [cheerio's](https://github.com/cheeriojs/cheerio) [load() function](https://github.com/cheeriojs/cheerio#loading).
 
-You can override the HTML parser by providing a function to operate on the `outerHTML` via the optional higher-order param `higherOrderHTMLParser`, or the optional first [inject](/topic/injects). If both are provided, the higher-order param will override the injected one, so if you want to use multiple, feel free too.
+> Override the default HTML parser by providing your own function to parse the `outerHTML` via higher-order param `higherOrderHTMLParser` or the first [inject](/topic/injects). When both are present, the higher-order function will be used instead of the injected one.
 
 ## HTML Parser
 This higher-order BotAction will [inject](/topic/injects) the provided HTML parser function of the first `htmlParser()` call, into the assembled BotAction's of the second call `htmlParser()()`.
@@ -27,7 +27,16 @@ const htmlParser = (htmlParser: Function) =>
     )
 ```
 
-For an usage example, see the [LinkedIn example](https://github.com/mrWh1te/Botmation/blob/master/src/examples/linkedin.ts).
+Example:
+```typescript
+await pipe()(
+    htmlParser(customHTMLParser)(
+        $('html body .user')
+    )
+)(page)
+```
+
+The assembled `$()` scraper will use the `customHTMLParser` function instead of the default.
 
 ## Scrape Single
 This ScraperBotAction will parse the HTML of the first Element in the document that matches the provided selector.
@@ -115,12 +124,16 @@ await pipe()(
 
 ## Evaluate
 
-This BotAction isn't a Scraper but an important building block for scraping. It's a simple BotAction that wraps Puppeteer Page's [evaluate()](https://devdocs.io/puppeteer/index#pageevaluatepagefunction-args) method to execute JavaScript in the Page. It takes a function, and parameters and returns what the function returns.
+This BotAction isn't a ScraperBotAction, but can be used to scrape and more. It's a simple BotAction that wraps Puppeteer Page's [evaluate()](https://devdocs.io/puppeteer/index#pageevaluatepagefunction-args) method to execute serialized JavaScript in the Page.
 
 ```typescript
 const evaluate = (functionToEvaluate: EvaluateFn<any>, ...functionParams: any[]): BotAction<any> =>
   async(page) => await page.evaluate(functionToEvaluate, ...functionParams)
 ```
+
+The `functionToEvaluate` is serialized by Puppeteer then injected into the context of the Page to be evaluated there.
+
+> Do not reference 3rd party libraries inside evaluated functions since they won't be available in the Page's context.
 
 For an example, see the Navigation BotAction [scrollTo()](/api/navigation#scroll-to)
 
@@ -159,7 +172,7 @@ givenThat(elementExists('body .user .notifications'))(
 )
 ```
 
-This will only attempt to scrape and log the User's notifications if that element exists in the DOM.
+This will only attempt to scrape and log the User's notifications, if that element is found within the DOM.
 
 ## Helpers
 

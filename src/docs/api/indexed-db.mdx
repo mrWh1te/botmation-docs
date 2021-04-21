@@ -106,7 +106,7 @@ For an usage example, see the [Instagram isGuest](/sites/instagram#isguest-condi
 
 ## Delete Indexed DB
 
-This BotAction attempts to delete an IndexedDB database, provided the database name. It's possible for this to fail, you can read more about the underlying logic [here](https://developer.mozilla.org/en-US/docs/Web/API/IDBFactory/deleteDatabase).
+This BotAction attempts to delete an IndexedDB database, provided the database name. It's possible for this to fail, you can read more about the used underlying logic [here](https://developer.mozilla.org/en-US/docs/Web/API/IDBFactory/deleteDatabase).
 
 ```typescript
 const deleteIndexedDB = (databaseName?: string): BotIndexedDBAction<void> => async(page, ...injects) => {
@@ -119,13 +119,13 @@ const deleteIndexedDB = (databaseName?: string): BotIndexedDBAction<void> => asy
 }
 ```
 
-This BotAction is compatible with the [indexedDBStore()()](#indexeddbstore) injector for providing the name of the database for deletion.
+This BotAction is compatible with the [indexedDBStore()()](#indexeddbstore) for injecting the name of the database for deletion.
 
 ## Helpers
 
-In order to interact with IndexedDB in the Puppeteer Page, separate functions need to be "evaluated" in the Page. Therefore, the following Helper functions are setup as if running inside a Browser Page, instead of NodeJS.
+In order to interact with IndexedDB in the Puppeteer Page, separate functions are serialized and evaluated within the browser page. To accomplish this, the following Helper functions were created to be evaluated in the web pages.
 
-> If you `console.log()` in an evaluated Page function, don't look for it in NodeJS's console, but the Puppeteer Page's console.
+> If you `console.log()` in an evaluated Page function, the result will appear inside the browser's Console window and *not* the NodeJS terminal.
 
 ### setIndexedDBStoreValue()
 

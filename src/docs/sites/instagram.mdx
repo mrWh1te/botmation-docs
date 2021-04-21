@@ -2,11 +2,10 @@
 title: Instagram
 ---
 
-These functions focus on Instagram's web app.
 
 ## Overview
 
-The current set of BotActions facilitate the login flow. Here is a working [example](https://github.com/mrWh1te/Botmation/blob/master/apps/bot-instagram).
+These functions focus on Instagram's web app. Here is a working [example](https://github.com/mrWh1te/Botmation/blob/master/apps/bot-instagram).
 
 > These are all included in the [@botmation/instagram](https://www.npmjs.com/package/@botmation/instagram) package.
 
@@ -17,7 +16,7 @@ In addition to installing [@botmation/core](/install), install [@botmation/insta
 npm i -s @botmation/instagram
 ```
 
-Now you can import any of these BotActions or selectors listed on this page, along with any other BotActions listed.
+All BotActions, helpers, and selectors listed on this page, are exported by that package.
 
 ## Navigation
 
@@ -98,7 +97,7 @@ This BotAction is a composition that uses [indexedDBStore()()](/api/indexed-db#i
 
 ### logout
 
-This function deletes user data, including session information, to trigger a logout at the end, when it reloads the page.
+This function deletes cookies and local storage that include the user's session information, to effect a logout, upon page reload.
 
 ```typescript
 const logout: BotAction = pipe()(

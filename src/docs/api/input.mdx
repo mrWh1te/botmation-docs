@@ -5,7 +5,7 @@ title: 'Input'
 These BotAction's provide ways to input into a page as User.
 
 ## Click
-Does a left-mouse click on a HTML element by the provided HTML selector.
+Does a left-mouse click on the first HTML element that matches the provided HTML selector.
 
 ```typescript
 const click = (selector: string): BotAction => async(page) =>
@@ -20,7 +20,7 @@ await chain(
 ```
 
 ## Click Text
-Does a left-mouse click on the first element found that equals the text provided.
+Does a left-mouse click on the first element found whose text content equals the text provided.
 
 ```typescript
 const clickText = (text: string): BotAction =>
@@ -46,8 +46,8 @@ const type = (copy: string): BotAction => async(page) =>
 Example:
 ```typescript
 await chain(
-  click('form input[name="username"]'),
-  type('my-username')
+  click('form input[name="email"]'),
+  type('example@email.com')
 )(page)
 ```
 

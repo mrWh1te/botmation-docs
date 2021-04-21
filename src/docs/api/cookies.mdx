@@ -48,9 +48,7 @@ For an usage example, see the [Instagram example](https://github.com/mrWh1te/Bot
 
 ## Get Cookies
 
-This BotAction returns all cookies for inputted url's.
-
-> By default, with no input, it returns *all* cookies for all url's in the Puppeteer page.
+This BotAction returns all cookies for the inputted URL's. When no URL's are specified, it will return the cookies for the current URL only.
 
 ```typescript
 const getCookies = (...urls: string[]): BotAction<Protocol.Network.Cookie[]> => async(page) =>
@@ -78,7 +76,7 @@ const deleteCookies = (...cookies: Protocol.Network.Cookie[]): BotAction => asyn
 }
 ```
 
-It can be be paired with [getCookies](#getcookies) to specify which cookies are to be deleted via [piping](/topic/piping). For example:
+It's intended to be paired with [getCookies](#getcookies) to designate which cookies are to be deleted. For example:
 
 ```typescript
 pipe()(
@@ -86,7 +84,7 @@ pipe()(
   deleteCookies()
 )(page)
 ```
-This will grab all cookies, for all url's, then pipe those cookies into `deleteCookies` for deletion. Otherwise, specify the cookies via the higher-order parameter:
+This will grab all cookies, for the current URL, then pipe those cookies into `deleteCookies` for deletion. Otherwise, specify the cookies via the higher-order parameter:
 
 ```typescript
 chain(
@@ -94,4 +92,4 @@ chain(
 )(page)
 ```
 
-> Higher-order parameters override their corresponding pipe value
+> If both higher-order params and pipe values are used, this will, like every other BotAction, use the higher-order param instead
