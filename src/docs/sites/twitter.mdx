@@ -14,7 +14,7 @@ In addition to installing [@botmation/core](/install), install [@botmation/twitt
 npm i -s @botmation/twitter
 ```
 
-All BotActions, helpers, and selectors listed on this page, are exported by that package.
+All BotActions, URLs and selectors listed on this page, are exported by that package.
 
 ## Navigation
 
@@ -24,47 +24,81 @@ These BotActions focus on changing the URL of the Puppeteer page to specific loc
 
 ```typescript
 const goToHome: BotAction =
-    goTo('https://www.instagram.com/')
+    goTo(TWITTER_URL_HOME, {waitUntil: 'load'})
 ```
 
-### goToMessaging
+### goToTweet
 
 ```typescript
-const goToMessaging: BotAction =
-    goTo('https://www.instagram.com/direct/inbox/')
+const goToTweet =
+    goTo(TWITTER_URL_TWEET, {waitUntil: 'load'})
 ```
 
 ### goToExplore
 
 ```typescript
-const goToExplore: BotAction =
-    goTo('https://www.instagram.com/explore/')
+const goToExplore =
+    goTo(TWITTER_URL_EXPLORE, {waitUntil: 'load'})
+```
+
+### goToNotifications
+
+```typescript
+const goToNotifications =
+    goTo(TWITTER_URL_NOTIFICATIONS, {waitUntil: 'load'})
+```
+
+### goToMessages
+
+```typescript
+const goToMessages =
+    goTo(TWITTER_URL_MESSAGES, {waitUntil: 'load'})
+```
+
+### goToBookmarks
+
+```typescript
+const goToBookmarks =
+    goTo(TWITTER_URL_BOOKMARKS, {waitUntil: 'load'})
 ```
 
 ### goToSettings
 
 ```typescript
-const goToSettings: BotAction =
-    goTo('https://www.instagram.com/accounts/edit/')
+const goToSettings =
+    goTo(TWITTER_URL_SETTINGS, {waitUntil: 'load'})
+```
+
+### goToLogin
+
+```typescript
+const goToLogin =
+    goTo(TWITTER_URL_LOGIN)
+```
+
+### goToLogout
+
+```typescript
+const goToLogout =
+    goTo(TWITTER_URL_LOGOUT)
 ```
 
 ## Auth
 
-These BotAction's facilitate the login process of Instagram's web app.
+These BotAction's facilitate the login process of Twitter's web app.
 
 ### login()
 ```typescript
 const login = ({username, password}: {username: string, password: string}): BotAction =>
   chain(
-    errors('Instagram login()')(
-      goTo(getInstagramLoginUrl()),
+    errors('Twitter login()')(
+      goToLogin,
       click(FORM_AUTH_USERNAME_INPUT_SELECTOR),
       type(username),
       click(FORM_AUTH_PASSWORD_INPUT_SELECTOR),
       type(password),
-      click(FORM_AUTH_SUBMIT_BUTTON_SELECTOR),
+      clickText('Log in'),
       waitForNavigation,
-      wait(1000),
       log('Login Complete')
     )
   )
@@ -75,21 +109,19 @@ The composition is declarative, therefore needs little explaining. `login()` is 
 
 ### isGuest
 ```typescript
-const isGuest: ConditionalBotAction =
-  indexedDBStore('redux', 'paths')(
-    getIndexedDBValue('users.viewerId'),
-    map(viewerId => viewerId ? false : true),
-  )
+const isGuest: ConditionalBotAction = pipe()(
+  getCookies(),
+  map(cookies => cookies.find(cookie => cookie.name === 'auth_token') ? false : true)
+)
 ```
 This BotAction is a composition that uses [indexedDBStore()()](/api/indexed-db#indexeddbstore) to assemble BotAction's with the IndexedDB Database name and Store name [injected](/topic/injects). This simply grabs the value for the `users.viewerId` key then [maps](/api/pipe#map) it to the corresponding boolean value.
 
 ### isLoggedIn
 ```typescript
-const isLoggedIn: ConditionalBotAction =
-  indexedDBStore('redux', 'paths')(
-    getIndexedDBValue('users.viewerId'),
-    map(viewerId => viewerId ? true : false)
-  )
+const isLoggedIn: ConditionalBotAction = pipe()(
+  getCookies(),
+  map(cookies => cookies.find(cookie => cookie.name === 'auth_token') ? true : false)
+)
 ```
 This BotAction is a composition that uses [indexedDBStore()()](/api/indexed-db#indexeddbstore) to assemble BotAction's with the IndexedDB Database name and Store name [injected](/topic/injects). This simply grabs the value for the `users.viewerId` key then [maps](/api/pipe#map) it to the corresponding boolean value.
 
@@ -98,116 +130,59 @@ This BotAction is a composition that uses [indexedDBStore()()](/api/indexed-db#i
 This function deletes cookies and local storage that include the user's session information, to effect a logout, upon page reload.
 
 ```typescript
-const logout: BotAction = pipe()(
-  getCookies(),
-  deleteCookies(),
-  clearAllLocalStorage,
-  reload()
+const logout: BotAction = chain(
+  goToLogout,
+  clickText('Log out'),
+  waitForNavigation
 )
 ```
 
-### isSaveYourLoginInfoActive
+## Feed
 
-This BotAction tests the page for the "Save Your Login Info" flow that sometimes appears after initial login.
+These BotActions interact with the popular Twitter feature: Feed.
 
-```typescript
-const isSaveYourLoginInfoActive: ConditionalBotAction =
-    textExists('Save Your Login Info?')
-```
+### tweet
 
-### clickSaveYourLoginInfoYesButton
-
-This will close out the "Save Your Login Info" flow affirmatively.
+This BotAction will tweet the message given.
 
 ```typescript
-const clickSaveYourLoginInfoYesButton: BotAction =
-    clickText('Save Info')
+const tweet = (message: string): BotAction => chain(
+  goToTweet,
+  wait(1200),
+  click(FORM_TWEET_TEXTAREA),
+  type(message),
+  clickText('Tweet'),
+  waitForNavigation
+)
 ```
-
-### clickSaveYourLoginInfoNoButton
-
-This will close out the "Save Your Login Info" flow negatively.
-
-```typescript
-const clickSaveYourLoginInfoNoButton: BotAction =
-    clickText('Not Now')
-```
-
-## Stories
-
-These BotActions interact with the popular Instagram feature: Stories.
-
-### viewStories
-
-This BotAction, when ran on the Home page, will view all available Stories from first to last, until complete.
-
-```typescript
-const viewStories: BotAction =
-  givenThat(elementExists(FIRST_STORY + ' button'))(
-    click(FIRST_STORY + ' button'),
-    wait(1000),
-    forAsLong(elementExists(STORIES_VIEWER_NEXT_STORY_ICON))(
-      click(STORIES_VIEWER_NEXT_STORY_ICON),
-      wait(500)
-    )
-  )
-```
-
-## Modals
-
-These BotAction's help handle Instagram's Modals.
-
-### isTurnOnNotificationsModalActive
-```typescript
-const isTurnOnNotificationsModalActive: ConditionalBotAction = async(page) => {
-  const modalHeader = await page.$(MAIN_MODAL_HEADER_SELECTOR)
-  const modalHeaderText = await page.evaluate(el => el === null || el.textContent === null ? '' : el.textContent, modalHeader)
-
-  return modalHeader !== null && modalHeaderText === TURN_OFF_NOTIFICATIONS_MODAL_HEADER_TEXT
-}
-```
-Sometimes after login, Instagram prompts the User with a modal about turning on notifications. This ConditionalBotAction returns `true` if that modal is open.
-
-### closeTurnOnNotificationsModal
-```typescript
-const closeTurnOnNotificationsModal: BotAction = async (page) => {
-  // click button with text "Not Now" inside the dialog
-  const [button] = await page.$x("//button[contains(., '" + TURN_OFF_NOTIFICATIONS_BUTTON_LABEL + "')]")
-  if (button) {
-    await button.click()
-  }
-}
-```
-This BotAction will close the "Turn on Notifications" modal. Please use [givenThat()()](/api/branching#given-that) with [isTurnOnNotificationsModalActive](/sites/instagram#isturnonnotificationsmodalactive-conditionalbotaction) to run this BotAction only if that modal is open.
 
 ## Selectors
 
-Helpful HTML element selectors in the Instagram web app, can be imported directly from the main `botmation` package.
+Helpful HTML element selectors in the Twitter web app that can be imported directly from twitter package.
 
-These are the following:
 ```typescript
-// Auth - Login Page
-const FORM_AUTH_USERNAME_INPUT_SELECTOR = 'html body section main form input[name="username"]'
-const FORM_AUTH_PASSWORD_INPUT_SELECTOR = 'html body section main form input[name="password"]'
-const FORM_AUTH_SUBMIT_BUTTON_SELECTOR = 'html body section main form button[type="submit"]'
+const FORM_AUTH_USERNAME_INPUT_SELECTOR = 'form input[name="session[username_or_email]"]'
+const FORM_AUTH_PASSWORD_INPUT_SELECTOR = 'form input[name="session[password]"]'
 
-// Modals - Home Page
-const MAIN_MODAL_SELECTOR = 'html body div[role="dialog"]'
-const MAIN_MODAL_HEADER_SELECTOR = 'html body div[role="dialog"] h2'
+const FORM_TWEET_TEXTAREA = '.DraftEditor-root'
 ```
 
-## Helpers
+## URLs
 
-### getInstagramBaseUrl()
-```typescript
-const getInstagramBaseUrl = () =>
-  INSTAGRAM_BASE_URL
-```
-Returns Instagram's web app's base URL without a trailing slash, ie: `https://www.instagram.com`
+URLs for the main pages of the Twitter web app.
 
-### getInstagramLoginUrl()
 ```typescript
-const getInstagramLoginUrl = () =>
-  getInstagramBaseUrl() + INSTAGRAM_URL_EXT_LOGIN + '/'
+const TWITTER_URL_BASE = 'https://www.twitter.com/'
+
+const TWITTER_URL_HOME = TWITTER_URL_BASE + 'home'
+const TWITTER_URL_TWEET = TWITTER_URL_BASE + 'compose/tweet'
+const TWITTER_URL_EXPLORE = TWITTER_URL_BASE + 'explore'
+const TWITTER_URL_NOTIFICATIONS = TWITTER_URL_BASE + 'notifications'
+const TWITTER_URL_MESSAGES = TWITTER_URL_BASE + 'messages'
+const TWITTER_URL_BOOKMARKS = TWITTER_URL_BASE + 'i/bookmarks'
+
+const TWITTER_URL_SETTINGS = TWITTER_URL_BASE + 'settings'
+
+const TWITTER_URL_LOGIN = TWITTER_URL_BASE + 'login'
+const TWITTER_URL_LOGOUT = TWITTER_URL_BASE + 'logout'
 ```
-Returns Instagram's web app's URL for its login page
