@@ -15,7 +15,7 @@ In addition to installing [@botmation/core](/install), install [@botmation/insta
 npm i -s @botmation/instagram
 ```
 
-All BotActions, helpers, and selectors listed on this page, are exported by that package.
+All BotActions, URLs and selectors listed on this page, are exported by the `@botmation/instagram` package.
 
 ## Navigation
 
@@ -25,28 +25,28 @@ These BotActions focus on changing the URL of the Puppeteer page to specific loc
 
 ```typescript
 const goToHome: BotAction =
-    goTo('https://www.instagram.com/')
+    goTo(INSTAGRAM_URL_BASE)
 ```
 
 ### goToMessaging
 
 ```typescript
 const goToMessaging: BotAction =
-    goTo('https://www.instagram.com/direct/inbox/')
+    goTo(INSTAGRAM_URL_MESSAGING)
 ```
 
 ### goToExplore
 
 ```typescript
 const goToExplore: BotAction =
-    goTo('https://www.instagram.com/explore/')
+    goTo(INSTAGRAM_URL_EXPLORE)
 ```
 
 ### goToSettings
 
 ```typescript
 const goToSettings: BotAction =
-    goTo('https://www.instagram.com/accounts/edit/')
+    goTo(INSTAGRAM_URL_SETTINGS)
 ```
 
 ## Auth
@@ -195,20 +195,20 @@ const FORM_AUTH_SUBMIT_BUTTON_SELECTOR = 'html body section main form button[typ
 // Modals - Home Page
 const MAIN_MODAL_SELECTOR = 'html body div[role="dialog"]'
 const MAIN_MODAL_HEADER_SELECTOR = 'html body div[role="dialog"] h2'
+
+// Feed: Stories
+const FIRST_STORY = 'body main ul li[tabindex="-1"]'
+const STORIES_VIEWER_NEXT_STORY_ICON = 'body div section div div section div button div.coreSpriteRightChevron'
 ```
 
-## Helpers
+## URLs
 
-### getInstagramBaseUrl()
+Here are some constants that represent specific pages within the Instagram web app:
 ```typescript
-const getInstagramBaseUrl = () =>
-  INSTAGRAM_BASE_URL
-```
-Returns Instagram's web app's base URL without a trailing slash, ie: `https://www.instagram.com`
+const INSTAGRAM_URL_BASE = 'https://www.instagram.com/'
 
-### getInstagramLoginUrl()
-```typescript
-const getInstagramLoginUrl = () =>
-  getInstagramBaseUrl() + INSTAGRAM_URL_EXT_LOGIN + '/'
+const INSTAGRAM_URL_LOGIN = INSTAGRAM_URL_BASE + 'accounts/login/'
+const INSTAGRAM_URL_MESSAGING = INSTAGRAM_URL_BASE + 'direct/inbox/'
+const INSTAGRAM_URL_EXPLORE = INSTAGRAM_URL_BASE + 'explore/'
+const INSTAGRAM_URL_SETTINGS = INSTAGRAM_URL_BASE + 'accounts/edit/'
 ```
-Returns Instagram's web app's URL for its login page

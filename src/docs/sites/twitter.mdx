@@ -1,0 +1,190 @@
+---
+title: Twitter
+---
+
+## Overview
+
+These functions focus on Twitter's web app, at mobile dimensions. Here is a working [example](https://github.com/mrWh1te/Botmation/blob/master/apps/bot-twitter).
+
+
+## Install
+
+In addition to installing [@botmation/core](/install), install [@botmation/twitter](https://www.npmjs.com/package/@botmation/twitter):
+```bash
+npm i -s @botmation/twitter
+```
+
+All BotActions, URLs and selectors listed on this page, are exported by the `@botmation/twitter` package.
+
+## Navigation
+
+These BotActions focus on changing the URL of the Puppeteer page to specific locations within Twitters's web app.
+
+### goToHome
+
+```typescript
+const goToHome: BotAction =
+    goTo(TWITTER_URL_HOME, {waitUntil: 'load'})
+```
+
+### goToTweet
+
+```typescript
+const goToTweet =
+    goTo(TWITTER_URL_TWEET, {waitUntil: 'load'})
+```
+
+### goToExplore
+
+```typescript
+const goToExplore =
+    goTo(TWITTER_URL_EXPLORE, {waitUntil: 'load'})
+```
+
+### goToNotifications
+
+```typescript
+const goToNotifications =
+    goTo(TWITTER_URL_NOTIFICATIONS, {waitUntil: 'load'})
+```
+
+### goToMessages
+
+```typescript
+const goToMessages =
+    goTo(TWITTER_URL_MESSAGES, {waitUntil: 'load'})
+```
+
+### goToBookmarks
+
+```typescript
+const goToBookmarks =
+    goTo(TWITTER_URL_BOOKMARKS, {waitUntil: 'load'})
+```
+
+### goToSettings
+
+```typescript
+const goToSettings =
+    goTo(TWITTER_URL_SETTINGS, {waitUntil: 'load'})
+```
+
+### goToLogin
+
+```typescript
+const goToLogin =
+    goTo(TWITTER_URL_LOGIN)
+```
+
+### goToLogout
+
+```typescript
+const goToLogout =
+    goTo(TWITTER_URL_LOGOUT)
+```
+
+## Auth
+
+These BotActions facilitate authentication in Twitter's web app.
+
+### login()
+```typescript
+const login = ({username, password}: {username: string, password: string}): BotAction =>
+  chain(
+    errors('Twitter login()')(
+      goToLogin,
+      click(FORM_AUTH_USERNAME_INPUT_SELECTOR),
+      type(username),
+      click(FORM_AUTH_PASSWORD_INPUT_SELECTOR),
+      type(password),
+      clickText('Log in'),
+      waitForNavigation,
+      log('Login Complete')
+    )
+  )
+```
+This BotAction is a composition that uses [errors()()](/api/errors#errors) to wrap the main assembled BotAction's, in case something throws an error here, it will be caught and logged in console.
+
+There is little explaining necessary for the code above, given its declarative composition. `login()` is a higher-order function that takes a typed object for the `username` and `password`.
+
+### isGuest
+```typescript
+const isGuest: ConditionalBotAction = pipe()(
+  getCookies(),
+  map(cookies => cookies.find(cookie => cookie.name === 'auth_token') ? false : true)
+)
+```
+This [ConditionalBotAction](/topic/conditionals#conditional-botaction) looks for a cookie called `auth_token` to determine if the user is logged in or not.
+
+### isLoggedIn
+```typescript
+const isLoggedIn: ConditionalBotAction = pipe()(
+  getCookies(),
+  map(cookies => cookies.find(cookie => cookie.name === 'auth_token') ? true : false)
+)
+```
+This [ConditionalBotAction](/topic/conditionals#conditional-botaction) looks for a cookie called `auth_token` to determine if the user is logged in or not.
+
+### logout
+
+This function follows the UX of Twitter's logout.
+
+```typescript
+const logout: BotAction = chain(
+  goToLogout,
+  clickText('Log out'),
+  waitForNavigation
+)
+```
+
+## Feed
+
+These BotActions focus on Twitter's Feed of Tweets.
+
+### tweet
+
+This BotAction will tweet the message given.
+
+> Use [Template literals](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals) (Template strings) for multi-line tweets
+
+```typescript
+const tweet = (message: string): BotAction => chain(
+  goToTweet,
+  wait(1200),
+  click(FORM_TWEET_TEXTAREA),
+  type(message),
+  clickText('Tweet'),
+  waitForNavigation
+)
+```
+
+## Selectors
+
+Helpful HTML element selectors in the Twitter web app that can be imported directly from twitter package.
+
+```typescript
+const FORM_AUTH_USERNAME_INPUT_SELECTOR = 'form input[name="session[username_or_email]"]'
+const FORM_AUTH_PASSWORD_INPUT_SELECTOR = 'form input[name="session[password]"]'
+
+const FORM_TWEET_TEXTAREA = '.DraftEditor-root'
+```
+
+## URLs
+
+URLs for the main pages of the Twitter web app.
+
+```typescript
+const TWITTER_URL_BASE = 'https://www.twitter.com/'
+
+const TWITTER_URL_HOME = TWITTER_URL_BASE + 'home'
+const TWITTER_URL_TWEET = TWITTER_URL_BASE + 'compose/tweet'
+const TWITTER_URL_EXPLORE = TWITTER_URL_BASE + 'explore'
+const TWITTER_URL_NOTIFICATIONS = TWITTER_URL_BASE + 'notifications'
+const TWITTER_URL_MESSAGES = TWITTER_URL_BASE + 'messages'
+const TWITTER_URL_BOOKMARKS = TWITTER_URL_BASE + 'i/bookmarks'
+
+const TWITTER_URL_SETTINGS = TWITTER_URL_BASE + 'settings'
+
+const TWITTER_URL_LOGIN = TWITTER_URL_BASE + 'login'
+const TWITTER_URL_LOGOUT = TWITTER_URL_BASE + 'logout'
+```

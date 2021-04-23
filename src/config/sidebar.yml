@@ -36,6 +36,8 @@
       link: '/sites/instagram'
     - label: 'LinkedIn'
       link: '/sites/linkedin'
+    - label: 'Twitter'
+      link: '/sites/twitter'
 
 - label: 'Core'
   items:
