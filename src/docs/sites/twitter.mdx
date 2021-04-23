@@ -14,7 +14,7 @@ In addition to installing [@botmation/core](/install), install [@botmation/twitt
 npm i -s @botmation/twitter
 ```
 
-All BotActions, URLs and selectors listed on this page, are exported by that package.
+All BotActions, URLs and selectors listed on this page, are exported by the `@botmation/twitter` package.
 
 ## Navigation
 
@@ -85,7 +85,7 @@ const goToLogout =
 
 ## Auth
 
-These BotAction's facilitate the login process of Twitter's web app.
+These BotActions facilitate authentication in Twitter's web app.
 
 ### login()
 ```typescript
@@ -103,9 +103,9 @@ const login = ({username, password}: {username: string, password: string}): BotA
     )
   )
 ```
-This BotAction is a composition that uses [errors()()](/api/errors#errors) to wrap the main assembled BotAction's, in case something goes wrong here, dev's will have an easier time knowing if errors are thrown here.
+This BotAction is a composition that uses [errors()()](/api/errors#errors) to wrap the main assembled BotAction's, in case something throws an error here, it will be caught and logged in console.
 
-The composition is declarative, therefore needs little explaining. `login()` is a higher-order function that takes a typed object for the `username` and `password`.
+There is little explaining necessary for the code above, given its declarative composition. `login()` is a higher-order function that takes a typed object for the `username` and `password`.
 
 ### isGuest
 ```typescript
@@ -114,7 +114,7 @@ const isGuest: ConditionalBotAction = pipe()(
   map(cookies => cookies.find(cookie => cookie.name === 'auth_token') ? false : true)
 )
 ```
-This BotAction is a composition that uses [indexedDBStore()()](/api/indexed-db#indexeddbstore) to assemble BotAction's with the IndexedDB Database name and Store name [injected](/topic/injects). This simply grabs the value for the `users.viewerId` key then [maps](/api/pipe#map) it to the corresponding boolean value.
+This [ConditionalBotAction](/topic/conditionals#conditional-botaction) looks for a cookie called `auth_token` to determine if the user is logged in or not.
 
 ### isLoggedIn
 ```typescript
@@ -123,11 +123,11 @@ const isLoggedIn: ConditionalBotAction = pipe()(
   map(cookies => cookies.find(cookie => cookie.name === 'auth_token') ? true : false)
 )
 ```
-This BotAction is a composition that uses [indexedDBStore()()](/api/indexed-db#indexeddbstore) to assemble BotAction's with the IndexedDB Database name and Store name [injected](/topic/injects). This simply grabs the value for the `users.viewerId` key then [maps](/api/pipe#map) it to the corresponding boolean value.
+This [ConditionalBotAction](/topic/conditionals#conditional-botaction) looks for a cookie called `auth_token` to determine if the user is logged in or not.
 
 ### logout
 
-This function deletes cookies and local storage that include the user's session information, to effect a logout, upon page reload.
+This function follows the UX of Twitter's logout.
 
 ```typescript
 const logout: BotAction = chain(
@@ -139,7 +139,7 @@ const logout: BotAction = chain(
 
 ## Feed
 
-These BotActions interact with the popular Twitter feature: Feed.
+These BotActions focus on Twitter's Feed of Tweets.
 
 ### tweet
 
