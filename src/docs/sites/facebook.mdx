@@ -1,0 +1,326 @@
+---
+title: Facebook
+---
+
+## Overview
+
+These functions focus on Facebook's web app, at mobile dimensions. Here is a working [example](https://github.com/mrWh1te/Botmation/blob/master/apps/bot-facebook).
+
+
+## Install
+
+In addition to installing [@botmation/core](/install), install [@botmation/facebook](https://www.npmjs.com/package/@botmation/facebook):
+```bash
+npm i -s @botmation/facebook
+```
+
+All BotActions, URLs and selectors listed on this page, are exported by the `@botmation/facebook` package.
+
+## Navigation
+
+These BotActions focus on changing the URL of the Puppeteer page to specific locations within Facebook's web app.
+
+
+### goToHome
+```typescript
+const goToHome =
+    goTo(FACEBOOK_URL_HOME, {waitUntil: 'load'})
+```
+### goToFriends
+```typescript
+const goToFriends =
+    goTo(FACEBOOK_URL_FRIENDS, {waitUntil: 'load'})
+```
+### goToGroups
+```typescript
+const goToGroups =
+    goTo(FACEBOOK_URL_GROUPS, {waitUntil: 'load'})
+```
+### goToMarketPlace
+```typescript
+const goToMarketPlace =
+    goTo(FACEBOOK_URL_MARKETPLACE, {waitUntil: 'load'})
+```
+### goToWatch
+```typescript
+const goToWatch =
+    goTo(FACEBOOK_URL_WATCH, {waitUntil: 'load'})
+```
+### goToEvents
+```typescript
+const goToEvents =
+    goTo(FACEBOOK_URL_EVENTS, {waitUntil: 'load'})
+```
+### goToMemories
+```typescript
+const goToMemories =
+    goTo(FACEBOOK_URL_MEMORIES, {waitUntil: 'load'})
+```
+### goToFriendLists
+```typescript
+const goToFriendLists =
+    goTo(FACEBOOK_URL_FRIENDLISTS, {waitUntil: 'load'})
+```
+### goToSaved
+```typescript
+const goToSaved =
+    goTo(FACEBOOK_URL_SAVED, {waitUntil: 'load'})
+```
+### goToPages
+```typescript
+const goToPages =
+    goTo(FACEBOOK_URL_PAGES, {waitUntil: 'load'})
+```
+### goToJobs
+```typescript
+const goToJobs =
+    goTo(FACEBOOK_URL_JOBS, {waitUntil: 'load'})
+```
+### goToMessages
+```typescript
+const goToMessages =
+    goTo(FACEBOOK_URL_MESSAGES, {waitUntil: 'load'})
+```
+### goToLogin
+```typescript
+const goToLogin =
+    goTo(FACEBOOK_URL_LOGIN)
+```
+### goToBloodDonations
+```typescript
+const goToBloodDonations =
+    goTo(FACEBOOK_URL_BLOODDONATIONS, {waitUntil: 'load'})
+```
+### goToCampus
+```typescript
+const goToCampus =
+    goTo(FACEBOOK_URL_CAMPUS, {waitUntil: 'load'})
+```
+### goToClimateScienceInformationCenter
+```typescript
+const goToClimateScienceInformationCenter =
+    goTo(FACEBOOK_URL_CLIMATESCIENCEINFORMATIONCENTER, {waitUntil: 'load'})
+```
+### goToCoronaVirus
+```typescript
+const goToCoronaVirus =
+    goTo(FACEBOOK_URL_CORONAVIRUS, {waitUntil: 'load'})
+```
+### goToCrisisResponse
+```typescript
+const goToCrisisResponse =
+    goTo(FACEBOOK_URL_CRISISRESPONSE, {waitUntil: 'load'})
+```
+### goToFacebookPay
+```typescript
+const goToFacebookPay =
+    goTo(FACEBOOK_URL_FACEBOOKPAY, {waitUntil: 'load'})
+```
+### goToFundraisers
+```typescript
+const goToFundraisers =
+    goTo(FACEBOOK_URL_FUNDRAISERS, {waitUntil: 'load'})
+```
+### goToGaming
+```typescript
+const goToGaming =
+    goTo(FACEBOOK_URL_GAMING, {waitUntil: 'load'})
+```
+### goToLiftBlackVoices
+```typescript
+const goToLiftBlackVoices =
+    goTo(FACEBOOK_URL_LIFTBLACKVOICES, {waitUntil: 'load'})
+```
+### goToLiveVideos
+```typescript
+const goToLiveVideos =
+    goTo(FACEBOOK_URL_LIVEVIDEOS, {waitUntil: 'load'})
+```
+### goToMovies
+```typescript
+const goToMovies =
+    goTo(FACEBOOK_URL_MOVIES, {waitUntil: 'load'})
+```
+### goToNews
+```typescript
+const goToNews =
+    goTo(FACEBOOK_URL_NEWS, {waitUntil: 'load'})
+```
+### goToOculus
+```typescript
+const goToOculus =
+    goTo(FACEBOOK_URL_OCULUS, {waitUntil: 'load'})
+```
+### goToOffers
+```typescript
+const goToOffers =
+    goTo(FACEBOOK_URL_OFFERS, {waitUntil: 'load'})
+```
+### goToRecentAdActivity
+```typescript
+const goToRecentAdActivity =
+    goTo(FACEBOOK_URL_RECENTADACTIVITY, {waitUntil: 'load'})
+```
+### goToTownHall
+```typescript
+const goToTownHall =
+    goTo(FACEBOOK_URL_TOWNHALL, {waitUntil: 'load'})
+```
+### goToVotingInformationCenter
+```typescript
+const goToVotingInformationCenter =
+    goTo(FACEBOOK_URL_VOTINGINFORMATIONCENTER, {waitUntil: 'load'})
+```
+### goToWeather
+```typescript
+const goToWeather =
+    goTo(FACEBOOK_URL_WEATHER, {waitUntil: 'load'})
+```
+## Auth
+
+These BotActions facilitate authentication in Facebook's web app.
+
+### login()
+```typescript
+const login = ({email, password}: {email: string, password: string}): BotAction =>
+  chain(
+    errors('Facebook login()')(
+      goToLogin,
+      click(FORM_AUTH_EMAIL_INPUT_SELECTOR),
+      type(email),
+      click(FORM_AUTH_PASSWORD_INPUT_SELECTOR),
+      type(password),
+      click(FORM_AUTH_SUBMIT_BUTTON_SELECTOR),
+      waitForNavigation,
+      log('Login Complete')
+    )
+  )
+```
+This BotAction is a composition that uses [errors()()](/api/errors#errors) to wrap the main assembled BotAction's, in case something throws an error here, it will be caught and logged in console.
+
+There is little explaining necessary for the code above, given its declarative composition. `login()` is a higher-order function that takes a typed object for the `email` and `password` to complete a login.
+
+### isGuest
+```typescript
+const isGuest: ConditionalBotAction = pipe()(
+  getCookies(),
+  map(cookies => cookies.find(cookie => cookie.name === 'c_user') ? false : true)
+)
+```
+This [ConditionalBotAction](/topic/conditionals#conditional-botaction) looks for a cookie called `c_user` to determine if the user is logged in or not.
+
+### isLoggedIn
+```typescript
+const isLoggedIn: ConditionalBotAction = pipe()(
+  getCookies(),
+  map(cookies => cookies.find(cookie => cookie.name === 'c_user') ? true : false)
+)
+```
+This [ConditionalBotAction](/topic/conditionals#conditional-botaction) looks for a cookie called `c_user` to determine if the user is logged in or not.
+
+### logout
+
+This function follows the UX of Facebook's logout.
+
+```typescript
+const logout: BotAction = pipe()(
+  click(NAVIGATION_ACCOUNT_CONTROLS_AND_SETTINGS + ' > span'),
+  wait(1000),
+  clickText('Log Out'),
+  waitForNavigation,
+  getCookies(),
+  deleteCookies()
+)
+```
+
+## Feed
+
+These BotActions focus on Facebook's Feed of Tweets.
+
+### createAPost
+
+This BotAction will create a new post for the main feed.
+
+> Use [Template literals](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals) (Template strings) for multi-line tweets
+
+```typescript
+const createAPost = (post: string): BotAction => chain(
+  goToHome,
+  click(FEED_WHATS_ON_YOUR_MIND_INPUT),
+  wait(2000),
+  type(post),
+  clickText('Post'),
+  waitForNavigation
+)
+```
+
+## Modals
+
+### isPushNotificationsRequestVisible
+After the initial login, the Facebook application may prompt the user to enable "Push Notifications" for the web app in a modal.
+```typescript
+const isPushNotificationsRequestVisible: ConditionalBotAction =
+  elementExists('div[aria-label="Push notifications request"]')
+```
+
+### closeModal
+Close the "Push Notifications" modal with this BotAction:
+```typescript
+const closeModal: BotAction =
+  click('body')
+```
+
+## Selectors
+
+Helpful HTML element selectors in the Facebook web app that can be imported directly from the facebook package.
+
+```typescript
+const FORM_AUTH_EMAIL_INPUT_SELECTOR = 'form input[name="email"]'
+const FORM_AUTH_PASSWORD_INPUT_SELECTOR = 'form input[name="pass"]'
+const FORM_AUTH_SUBMIT_BUTTON_SELECTOR = 'form button[name="login"]'
+
+const NAVIGATION_ACCOUNT_CONTROLS_AND_SETTINGS = 'div[aria-label="Account Controls and Settings"]'
+
+const FEED_WHATS_ON_YOUR_MIND_INPUT = 'div[role="main"] div[aria-label="Create a post"] div span'
+```
+
+## URLs
+
+URLs for the main pages of the Facebook web app.
+
+```typescript
+const FACEBOOK_URL_BASE = 'https://www.facebook.com/'
+
+const FACEBOOK_URL_HOME = FACEBOOK_URL_BASE + 'home.php'
+const FACEBOOK_URL_FRIENDS = FACEBOOK_URL_BASE + 'friends'
+const FACEBOOK_URL_GROUPS = FACEBOOK_URL_BASE + 'groups'
+const FACEBOOK_URL_MARKETPLACE = FACEBOOK_URL_BASE + 'marketplace'
+const FACEBOOK_URL_WATCH = FACEBOOK_URL_BASE + 'watch'
+const FACEBOOK_URL_EVENTS = FACEBOOK_URL_BASE + 'events'
+const FACEBOOK_URL_MEMORIES = FACEBOOK_URL_BASE + 'memories'
+const FACEBOOK_URL_FRIENDLISTS = FACEBOOK_URL_BASE + 'bookmarks/lists'
+const FACEBOOK_URL_SAVED = FACEBOOK_URL_BASE + 'saved'
+const FACEBOOK_URL_PAGES = FACEBOOK_URL_BASE + 'pages'
+const FACEBOOK_URL_JOBS = FACEBOOK_URL_BASE + 'jobs'
+const FACEBOOK_URL_MESSAGES = FACEBOOK_URL_BASE + 'messages'
+const FACEBOOK_URL_LOGIN = FACEBOOK_URL_BASE + 'login'
+
+const FACEBOOK_URL_BLOODDONATIONS = FACEBOOK_URL_BASE + 'blooddonations'
+const FACEBOOK_URL_CAMPUS = FACEBOOK_URL_BASE + 'campus'
+const FACEBOOK_URL_CLIMATESCIENCEINFORMATIONCENTER = FACEBOOK_URL_BASE + 'climatescienceinfo'
+const FACEBOOK_URL_CORONAVIRUS = FACEBOOK_URL_BASE + 'coronavirus_info'
+const FACEBOOK_URL_CRISISRESPONSE = FACEBOOK_URL_BASE + 'crisisresponse'
+const FACEBOOK_URL_FACEBOOKPAY = FACEBOOK_URL_BASE + 'facebook_pay'
+const FACEBOOK_URL_FUNDRAISERS = FACEBOOK_URL_BASE + 'fundraisers'
+const FACEBOOK_URL_GAMING = FACEBOOK_URL_BASE + 'games'
+const FACEBOOK_URL_LIFTBLACKVOICES = FACEBOOK_URL_BASE + 'hubs/lift_black_voices'
+const FACEBOOK_URL_LIVEVIDEOS = FACEBOOK_URL_BASE + 'watch/live'
+const FACEBOOK_URL_MOVIES = FACEBOOK_URL_BASE + 'movies'
+const FACEBOOK_URL_NEWS = FACEBOOK_URL_BASE + 'news'
+const FACEBOOK_URL_OCULUS = FACEBOOK_URL_BASE + 'Oculusvr'
+const FACEBOOK_URL_OFFERS = FACEBOOK_URL_BASE + 'offers/v2/wallet'
+const FACEBOOK_URL_RECENTADACTIVITY = FACEBOOK_URL_BASE + 'ads/activity'
+const FACEBOOK_URL_TOWNHALL = FACEBOOK_URL_BASE + 'townhall'
+const FACEBOOK_URL_VOTINGINFORMATIONCENTER = FACEBOOK_URL_BASE + 'votinginformationcenter'
+const FACEBOOK_URL_WEATHER = FACEBOOK_URL_BASE + 'weather'
+```
