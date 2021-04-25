@@ -1,0 +1,252 @@
+---
+title: Facebook
+---
+
+## Overview
+
+These functions focus on Facebook's web app, at mobile dimensions. Here is a working [example](https://github.com/mrWh1te/Botmation/blob/master/apps/bot-facebook).
+
+
+## Install
+
+In addition to installing [@botmation/core](/install), install [@botmation/facebook](https://www.npmjs.com/package/@botmation/facebook):
+```bash
+npm i -s @botmation/facebook
+```
+
+All BotActions, URLs and selectors listed on this page, are exported by the `@botmation/facebook` package.
+
+## Navigation
+
+These BotActions focus on changing the URL of the Puppeteer page to specific locations within Facebook's web app.
+
+
+### goToHome
+```typescript
+const goToHome = goTo(FACEBOOK_URL_HOME, {waitUntil: 'load'})
+```
+### goToFriends
+```typescript
+const goToFriends = goTo(FACEBOOK_URL_FRIENDS, {waitUntil: 'load'})
+```
+### goToGroups
+```typescript
+const goToGroups = goTo(FACEBOOK_URL_GROUPS, {waitUntil: 'load'})
+```
+### goToMarketPlace
+```typescript
+const goToMarketPlace = goTo(FACEBOOK_URL_MARKETPLACE, {waitUntil: 'load'})
+```
+### goToWatch
+```typescript
+const goToWatch = goTo(FACEBOOK_URL_WATCH, {waitUntil: 'load'})
+```
+### goToEvents
+```typescript
+const goToEvents = goTo(FACEBOOK_URL_EVENTS, {waitUntil: 'load'})
+```
+### goToMemories
+```typescript
+const goToMemories = goTo(FACEBOOK_URL_MEMORIES, {waitUntil: 'load'})
+```
+### goToFriendLists
+```typescript
+const goToFriendLists = goTo(FACEBOOK_URL_FRIENDLISTS, {waitUntil: 'load'})
+```
+### goToSaved
+```typescript
+const goToSaved = goTo(FACEBOOK_URL_SAVED, {waitUntil: 'load'})
+```
+### goToPages
+```typescript
+const goToPages = goTo(FACEBOOK_URL_PAGES, {waitUntil: 'load'})
+```
+### goToJobs
+```typescript
+const goToJobs = goTo(FACEBOOK_URL_JOBS, {waitUntil: 'load'})
+```
+### goToMessages
+```typescript
+const goToMessages = goTo(FACEBOOK_URL_MESSAGES, {waitUntil: 'load'})
+```
+### goToLogin
+```typescript
+const goToLogin = goTo(FACEBOOK_URL_LOGIN)
+```
+### goToBloodDonations
+```typescript
+const goToBloodDonations = goTo(FACEBOOK_URL_BLOODDONATIONS, {waitUntil: 'load'})
+```
+### goToCampus
+```typescript
+const goToCampus = goTo(FACEBOOK_URL_CAMPUS, {waitUntil: 'load'})
+```
+### goToClimateScienceInformationCenter
+```typescript
+const goToClimateScienceInformationCenter = goTo(FACEBOOK_URL_CLIMATESCIENCEINFORMATIONCENTER, {waitUntil: 'load'})
+```
+### goToCoronaVirus
+```typescript
+const goToCoronaVirus = goTo(FACEBOOK_URL_CORONAVIRUS, {waitUntil: 'load'})
+```
+### goToCrisisResponse
+```typescript
+const goToCrisisResponse = goTo(FACEBOOK_URL_CRISISRESPONSE, {waitUntil: 'load'})
+```
+### goToFacebookPay
+```typescript
+const goToFacebookPay = goTo(FACEBOOK_URL_FACEBOOKPAY, {waitUntil: 'load'})
+```
+### goToFundraisers
+```typescript
+const goToFundraisers = goTo(FACEBOOK_URL_FUNDRAISERS, {waitUntil: 'load'})
+```
+### goToGaming
+```typescript
+const goToGaming = goTo(FACEBOOK_URL_GAMING, {waitUntil: 'load'})
+```
+### goToLiftBlackVoices
+```typescript
+const goToLiftBlackVoices = goTo(FACEBOOK_URL_LIFTBLACKVOICES, {waitUntil: 'load'})
+```
+### goToLiveVideos
+```typescript
+const goToLiveVideos = goTo(FACEBOOK_URL_LIVEVIDEOS, {waitUntil: 'load'})
+```
+### goToMovies
+```typescript
+const goToMovies = goTo(FACEBOOK_URL_MOVIES, {waitUntil: 'load'})
+```
+### goToNews
+```typescript
+const goToNews = goTo(FACEBOOK_URL_NEWS, {waitUntil: 'load'})
+```
+### goToOculus
+```typescript
+const goToOculus = goTo(FACEBOOK_URL_OCULUS, {waitUntil: 'load'})
+```
+### goToOffers
+```typescript
+const goToOffers = goTo(FACEBOOK_URL_OFFERS, {waitUntil: 'load'})
+```
+### goToRecentAdActivity
+```typescript
+const goToRecentAdActivity = goTo(FACEBOOK_URL_RECENTADACTIVITY, {waitUntil: 'load'})
+```
+### goToTownHall
+```typescript
+const goToTownHall = goTo(FACEBOOK_URL_TOWNHALL, {waitUntil: 'load'})
+```
+### goToVotingInformationCenter
+```typescript
+const goToVotingInformationCenter = goTo(FACEBOOK_URL_VOTINGINFORMATIONCENTER, {waitUntil: 'load'})
+```
+### goToWeather
+```typescript
+const goToWeather = goTo(FACEBOOK_URL_WEATHER, {waitUntil: 'load'})
+```
+## Auth
+
+These BotActions facilitate authentication in Twitter's web app.
+
+### login()
+```typescript
+const login = ({username, password}: {username: string, password: string}): BotAction =>
+  chain(
+    errors('Twitter login()')(
+      goToLogin,
+      click(FORM_AUTH_USERNAME_INPUT_SELECTOR),
+      type(username),
+      click(FORM_AUTH_PASSWORD_INPUT_SELECTOR),
+      type(password),
+      clickText('Log in'),
+      waitForNavigation,
+      log('Login Complete')
+    )
+  )
+```
+This BotAction is a composition that uses [errors()()](/api/errors#errors) to wrap the main assembled BotAction's, in case something throws an error here, it will be caught and logged in console.
+
+There is little explaining necessary for the code above, given its declarative composition. `login()` is a higher-order function that takes a typed object for the `username` and `password`.
+
+### isGuest
+```typescript
+const isGuest: ConditionalBotAction = pipe()(
+  getCookies(),
+  map(cookies => cookies.find(cookie => cookie.name === 'auth_token') ? false : true)
+)
+```
+This [ConditionalBotAction](/topic/conditionals#conditional-botaction) looks for a cookie called `auth_token` to determine if the user is logged in or not.
+
+### isLoggedIn
+```typescript
+const isLoggedIn: ConditionalBotAction = pipe()(
+  getCookies(),
+  map(cookies => cookies.find(cookie => cookie.name === 'auth_token') ? true : false)
+)
+```
+This [ConditionalBotAction](/topic/conditionals#conditional-botaction) looks for a cookie called `auth_token` to determine if the user is logged in or not.
+
+### logout
+
+This function follows the UX of Twitter's logout.
+
+```typescript
+const logout: BotAction = chain(
+  goToLogout,
+  clickText('Log out'),
+  waitForNavigation
+)
+```
+
+## Feed
+
+These BotActions focus on Twitter's Feed of Tweets.
+
+### tweet
+
+This BotAction will tweet the message given.
+
+> Use [Template literals](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals) (Template strings) for multi-line tweets
+
+```typescript
+const tweet = (message: string): BotAction => chain(
+  goToTweet,
+  wait(1200),
+  click(FORM_TWEET_TEXTAREA),
+  type(message),
+  clickText('Tweet'),
+  waitForNavigation
+)
+```
+
+## Selectors
+
+Helpful HTML element selectors in the Twitter web app that can be imported directly from twitter package.
+
+```typescript
+const FORM_AUTH_USERNAME_INPUT_SELECTOR = 'form input[name="session[username_or_email]"]'
+const FORM_AUTH_PASSWORD_INPUT_SELECTOR = 'form input[name="session[password]"]'
+
+const FORM_TWEET_TEXTAREA = '.DraftEditor-root'
+```
+
+## URLs
+
+URLs for the main pages of the Twitter web app.
+
+```typescript
+const TWITTER_URL_BASE = 'https://www.twitter.com/'
+
+const TWITTER_URL_HOME = TWITTER_URL_BASE + 'home'
+const TWITTER_URL_TWEET = TWITTER_URL_BASE + 'compose/tweet'
+const TWITTER_URL_EXPLORE = TWITTER_URL_BASE + 'explore'
+const TWITTER_URL_NOTIFICATIONS = TWITTER_URL_BASE + 'notifications'
+const TWITTER_URL_MESSAGES = TWITTER_URL_BASE + 'messages'
+const TWITTER_URL_BOOKMARKS = TWITTER_URL_BASE + 'i/bookmarks'
+
+const TWITTER_URL_SETTINGS = TWITTER_URL_BASE + 'settings'
+
+const TWITTER_URL_LOGIN = TWITTER_URL_BASE + 'login'
+const TWITTER_URL_LOGOUT = TWITTER_URL_BASE + 'logout'
+```
