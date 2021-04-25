@@ -178,19 +178,19 @@ const goToWeather =
 ```
 ## Auth
 
-These BotActions facilitate authentication in Twitter's web app.
+These BotActions facilitate authentication in Facebook's web app.
 
 ### login()
 ```typescript
-const login = ({username, password}: {username: string, password: string}): BotAction =>
+const login = ({email, password}: {email: string, password: string}): BotAction =>
   chain(
-    errors('Twitter login()')(
+    errors('Facebook login()')(
       goToLogin,
-      click(FORM_AUTH_USERNAME_INPUT_SELECTOR),
-      type(username),
+      click(FORM_AUTH_EMAIL_INPUT_SELECTOR),
+      type(email),
       click(FORM_AUTH_PASSWORD_INPUT_SELECTOR),
       type(password),
-      clickText('Log in'),
+      click(FORM_AUTH_SUBMIT_BUTTON_SELECTOR),
       waitForNavigation,
       log('Login Complete')
     )
@@ -198,86 +198,129 @@ const login = ({username, password}: {username: string, password: string}): BotA
 ```
 This BotAction is a composition that uses [errors()()](/api/errors#errors) to wrap the main assembled BotAction's, in case something throws an error here, it will be caught and logged in console.
 
-There is little explaining necessary for the code above, given its declarative composition. `login()` is a higher-order function that takes a typed object for the `username` and `password`.
+There is little explaining necessary for the code above, given its declarative composition. `login()` is a higher-order function that takes a typed object for the `email` and `password` to complete a login.
 
 ### isGuest
 ```typescript
 const isGuest: ConditionalBotAction = pipe()(
   getCookies(),
-  map(cookies => cookies.find(cookie => cookie.name === 'auth_token') ? false : true)
+  map(cookies => cookies.find(cookie => cookie.name === 'c_user') ? false : true)
 )
 ```
-This [ConditionalBotAction](/topic/conditionals#conditional-botaction) looks for a cookie called `auth_token` to determine if the user is logged in or not.
+This [ConditionalBotAction](/topic/conditionals#conditional-botaction) looks for a cookie called `c_user` to determine if the user is logged in or not.
 
 ### isLoggedIn
 ```typescript
 const isLoggedIn: ConditionalBotAction = pipe()(
   getCookies(),
-  map(cookies => cookies.find(cookie => cookie.name === 'auth_token') ? true : false)
+  map(cookies => cookies.find(cookie => cookie.name === 'c_user') ? true : false)
 )
 ```
-This [ConditionalBotAction](/topic/conditionals#conditional-botaction) looks for a cookie called `auth_token` to determine if the user is logged in or not.
+This [ConditionalBotAction](/topic/conditionals#conditional-botaction) looks for a cookie called `c_user` to determine if the user is logged in or not.
 
 ### logout
 
-This function follows the UX of Twitter's logout.
+This function follows the UX of Facebook's logout.
 
 ```typescript
-const logout: BotAction = chain(
-  goToLogout,
-  clickText('Log out'),
-  waitForNavigation
+const logout: BotAction = pipe()(
+  click(NAVIGATION_ACCOUNT_CONTROLS_AND_SETTINGS + ' > span'),
+  wait(1000),
+  clickText('Log Out'),
+  waitForNavigation,
+  getCookies(),
+  deleteCookies()
 )
 ```
 
 ## Feed
 
-These BotActions focus on Twitter's Feed of Tweets.
+These BotActions focus on Facebook's Feed of Tweets.
 
-### tweet
+### createAPost
 
-This BotAction will tweet the message given.
+This BotAction will create a new post for the main feed.
 
 > Use [Template literals](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals) (Template strings) for multi-line tweets
 
 ```typescript
-const tweet = (message: string): BotAction => chain(
-  goToTweet,
-  wait(1200),
-  click(FORM_TWEET_TEXTAREA),
-  type(message),
-  clickText('Tweet'),
+const createAPost = (post: string): BotAction => chain(
+  goToHome,
+  click(FEED_WHATS_ON_YOUR_MIND_INPUT),
+  wait(2000),
+  type(post),
+  clickText('Post'),
   waitForNavigation
 )
 ```
 
+## Modals
+
+### isPushNotificationsRequestVisible
+After the initial login, the Facebook application may prompt the user to enable "Push Notifications" for the web app in a modal.
+```typescript
+const isPushNotificationsRequestVisible: ConditionalBotAction =
+  elementExists('div[aria-label="Push notifications request"]')
+```
+
+### closeModal
+Close the "Push Notifications" modal with this BotAction:
+```typescript
+const closeModal: BotAction =
+  click('body')
+```
+
 ## Selectors
 
-Helpful HTML element selectors in the Twitter web app that can be imported directly from twitter package.
+Helpful HTML element selectors in the Facebook web app that can be imported directly from the facebook package.
 
 ```typescript
-const FORM_AUTH_USERNAME_INPUT_SELECTOR = 'form input[name="session[username_or_email]"]'
-const FORM_AUTH_PASSWORD_INPUT_SELECTOR = 'form input[name="session[password]"]'
+const FORM_AUTH_EMAIL_INPUT_SELECTOR = 'form input[name="email"]'
+const FORM_AUTH_PASSWORD_INPUT_SELECTOR = 'form input[name="pass"]'
+const FORM_AUTH_SUBMIT_BUTTON_SELECTOR = 'form button[name="login"]'
 
-const FORM_TWEET_TEXTAREA = '.DraftEditor-root'
+const NAVIGATION_ACCOUNT_CONTROLS_AND_SETTINGS = 'div[aria-label="Account Controls and Settings"]'
+
+const FEED_WHATS_ON_YOUR_MIND_INPUT = 'div[role="main"] div[aria-label="Create a post"] div span'
 ```
 
 ## URLs
 
-URLs for the main pages of the Twitter web app.
+URLs for the main pages of the Facebook web app.
 
 ```typescript
-const TWITTER_URL_BASE = 'https://www.twitter.com/'
+const FACEBOOK_URL_BASE = 'https://www.facebook.com/'
 
-const TWITTER_URL_HOME = TWITTER_URL_BASE + 'home'
-const TWITTER_URL_TWEET = TWITTER_URL_BASE + 'compose/tweet'
-const TWITTER_URL_EXPLORE = TWITTER_URL_BASE + 'explore'
-const TWITTER_URL_NOTIFICATIONS = TWITTER_URL_BASE + 'notifications'
-const TWITTER_URL_MESSAGES = TWITTER_URL_BASE + 'messages'
-const TWITTER_URL_BOOKMARKS = TWITTER_URL_BASE + 'i/bookmarks'
+const FACEBOOK_URL_HOME = FACEBOOK_URL_BASE + 'home.php'
+const FACEBOOK_URL_FRIENDS = FACEBOOK_URL_BASE + 'friends'
+const FACEBOOK_URL_GROUPS = FACEBOOK_URL_BASE + 'groups'
+const FACEBOOK_URL_MARKETPLACE = FACEBOOK_URL_BASE + 'marketplace'
+const FACEBOOK_URL_WATCH = FACEBOOK_URL_BASE + 'watch'
+const FACEBOOK_URL_EVENTS = FACEBOOK_URL_BASE + 'events'
+const FACEBOOK_URL_MEMORIES = FACEBOOK_URL_BASE + 'memories'
+const FACEBOOK_URL_FRIENDLISTS = FACEBOOK_URL_BASE + 'bookmarks/lists'
+const FACEBOOK_URL_SAVED = FACEBOOK_URL_BASE + 'saved'
+const FACEBOOK_URL_PAGES = FACEBOOK_URL_BASE + 'pages'
+const FACEBOOK_URL_JOBS = FACEBOOK_URL_BASE + 'jobs'
+const FACEBOOK_URL_MESSAGES = FACEBOOK_URL_BASE + 'messages'
+const FACEBOOK_URL_LOGIN = FACEBOOK_URL_BASE + 'login'
 
-const TWITTER_URL_SETTINGS = TWITTER_URL_BASE + 'settings'
-
-const TWITTER_URL_LOGIN = TWITTER_URL_BASE + 'login'
-const TWITTER_URL_LOGOUT = TWITTER_URL_BASE + 'logout'
+const FACEBOOK_URL_BLOODDONATIONS = FACEBOOK_URL_BASE + 'blooddonations'
+const FACEBOOK_URL_CAMPUS = FACEBOOK_URL_BASE + 'campus'
+const FACEBOOK_URL_CLIMATESCIENCEINFORMATIONCENTER = FACEBOOK_URL_BASE + 'climatescienceinfo'
+const FACEBOOK_URL_CORONAVIRUS = FACEBOOK_URL_BASE + 'coronavirus_info'
+const FACEBOOK_URL_CRISISRESPONSE = FACEBOOK_URL_BASE + 'crisisresponse'
+const FACEBOOK_URL_FACEBOOKPAY = FACEBOOK_URL_BASE + 'facebook_pay'
+const FACEBOOK_URL_FUNDRAISERS = FACEBOOK_URL_BASE + 'fundraisers'
+const FACEBOOK_URL_GAMING = FACEBOOK_URL_BASE + 'games'
+const FACEBOOK_URL_LIFTBLACKVOICES = FACEBOOK_URL_BASE + 'hubs/lift_black_voices'
+const FACEBOOK_URL_LIVEVIDEOS = FACEBOOK_URL_BASE + 'watch/live'
+const FACEBOOK_URL_MOVIES = FACEBOOK_URL_BASE + 'movies'
+const FACEBOOK_URL_NEWS = FACEBOOK_URL_BASE + 'news'
+const FACEBOOK_URL_OCULUS = FACEBOOK_URL_BASE + 'Oculusvr'
+const FACEBOOK_URL_OFFERS = FACEBOOK_URL_BASE + 'offers/v2/wallet'
+const FACEBOOK_URL_RECENTADACTIVITY = FACEBOOK_URL_BASE + 'ads/activity'
+const FACEBOOK_URL_TOWNHALL = FACEBOOK_URL_BASE + 'townhall'
+const FACEBOOK_URL_VOTINGINFORMATIONCENTER = FACEBOOK_URL_BASE + 'votinginformationcenter'
+const FACEBOOK_URL_WEATHER = FACEBOOK_URL_BASE + 'weather'
 ```

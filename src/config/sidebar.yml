@@ -32,6 +32,8 @@
 
 - label: 'Auxiliary'
   items:
+    - label: 'Facebook'
+      link: '/sites/facebook'
     - label: 'Instagram'
       link: '/sites/instagram'
     - label: 'LinkedIn'
