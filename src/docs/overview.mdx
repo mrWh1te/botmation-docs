@@ -82,7 +82,7 @@ So how do we create our own BotActions that go beyond the functionality provided
 
 There's three main ways to make your own BotActions, from simple to complex.
 
-> Every BotAction receives a Puppeteer `page` as its first param
+> Every BotAction receives a Puppeteer [Page](https://pptr.dev/#?product=Puppeteer&show=api-class-page) as its first param
 
 The simplest are plain async functions. Here's the code for the [waitForNavigation](/api/navigation/#wait-for-navigation) BotAction:
 
@@ -92,9 +92,9 @@ const waitForNavigation: BotAction = async(page) => {
 }
 ```
 
-This BotAction calls the `page` [waitForNavigation](https://pptr.dev/#?product=Puppeteer&show=api-pagewaitfornavigationoptions) function. Simplicity is great.
+This BotAction calls the Page's [waitForNavigation](https://pptr.dev/#?product=Puppeteer&show=api-pagewaitfornavigationoptions) function. Simplicity is great.
 
-> You can call any Puppeteer page function inside a BotAction. However, you're not limited too just Puppeteer. You can [inject](/topic/injects) other libraries into your bots, which helps with writing tests for your BotActions, as they can easily be mocked.
+> You can call any Puppeteer [Page](https://pptr.dev/#?product=Puppeteer&show=api-class-page) function inside a BotAction. But, you're not limited too just Puppeteer. You can [inject](/topic/injects) other libraries into your bots, which helps with writing tests for your BotActions, as they can easily be mocked. For example, the [Scrapers](/api/scrapers), by default, use the [Cheerio](https://cheerio.js.org/) library.
 
 ## Dynamic BotActions
 
@@ -111,9 +111,9 @@ const goTo = (url: string, goToOptions?: Partial<WaitForOptions>): BotAction =>
   }
 ```
 
-The higher-order synchronous function returns the customized BotAction function during runtime. Here [goTo()](/api/navigation/#go-to) uses a higher-order function to dynamically set the `url` and `goToOptions?` for the BotAction.
+The higher-order synchronous function returns the customized BotAction function during runtime. Here [goTo()](/api/navigation/#go-to) uses a higher-order function to dynamically set the `url` and `goToOptions` for the BotAction.
 
-Higher order function parameters can be whatever you need them to be. They're typed as a spread array of `any`, so add more if you need more. Also, you are not limited to one higher-order sync function. Stack them up, as high as need be! The possibilities are endless.
+Higher order function parameters can be whatever you need them to be. They're typed as a spread array of `any`, so add more if you need more. Also, you're not limited to one higher-order sync function. Stack them up, as high as need be! The possibilities are endless.
 
 > Feeling curious about stacked higher-order functions? Check out the [Loops BotActions](/api/loops) for practical BotActions that wrap themselves with two higher order functions.
 
@@ -122,9 +122,11 @@ Dynamic BotActions can be reused to create static, more readable BotActions:
 const goToGoogle = goTo('https://google.com')
 ```
 
-## Composed BotActions
+## Compose BotActions
 
-However, the best has been saved for last! The technique for assembling bots is the same way for assembling complex BotActions. Remember, they are all BotActions until ran. For example, here is a composed BotAction that logs a bot into a website through a Login form:
+However, the best has been saved for last! The technique for assembling bots is the same technique for assembling complex BotActions. Remember, they are all BotActions, both the parts and the bots.
+
+For example, here is a composed BotAction that logs a bot into a website through a Login form:
 
 ```typescript
 const login = (username: string, password: string): BotAction =>
@@ -140,8 +142,8 @@ const login = (username: string, password: string): BotAction =>
   )
 ```
 
-`login()` is a higher-order sync function that returns an assembled line of BotActions using the [Chain](/api/assembly-lines#chain) BotAction.
+`login()` is a higher-order sync function that returns an assembled line of BotActions by calling the higher-order function of the [Chain](/api/assembly-lines#chain) BotAction.
 
-This BotAction completes a login flow for an example website form. Once started, it runs the assembled BotActions, one at a time, in the line they are declared. First, it navigates to the login page, then enters the `username` and `password` into the login page's form's inputs, submits the form, waits for the Navigation of the page to complete, before finally logging `Login Complete` in the NodeJS console, but you already know that from reading the code!
+This BotAction completes a login flow for an example website form. Once started, it runs the assembled BotActions, in the order they are declared. First, it navigates to the login page, then enters the `username` and `password` into the login page's form's inputs, submits the form, waits for the Navigation of the page to complete, before finally logging `Login Complete` in the NodeJS console, but you already know that from reading the code!
 
-> Assembly Lines are not the only kind of BotAction that assembles other BotActions. For more complex situations, check out [Branching](/api/branching) & [Loop](/api/loops) BotActions for unique ways to assemble BotActions i.e. [if statement](/api/branching#given-that).
+> [Assembly Lines](/api/assembly-lines) are not the only kind of BotAction that assembles other BotActions. For more complex situations, check out [Branching](/api/branching) & [Loop](/api/loops) BotActions for unique ways to assemble BotActions i.e. [if statement](/api/branching#given-that)
