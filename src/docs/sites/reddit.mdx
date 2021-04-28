@@ -4,7 +4,7 @@ title: Reddit
 
 ## Overview
 
-These functions focus on Reddit's web app, at mobile dimensions. Here is a working [example](https://github.com/mrWh1te/Botmation/blob/master/apps/bot-twitter).
+These functions focus on Reddit's web app, at mobile dimensions. Here is a working [example](https://github.com/mrWh1te/Botmation/blob/master/apps/bot-reddit).
 
 
 ## Install
@@ -42,6 +42,14 @@ const goToAll =
 ```typescript
 const goToSubReddit = (subredditURLExtension: string) =>
     goTo(REDDIT_URL_ONEREDDIT_BASE + subredditURLExtension, {waitUntil: 'load'})
+```
+
+Example:
+```typescript
+chain(
+    goToSubReddit('AskReddit'),
+    screenshot('AskReddit-homepage')
+)
 ```
 
 ### goToTopCommunities
@@ -192,18 +200,26 @@ const logout: BotAction = pipe()(
 
 These BotActions focus on Reddit's Feed of Tweets.
 
-### createAPost
+### createATextPost
 
 This BotAction will create a text post for the community specified.
 
 > Use [Template literals](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals) (Template strings) for multi-line tweets
 
 ```typescript
-// wip
-const createAPost = (community: string, title: string, text?: string): BotAction => chain(
+const createATextPost = (community: string, title: string, text?: string): BotAction => chain(
   goToCreateAPost,
-  wait(2000),
-  type(text),
+  click(FORM_CREATEAPOST_CHOOSEACOMMUNITY_INPUT),
+  type(community),
+  click('body'),
+  click(FORM_CREATEAPOST_TITLE_INPUT),
+  type(title),
+  pipe(text)(
+    pipeCase(isString)(
+      click(FORM_CREATEAPOST_TEXT_TEXTAREA),
+      type(text)
+    ),
+  ),
   clickText('Post'),
   waitForNavigation
 )
@@ -217,6 +233,9 @@ Helpful HTML element selectors in the Reddit web app that can be imported direct
 const FORM_AUTH_USERNAME_INPUT_SELECTOR = 'form input[name="username"]'
 const FORM_AUTH_PASSWORD_INPUT_SELECTOR = 'form input[name="password"]'
 const FORM_AUTH_SUBMIT_BUTTON_SELECTOR = 'form button[type="submit"]'
+const FORM_CREATEAPOST_CHOOSEACOMMUNITY_INPUT = 'input[placeholder="Choose a community"]'
+const FORM_CREATEAPOST_TITLE_INPUT = 'textarea[placeholder="Title"]'
+const FORM_CREATEAPOST_TEXT_TEXTAREA = '.DraftEditor-root'
 ```
 
 ## URLs

@@ -38,6 +38,8 @@
       link: '/sites/instagram'
     - label: 'LinkedIn'
       link: '/sites/linkedin'
+    - label: 'Reddit'
+      link: '/sites/reddit'
     - label: 'Twitter'
       link: '/sites/twitter'
 
