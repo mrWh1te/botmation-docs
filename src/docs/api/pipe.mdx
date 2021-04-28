@@ -317,3 +317,13 @@ const isCasesSignal = <V = any>(value: any): value is CasesSignal<V> =>
   typeof value.conditionPass === 'boolean' &&
   isDictionary<V>(value.matches)
 ```
+
+### isString()
+This function was built for use with [pipeCase](#pipe-case) or [pipeCases](#pipe-cases), but can be used however necessary. It's found in the `types/general.ts` file.
+
+```typescript
+const isString = (data: unknown): boolean =>
+  typeof data === 'string'
+```
+
+> [isString()](#isstring) was released in `@botmation/core` v1.4.0
