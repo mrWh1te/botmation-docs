@@ -1,0 +1,272 @@
+---
+title: Reddit
+---
+
+## Overview
+
+These functions focus on Reddit's web app, at mobile dimensions. Here is a working [example](https://github.com/mrWh1te/Botmation/blob/master/apps/bot-reddit).
+
+
+## Install
+
+In addition to installing [@botmation/core](/install), install [@botmation/reddit](https://www.npmjs.com/package/@botmation/reddit):
+```bash
+npm i -s @botmation/reddit
+```
+
+All BotActions, URLs and selectors listed on this page, are exported by the `@botmation/reddit` package.
+
+## Navigation
+
+These BotActions focus on changing the URL of the Puppeteer page to specific locations within Reddit's web app.
+
+### goToHome
+```typescript
+const goToHome =
+    goTo(REDDIT_URL_BASE, {waitUntil: 'load'})
+```
+
+### goToPopular
+```typescript
+const goToPopular =
+    goTo(REDDIT_URL_POPULAR, {waitUntil: 'load'})
+```
+
+### goToAll
+```typescript
+const goToAll =
+    goTo(REDDIT_URL_ALL, {waitUntil: 'load'})
+```
+
+### goToSubReddit
+```typescript
+const goToSubReddit = (subredditURLExtension: string) =>
+    goTo(REDDIT_URL_ONEREDDIT_BASE + subredditURLExtension, {waitUntil: 'load'})
+```
+
+Example:
+```typescript
+chain(
+    goToSubReddit('AskReddit'),
+    screenshot('AskReddit-homepage')
+)
+```
+
+### goToTopCommunities
+```typescript
+const goToTopCommunities =
+    goTo(REDDIT_URL_TOPCOMMUNITIES, {waitUntil: 'load'})
+```
+
+### goToNotifications
+```typescript
+const goToNotifications =
+    goTo(REDDIT_URL_NOTIFICATIONS, {waitUntil: 'load'})
+```
+
+### goToSettings
+```typescript
+const goToSettings =
+    goTo(REDDIT_URL_SETTINGS, {waitUntil: 'load'})
+```
+
+### goToCreateAPost
+```typescript
+const goToCreateAPost =
+    goTo(REDDIT_URL_CREATEAPOST, {waitUntil: 'load'})
+```
+
+### goToCreateCommunity
+```typescript
+const goToCreateCommunity =
+    goTo(REDDIT_URL_CREATECOMMUNITY, {waitUntil: 'load'})
+```
+
+### goToCoins
+```typescript
+const goToCoins =
+    goTo(REDDIT_URL_COINS, {waitUntil: 'load'})
+```
+
+### goToPremium
+```typescript
+const goToPremium =
+    goTo(REDDIT_URL_PREMIUM, {waitUntil: 'load'})
+```
+
+### goToMessagesAll
+```typescript
+const goToMessagesAll =
+    goTo(REDDIT_URL_MESSAGES_ALL, {waitUntil: 'load'})
+```
+
+### goToMessagesUnread
+```typescript
+const goToMessagesUnread =
+    goTo(REDDIT_URL_MESSAGES_UNREAD, {waitUntil: 'load'})
+```
+
+### goToMessagesMessages
+```typescript
+const goToMessagesMessages =
+    goTo(REDDIT_URL_MESSAGES_MESSAGES, {waitUntil: 'load'})
+```
+
+### goToMessagesSent
+```typescript
+const goToMessagesSent =
+    goTo(REDDIT_URL_MESSAGES_SENT, {waitUntil: 'load'})
+```
+
+### goToMessagesCommentReplies
+```typescript
+const goToMessagesCommentReplies =
+    goTo(REDDIT_URL_MESSAGES_COMMENTREPLIES, {waitUntil: 'load'})
+```
+
+### goToMessagesPostReplies
+```typescript
+const goToMessagesPostReplies =
+    goTo(REDDIT_URL_MESSAGES_POSTREPLIES, {waitUntil: 'load'})
+```
+
+### goToMessagesUsernameMentions
+```typescript
+const goToMessagesUsernameMentions =
+    goTo(REDDIT_URL_MESSAGES_USERNAMEMENTIONS, {waitUntil: 'load'})
+```
+
+### goToLogin
+```typescript
+const goToLogin =
+    goTo(REDDIT_URL_LOGIN, {waitUntil: 'load'})
+```
+
+## Auth
+
+These BotActions facilitate authentication in Reddit's web app.
+
+### login()
+```typescript
+const login = (username: string, password: string): BotAction =>
+  chain(
+    errors('Reddit login()')(
+      goToLogin,
+      click(FORM_AUTH_USERNAME_INPUT_SELECTOR),
+      type(username),
+      click(FORM_AUTH_PASSWORD_INPUT_SELECTOR),
+      type(password),
+      click(FORM_AUTH_SUBMIT_BUTTON_SELECTOR),
+      waitForNavigation,
+      log('Login Complete')
+    )
+  )
+```
+This BotAction is a composition that uses [errors()()](/api/errors#errors) to wrap the main assembled BotAction's, in case something throws an error here, it will be caught and logged in console.
+
+There is little explaining necessary for the code above, given its declarative composition. `login()` is a higher-order function that takes a typed object for the `username` and `password`.
+
+### isGuest
+```typescript
+const isGuest: ConditionalBotAction = pipe()(
+  getCookies(),
+  map(cookies => cookies.find(cookie => cookie.name === 'reddit_session') ? false : true)
+)
+```
+This [ConditionalBotAction](/topic/conditionals#conditional-botaction) looks for a cookie called `reddit_session` to determine if the user is logged in or not.
+
+### isLoggedIn
+```typescript
+const isLoggedIn: ConditionalBotAction = pipe()(
+  getCookies(),
+  map(cookies => cookies.find(cookie => cookie.name === 'reddit_session') ? true : false)
+)
+```
+This [ConditionalBotAction](/topic/conditionals#conditional-botaction) looks for a cookie called `reddit_session` to determine if the user is logged in or not.
+
+### logout
+
+This function follows the UX of Reddit's logout.
+
+```typescript
+const logout: BotAction = pipe()(
+  getCookies(),
+  deleteCookies(),
+  reload()
+)
+```
+
+## Feed
+
+These BotActions focus on Reddit's Feed of Tweets.
+
+### createATextPost
+
+This BotAction will create a text post for the community specified.
+
+> Use [Template literals](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals) (Template strings) for multi-line tweets
+
+```typescript
+const createATextPost = (community: string, title: string, text?: string): BotAction => chain(
+  goToCreateAPost,
+  click(FORM_CREATEAPOST_CHOOSEACOMMUNITY_INPUT),
+  type(community),
+  click('body'),
+  click(FORM_CREATEAPOST_TITLE_INPUT),
+  type(title),
+  pipe(text)(
+    pipeCase(isString)(
+      click(FORM_CREATEAPOST_TEXT_TEXTAREA),
+      type(text)
+    ),
+  ),
+  clickText('Post'),
+  waitForNavigation
+)
+```
+
+## Selectors
+
+Helpful HTML element selectors in the Reddit web app that can be imported directly from the Reddit package.
+
+```typescript
+const FORM_AUTH_USERNAME_INPUT_SELECTOR = 'form input[name="username"]'
+const FORM_AUTH_PASSWORD_INPUT_SELECTOR = 'form input[name="password"]'
+const FORM_AUTH_SUBMIT_BUTTON_SELECTOR = 'form button[type="submit"]'
+const FORM_CREATEAPOST_CHOOSEACOMMUNITY_INPUT = 'input[placeholder="Choose a community"]'
+const FORM_CREATEAPOST_TITLE_INPUT = 'textarea[placeholder="Title"]'
+const FORM_CREATEAPOST_TEXT_TEXTAREA = '.DraftEditor-root'
+```
+
+## URLs
+
+URLs for the main pages of the Reddit web app.
+
+```typescript
+const REDDIT_URL_BASE = 'https://www.reddit.com/'
+
+const REDDIT_URL_ONEREDDIT_BASE = REDDIT_URL_BASE + 'r/'
+const REDDIT_URL_SUBREDDIT_BASE = REDDIT_URL_BASE + 'subreddits/'
+
+const REDDIT_URL_POPULAR = REDDIT_URL_ONEREDDIT_BASE + 'popular'
+const REDDIT_URL_ALL = REDDIT_URL_ONEREDDIT_BASE + 'all'
+const REDDIT_URL_TOPCOMMUNITIES = REDDIT_URL_SUBREDDIT_BASE + 'leaderboard/'
+const REDDIT_URL_NOTIFICATIONS = REDDIT_URL_BASE + 'notifications'
+const REDDIT_URL_SETTINGS = REDDIT_URL_BASE + 'settings'
+const REDDIT_URL_CREATEAPOST = REDDIT_URL_BASE + 'submit'
+const REDDIT_URL_CREATECOMMUNITY = REDDIT_URL_SUBREDDIT_BASE + 'create'
+const REDDIT_URL_COINS = REDDIT_URL_BASE + 'coins'
+const REDDIT_URL_PREMIUM = REDDIT_URL_BASE + 'premium'
+
+const REDDIT_URL_MESSAGES_BASE = REDDIT_URL_BASE + 'message/'
+
+const REDDIT_URL_MESSAGES_ALL = REDDIT_URL_MESSAGES_BASE + 'inbox'
+const REDDIT_URL_MESSAGES_UNREAD = REDDIT_URL_MESSAGES_BASE + 'unread'
+const REDDIT_URL_MESSAGES_MESSAGES = REDDIT_URL_MESSAGES_BASE + 'messages'
+const REDDIT_URL_MESSAGES_SENT = REDDIT_URL_MESSAGES_BASE + 'sent'
+const REDDIT_URL_MESSAGES_COMMENTREPLIES = REDDIT_URL_MESSAGES_BASE + 'comments'
+const REDDIT_URL_MESSAGES_POSTREPLIES = REDDIT_URL_MESSAGES_BASE + 'selfreply'
+const REDDIT_URL_MESSAGES_USERNAMEMENTIONS = REDDIT_URL_MESSAGES_BASE + 'mentions'
+
+const REDDIT_URL_LOGIN = REDDIT_URL_BASE + 'login/'
+```
